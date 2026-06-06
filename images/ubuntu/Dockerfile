@@ -75,6 +75,13 @@ RUN apt-get update \
   && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/*
 
 # =============================================================================
+# Layer 3: Node.js (required for GitHub/Forgejo Actions to execute)
+# =============================================================================
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
+# =============================================================================
 # User setup (final stage only)
 # Remove default ubuntu user (UID 1000), create runner as UID 1000
 # =============================================================================
