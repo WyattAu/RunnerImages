@@ -36,9 +36,9 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE="${{ github.base_ref }}"
-            CHANGED=$(git diff --name-only "origin/${BASE}...HEAD" -- 'images/*' | grep -oP 'images/\K[^/]+' | sort -u)
+            CHANGED=$(git diff --name-only "origin/${BASE}...HEAD" -- 'images/*' | grep -oP 'images/\K[^/]+' | grep -v '^shared$' | sort -u)
           else
-            CHANGED=$(ls images/)
+            CHANGED=$(ls images/ | grep -v '^shared$')
           fi
           echo "flavours=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
 
@@ -128,6 +128,8 @@ jobs:
       - name: Validate VERSION files
         run: |
           for f in images/*/VERSION; do
+            name=$(basename "$(dirname "$f")")
+            [ "$name" = "shared" ] && continue
             v=$(tr -d '[:space:]' < "$f")
             if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
               echo "FAIL: $f does not contain valid semver: '$v'"

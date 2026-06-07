@@ -225,7 +225,7 @@ echo "Compatibility:"
 check "git clone works" "$(run "git clone --depth=1 https://github.com/git-fixtures/basic.git /tmp/git-test >/dev/null 2>&1 && rm -rf /tmp/git-test" >/dev/null 2>&1 && echo PASS || echo 'git clone failed')"
 
 if [ "$HAS_PYTHON" = true ]; then
-  check "pip install works" "$(run "pip3 install --user requests >/dev/null 2>&1 && python3 -c 'import requests' && rm -rf /home/runner/.local/lib" >/dev/null 2>&1 && echo PASS || echo 'pip install failed')"
+  check "pip install works" "$(run "pip3 install --user requests >/dev/null 2>&1 && python3 -c 'import requests' && pip3 uninstall -y requests >/dev/null 2>&1" >/dev/null 2>&1 && echo PASS || echo 'pip install failed')"
   check "venv create works" "$(run "python3 -m venv /tmp/testvenv && /tmp/testvenv/bin/pip install requests >/dev/null 2>&1 && /tmp/testvenv/bin/python3 -c 'import requests' && rm -rf /tmp/testvenv" >/dev/null 2>&1 && echo PASS || echo 'venv failed')"
 fi
 

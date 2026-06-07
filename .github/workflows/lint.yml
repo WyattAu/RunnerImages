@@ -24,6 +24,8 @@ jobs:
       - name: Validate VERSION files
         run: |
           for f in images/*/VERSION; do
+            name=$(basename "$(dirname "$f")")
+            [ "$name" = "shared" ] && continue
             v=$(tr -d '[:space:]' < "$f")
             if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
               echo "FAIL: $f invalid semver: '$v'"
@@ -35,6 +37,8 @@ jobs:
       - name: Check base image digest pinning
         run: |
           for f in images/*/Dockerfile; do
+            name=$(basename "$(dirname "$f")")
+            [ "$name" = "shared" ] && continue
             if ! grep -qP 'FROM ubuntu:24.04@sha256:' "$f"; then
               echo "FAIL: $f must pin base image by SHA256 digest"
               exit 1
@@ -45,6 +49,8 @@ jobs:
       - name: Check for secrets in Dockerfiles
         run: |
           for f in images/*/Dockerfile; do
+            name=$(basename "$(dirname "$f")")
+            [ "$name" = "shared" ] && continue
             if grep -qiE '(password|secret|token|api_key|private_key)\s*=' "$f"; then
               echo "FAIL: Potential secret found in $f"
               grep -niE '(password|secret|token|api_key|private_key)\s*=' "$f"
@@ -57,6 +63,8 @@ jobs:
         run: |
           BANNED="docker-ce[^-]|containerd|runc|systemd|dbus|cron|openssh-server|supervisord|pm2"
           for f in images/*/Dockerfile; do
+            name=$(basename "$(dirname "$f")")
+            [ "$name" = "shared" ] && continue
             if grep -qiP "(apt-get install.*($BANNED))" "$f"; then
               echo "FAIL: Banned package found in $f"
               exit 1
