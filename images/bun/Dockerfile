@@ -68,7 +68,8 @@ RUN apt-get update \
  && curl -fsSL "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-${BUN_ARCH}.zip" -o /tmp/bun.zip \
  && echo "${BUN_SHA256}  /tmp/bun.zip" | sha256sum -c - \
  && unzip /tmp/bun.zip -d /usr/local \
- && rm -f /tmp/bun.zip \
+ && mv /usr/local/bun-linux-${BUN_ARCH}/bun /usr/local/bin/bun \
+ && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
  && bun --version \
  && npm install -g pnpm \
  && pnpm --version \
