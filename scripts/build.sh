@@ -78,6 +78,7 @@ IMAGE="$REPO/$FLAVOUR:$VERSION-$ARCH"
 
 docker build \
   --no-cache \
+  --load \
   --platform "$PLATFORM" \
   --progress=plain \
   --build-arg IMAGE_VERSION="$VERSION" \
