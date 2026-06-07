@@ -107,7 +107,7 @@ echo "VCS:"
 check "git available" "$(run "git --version" | grep -q '2\.' && echo PASS || echo 'not found')"
 check "git-lfs available" "$(run "git lfs version" | grep -q 'git-lfs' && echo PASS || echo 'not found')"
 check "ssh available" "$(run "ssh -V" 2>&1 | grep -q 'OpenSSH' && echo PASS || echo 'not found')"
-check "ssh-keygen available" "$(run "ssh-keygen -V 2>&1" | grep -qi 'ssh-keygen' && echo PASS || echo 'not found')"
+check "ssh-keygen available" "$(run "which ssh-keygen" | grep -q 'ssh-keygen' && echo PASS || echo 'not found')"
 
 # --- Build checks ---
 echo "Build:"
