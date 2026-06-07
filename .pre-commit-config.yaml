@@ -1,0 +1,42 @@
+# Pre-commit hooks for RunnerImages
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: no-commit-to-branch
+        args: ["--branch", "main"]
+
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
+        args: ["--severity=warning"]
+
+      - id: hadolint
+        name: hadolint (Dockerfile lint)
+        entry: hadolint
+        language: system
+        types: [file]
+        files: Dockerfile
+
+      - id: check-dockerfile-digest
+        name: check base image digest pinning
+        entry: scripts/hooks/check-digest.sh
+        language: system
+        types: [file]
+        files: Dockerfile
+
+      - id: check-version-file
+        name: check VERSION file format
+        entry: scripts/hooks/check-version.sh
+        language: system
+        types: [file]
+        files: VERSION$
