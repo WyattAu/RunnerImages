@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - ubuntu flavour
-# Layer count: 3 (base + bu-base + ubuntu)
-# BU + Docker CLI + build tools + network utilities
+# Forgejo Actions runner image - base-universal flavour
+# Layer count: 3 (base + bu-base + user setup)
+# BU packages only, no flavour-specific additions
 # Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
@@ -42,51 +42,32 @@ RUN apt-get update \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# Layer 2: Ubuntu-specific additions + user setup (single RUN)
+# Layer 2: User setup (no flavour-specific packages)
 # ---------------------------------------------------------------------------
-FROM bu-base AS ubuntu
+FROM bu-base AS base-universal
 
 ARG IMAGE_VERSION=dev
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends gnupg=2.4.4-2ubuntu17.4 \
- && install -m 0755 -d /etc/apt/keyrings \
- && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
- && chmod a+r /etc/apt/keyrings/docker.gpg \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
-      docker-ce-cli=5:29.5.3-1~ubuntu.24.04~noble \
-      g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
-      iputils-ping=3:20240117-1ubuntu0.1 \
-      net-tools=2.10-0.1ubuntu4.4 \
- && apt-get purge -y gnupg \
- && apt-get autoremove -y \
- && userdel -r ubuntu \
+RUN userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
- && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
  && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
  && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
- && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true \
- && chmod 4755 /usr/bin/sudo
+ && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/ubuntu"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Docker CLI and build tools"
+LABEL org.opencontainers.image.title="runner-images/base-universal"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: base BU layer with git, curl, jq, make, gcc"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="ubuntu"
+LABEL runner.flavour="base-universal"
 LABEL runner.base="ubuntu:24.04"
 LABEL runner.base.digest="sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54"
 

@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - ubuntu flavour
-# Layer count: 3 (base + bu-base + ubuntu)
-# BU + Docker CLI + build tools + network utilities
+# Forgejo Actions runner image - python flavour
+# Layer count: 3 (base + bu-base + python)
+# BU + Python 3.12 + pip + venv + g++ + dev headers
 # Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
@@ -42,29 +42,22 @@ RUN apt-get update \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# Layer 2: Ubuntu-specific additions + user setup (single RUN)
+# Layer 2: Python-specific additions + user setup (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS ubuntu
+FROM bu-base AS python
 
 ARG IMAGE_VERSION=dev
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends gnupg=2.4.4-2ubuntu17.4 \
- && install -m 0755 -d /etc/apt/keyrings \
- && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
- && chmod a+r /etc/apt/keyrings/docker.gpg \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list \
- && apt-get update \
  && apt-get install -y --no-install-recommends \
-      docker-ce-cli=5:29.5.3-1~ubuntu.24.04~noble \
       g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
+      python3=3.12.3-0ubuntu2.1 \
+      python3-pip=24.0+dfsg-1ubuntu1.3 \
+      python3-venv=3.12.3-0ubuntu2.1 \
+      python3-dev=3.12.3-0ubuntu2.1 \
+      libffi-dev=3.4.6-1build1 \
       libssl-dev=3.0.13-0ubuntu3.9 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
-      iputils-ping=3:20240117-1ubuntu0.1 \
-      net-tools=2.10-0.1ubuntu4.4 \
- && apt-get purge -y gnupg \
- && apt-get autoremove -y \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
@@ -80,13 +73,13 @@ RUN apt-get update \
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/ubuntu"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Docker CLI and build tools"
+LABEL org.opencontainers.image.title="runner-images/python"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Python 3.12 with pip, venv, and native extension support"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="ubuntu"
+LABEL runner.flavour="python"
 LABEL runner.base="ubuntu:24.04"
 LABEL runner.base.digest="sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54"
 

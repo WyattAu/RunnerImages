@@ -107,7 +107,10 @@ echo "Uncompressed: ${UNCOMPRESSED_MB}MB"
 
 case "$FLAVOUR" in
   heavy|flutter) COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
-  ubuntu)        COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
+  ubuntu)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  node)          COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  python)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=450 ;;
   *)             COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
 
