@@ -1,7 +1,8 @@
 # Forgejo Actions runner image - java flavour
-# Layer count: 3 (base + bu-base + java)
-# BU + OpenJDK 21 + Maven
-# Package versions pinned per spec
+# Layer count: 3 (base + bu-no-strip-base + java)
+# BU-no-strip + OpenJDK 21 + Maven
+# Uses BU-no-strip variant: strip --strip-unneeded corrupts dpkg-managed
+# OpenJDK binaries (renames to .dpkg-tmp). Package versions pinned per spec.
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image pinned by digest
@@ -9,7 +10,7 @@
 FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base
 
 # ---------------------------------------------------------------------------
-# Layer 1: BU base packages (shared across all flavours)
+# Layer 1: BU-no-strip base packages (shared across strip-sensitive flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
 RUN apt-get update \
@@ -33,11 +34,9 @@ RUN apt-get update \
       diffutils=1:3.10-1build1 \
       patch=2.7.6-7build3 \
       file=1:5.45-3build1 \
-      tree=2.1.1-2ubuntu3.24.04.2 \
+      tree=2.1.1-2ubuntu3.24.0.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
- && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
- && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
@@ -47,6 +46,7 @@ RUN apt-get update \
 FROM bu-base AS java
 
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -61,8 +61,6 @@ RUN apt-get update \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
- && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
- && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true \
  && chmod 4755 /usr/bin/sudo
@@ -89,7 +87,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH:-amd64}
 ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
