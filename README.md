@@ -92,14 +92,14 @@ Docker stores shared layers once. Pulling `ubuntu` then `node` only downloads th
 | Thin | Size budgets enforced at build time, no man pages/docs/static libs |
 | Secure | No SUID except sudo, no world-writable files, Trivy scans in CI |
 | Compatible | amd64, UID/GID 1000, Docker CLI, standard entrypoint |
-| Auditable | OCI labels, versions.lock, SBOM generation planned |
+| Auditable | OCI labels, versions.lock, SBOM (SPDX), cosign signing |
 | Maintainable | Renovate for automated updates, shellcheck + hadolint in CI |
 
 ## CI/CD
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| Build | push to main (images/scripts) | Build, verify, push all changed flavours |
+| Build | push to main (images/scripts/workflows) | Build, verify, push, SBOM, cosign sign |
 | Lint | push to main | shellcheck, hadolint, VERSION validation |
 | Nightly | daily at 03:00 UTC | Rebuild, Trivy scan, size regression |
 | Pages | push to main (docs/) | Deploy landing page |

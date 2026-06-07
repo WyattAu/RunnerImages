@@ -118,6 +118,7 @@ check "LANG=C.UTF-8" "$(run "echo \$LANG" | grep -q 'C.UTF-8' && echo PASS || ec
 check "LANGUAGE=C:en" "$(run "echo \$LANGUAGE" | grep -q 'C:en' && echo PASS || echo 'wrong LANGUAGE')"
 check "LC_ALL=C.UTF-8" "$(run "echo \$LC_ALL" | grep -q 'C.UTF-8' && echo PASS || echo 'wrong LC_ALL')"
 check "DEBIAN_FRONTEND=noninteractive" "$(run "echo \$DEBIAN_FRONTEND" | grep -q 'noninteractive' && echo PASS || echo 'wrong DEBIAN_FRONTEND')"
+check "SOURCE_DATE_EPOCH=0" "$(run "echo \$SOURCE_DATE_EPOCH" | grep -q '^0$' && echo PASS || echo 'wrong SOURCE_DATE_EPOCH')"
 check "PATH includes .local/bin" "$(run "echo \$PATH" | grep -q '/home/runner/.local/bin' && echo PASS || echo 'missing .local/bin in PATH')"
 
 # --- Shell checks ---

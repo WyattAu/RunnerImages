@@ -19,7 +19,7 @@ build-push: ## Build and push to registry
 
 .PHONY: build-all
 build-all: ## Build all available flavours
-	@for flavour in $$(ls images/); do \
+	@for flavour in $$(ls images/ | grep -v '^shared$$'); do \
 		echo "=== Building $$flavour ==="; \
 		./scripts/build.sh $$flavour || exit 1; \
 	done
@@ -31,7 +31,7 @@ verify: ## Verify the image for FLAVOUR
 
 .PHONY: verify-all
 verify-all: ## Verify all built images
-	@for flavour in $$(ls images/); do \
+	@for flavour in $$(ls images/ | grep -v '^shared$$'); do \
 		echo "=== Verifying $$flavour ==="; \
 		./scripts/verify.sh $$flavour || exit 1; \
 	done
@@ -41,6 +41,10 @@ verify-all: ## Verify all built images
 lint: ## Run all linters (shellcheck, pre-commit)
 	shellcheck scripts/*.sh
 	pre-commit run --all-files
+
+.PHONY: check-bu
+check-bu: ## Check BU layer consistency across flavours
+	./scripts/check-bu-consistency.sh
 
 # --- Clean ---
 .PHONY: clean
