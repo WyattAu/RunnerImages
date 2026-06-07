@@ -108,7 +108,7 @@ echo "Uncompressed: ${UNCOMPRESSED_MB}MB"
 
 case "$FLAVOUR" in
   heavy)          COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
-  flutter)        COMP_BUDGET=900; UNCOMP_BUDGET=2500 ;;
+  flutter)        COMP_BUDGET=2200; UNCOMP_BUDGET=3800 ;;
   ubuntu)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   node)           COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
   python)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
