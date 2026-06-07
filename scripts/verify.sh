@@ -107,7 +107,7 @@ echo "VCS:"
 check "git available" "$(run "git --version" | grep -q '2\.' && echo PASS || echo 'not found')"
 check "git-lfs available" "$(run "git lfs version" | grep -q 'git-lfs' && echo PASS || echo 'not found')"
 check "ssh available" "$(run "ssh -V" 2>&1 | grep -q 'OpenSSH' && echo PASS || echo 'not found')"
-check "ssh-keygen available" "$(run "ssh-keygen -h" 2>&1 | grep -qi 'usage' && echo PASS || echo 'not found')"
+check "ssh-keygen available" "$(run "ssh-keygen -V 2>&1" | grep -qi 'ssh-keygen' && echo PASS || echo 'not found')"
 
 # --- Build checks ---
 echo "Build:"
@@ -184,10 +184,12 @@ check "OCI source label" "$( [ -n "$LABEL_SOURCE" ] && echo PASS || echo 'missin
 
 # --- Security checks (S5.2) ---
 echo "Security:"
-SUID_COUNT=$(docker run --rm "$IMAGE" find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || echo "0")
-check "No unexpected SUID binaries" "$( [ "$SUID_COUNT" -eq 0 ] && echo PASS || echo "$SUID_COUNT unexpected SUID binaries found")"
+SUID_COUNT=$(docker run --rm "$IMAGE" find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || true)
+SUID_COUNT=$(echo "$SUID_COUNT" | tr -d '[:space:]')
+check "No unexpected SUID binaries" "$( [ "${SUID_COUNT:-0}" -eq 0 ] && echo PASS || echo "${SUID_COUNT} unexpected SUID binaries found")"
 WW_COUNT=$(docker run --rm "$IMAGE" find / -perm -002 -type f 2>/dev/null | wc -l)
-check "No world-writable files" "$( [ "$WW_COUNT" -eq 0 ] && echo PASS || echo "$WW_COUNT world-writable files found")"
+WW_COUNT=$(echo "$WW_COUNT" | tr -d '[:space:]')
+check "No world-writable files" "$( [ "${WW_COUNT:-0}" -eq 0 ] && echo PASS || echo "${WW_COUNT} world-writable files found")"
 
 # --- Layer count ---
 echo "Layers:"
