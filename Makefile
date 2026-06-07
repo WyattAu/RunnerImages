@@ -3,37 +3,38 @@
 
 SHELL := /bin/bash
 FLAVOUR ?= ubuntu
+PLATFORM ?= linux/amd64
 
 # --- Build ---
 .PHONY: build
 build: ## Build the image for FLAVOUR (default: ubuntu)
-	./scripts/build.sh $(FLAVOUR)
+	PLATFORM=$(PLATFORM) ./scripts/build.sh $(FLAVOUR)
 
 .PHONY: build-scan
 build-scan: ## Build and run security scan
-	./scripts/build.sh $(FLAVOUR) --scan
+	PLATFORM=$(PLATFORM) ./scripts/build.sh $(FLAVOUR) --scan
 
 .PHONY: build-push
 build-push: ## Build and push to registry
-	./scripts/build.sh $(FLAVOUR) --push
+	PLATFORM=$(PLATFORM) ./scripts/build.sh $(FLAVOUR) --push
 
 .PHONY: build-all
 build-all: ## Build all available flavours
 	@for flavour in $$(ls images/ | grep -v '^shared$$'); do \
-		echo "=== Building $$flavour ==="; \
-		./scripts/build.sh $$flavour || exit 1; \
+		echo "=== Building $$flavour ($(PLATFORM)) ==="; \
+		PLATFORM=$(PLATFORM) ./scripts/build.sh $$flavour || exit 1; \
 	done
 
 # --- Verify ---
 .PHONY: verify
 verify: ## Verify the image for FLAVOUR
-	./scripts/verify.sh $(FLAVOUR)
+	PLATFORM=$(PLATFORM) ./scripts/verify.sh $(FLAVOUR)
 
 .PHONY: verify-all
 verify-all: ## Verify all built images
 	@for flavour in $$(ls images/ | grep -v '^shared$$'); do \
-		echo "=== Verifying $$flavour ==="; \
-		./scripts/verify.sh $$flavour || exit 1; \
+		echo "=== Verifying $$flavour ($(PLATFORM)) ==="; \
+		PLATFORM=$(PLATFORM) ./scripts/verify.sh $$flavour || exit 1; \
 	done
 
 # --- Lint ---

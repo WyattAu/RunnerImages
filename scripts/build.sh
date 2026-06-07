@@ -77,18 +77,20 @@ LATEST="$REPO/$FLAVOUR:latest"
 MAJOR_TAG="$REPO/$FLAVOUR:$MAJOR"
 MINOR_TAG="$REPO/$FLAVOUR:$MINOR"
 
-echo "=== Building $FLAVOUR:$VERSION ==="
+PLATFORM="${PLATFORM:-linux/amd64}"
+ARCH="${PLATFORM#linux/}"
+
+echo "=== Building $FLAVOUR:$VERSION ($PLATFORM) ==="
+
+IMAGE="$REPO/$FLAVOUR:$VERSION-$ARCH"
 
 docker build \
   --no-cache \
-  --platform linux/amd64 \
+  --platform "$PLATFORM" \
   --progress=plain \
   --build-arg IMAGE_VERSION="$VERSION" \
   --build-arg SOURCE_DATE_EPOCH=0 \
   -t "$IMAGE" \
-  -t "$LATEST" \
-  -t "$MAJOR_TAG" \
-  -t "$MINOR_TAG" \
   "$FLAVOUR_DIR/"
 
 DIGEST=$(docker inspect --format '{{.Id}}' "$IMAGE")
@@ -147,19 +149,12 @@ if [ "$SCAN" = true ]; then
   trivy image --severity HIGH,CRITICAL "$IMAGE"
 fi
 
-# Push
+# Push (per-arch tag only; manifest job creates multi-arch tags)
 if [ "$PUSH" = true ]; then
   echo ""
-  echo "=== Pushing to $REPO ==="
-
-  for TAG in "$IMAGE" "$LATEST" "$MAJOR_TAG" "$MINOR_TAG"; do
-    if docker manifest inspect "$TAG" >/dev/null 2>&1; then
-      echo "WARNING: $TAG already exists in remote, skipping"
-    else
-      docker push "$TAG"
-      echo "Pushed: $TAG"
-    fi
-  done
+  echo "=== Pushing $IMAGE to $REPO ==="
+  docker push "$IMAGE"
+  echo "Pushed: $IMAGE"
 fi
 
 # Sign

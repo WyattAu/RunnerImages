@@ -8,11 +8,17 @@
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base
 
+ARG SNAPSHOT_DATE=""
+
 # ---------------------------------------------------------------------------
 # Layer 1: BU base packages (shared across all flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
-RUN apt-get update \
+RUN if [ -n "$SNAPSHOT_DATE" ]; then \
+      sed -i "s|http://archive.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list \
+      && sed -i "s|http://security.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list; \
+    fi \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       git=1:2.43.0-1ubuntu7.3 \
       git-lfs=3.4.1-1ubuntu0.4 \
@@ -48,6 +54,7 @@ FROM bu-base AS heavy
 
 ARG NODE_VERSION=22.22.3
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends gnupg=2.4.4-2ubuntu17.4 \
@@ -71,8 +78,14 @@ RUN apt-get update \
       net-tools=2.10-0.1ubuntu4.4 \
  && apt-get purge -y gnupg \
  && apt-get autoremove -y \
- && NODE_SHA256=2e5d13569282d016861fae7c8f935e741693c269101a5bebcf761a5376d1f99f \
- && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      NODE_ARCH=arm64; \
+      NODE_SHA256=1c4a9933a5e45bc88f54f70b5f91232c127ec49f1a5989d23fb85824c7adf9b7; \
+    else \
+      NODE_ARCH=x64; \
+      NODE_SHA256=2e5d13569282d016861fae7c8f935e741693c269101a5bebcf761a5376d1f99f; \
+    fi \
+ && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" -o /tmp/node.tar.xz \
  && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
  && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
  && rm -f /tmp/node.tar.xz \

@@ -35,15 +35,18 @@ if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; the
   exit 1
 fi
 
-IMAGE="$REPO/$FLAVOUR:$VERSION"
+PLATFORM="${PLATFORM:-linux/amd64}"
+ARCH="${PLATFORM#linux/}"
+
+IMAGE="$REPO/$FLAVOUR:$VERSION-$ARCH"
 
 # Check image exists
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-  echo "ERROR: Image $IMAGE not found. Build it first: ./scripts/build.sh $FLAVOUR"
+  echo "ERROR: Image $IMAGE not found. Build it first: PLATFORM=$PLATFORM ./scripts/build.sh $FLAVOUR"
   exit 1
 fi
 
-echo "=== Verifying $FLAVOUR:$VERSION ==="
+echo "=== Verifying $FLAVOUR:$VERSION ($PLATFORM) ==="
 echo ""
 
 PASS=0
@@ -68,7 +71,7 @@ trap print_summary EXIT
 
 # run: execute command inside the container via bash -c
 run() {
-  docker run --rm "$IMAGE" -c "$1"
+  docker run --rm --platform "$PLATFORM" "$IMAGE" -c "$1"
 }
 
 check() {
@@ -226,8 +229,8 @@ if [ "$HAS_SUDO" = true ]; then
   check "can install packages" "$(run "sudo apt-get update >/dev/null 2>&1 && sudo apt-get install -y --no-install-recommends htop >/dev/null 2>&1 && sudo rm -rf /var/lib/apt/lists/*" >/dev/null 2>&1 && echo PASS || echo 'failed')"
 else
   # base-universal has no sudo; run runtime checks as root
-  check "apt-get update works" "$(docker run --user root --rm "$IMAGE" -c "apt-get update >/dev/null 2>&1" >/dev/null 2>&1 && echo PASS || echo 'failed')"
-  check "can install packages" "$(docker run --user root --rm "$IMAGE" -c "apt-get update >/dev/null 2>&1 && apt-get install -y --no-install-recommends htop >/dev/null 2>&1 && rm -rf /var/lib/apt/lists/*" >/dev/null 2>&1 && echo PASS || echo 'failed')"
+  check "apt-get update works" "$(docker run --user root --platform "$PLATFORM" --rm "$IMAGE" -c "apt-get update >/dev/null 2>&1" >/dev/null 2>&1 && echo PASS || echo 'failed')"
+  check "can install packages" "$(docker run --user root --platform "$PLATFORM" --rm "$IMAGE" -c "apt-get update >/dev/null 2>&1 && apt-get install -y --no-install-recommends htop >/dev/null 2>&1 && rm -rf /var/lib/apt/lists/*" >/dev/null 2>&1 && echo PASS || echo 'failed')"
 fi
 
 # --- Compatibility tests (functional smoke tests) ---
@@ -316,13 +319,13 @@ check "OCI source label" "$( [ -n "$LABEL_SOURCE" ] && echo PASS || echo 'missin
 # --- Security checks (S5.2) ---
 echo "Security:"
 if [ "$HAS_SUDO" = true ]; then
-  SUID_COUNT=$(docker run --rm "$IMAGE" find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || true)
+  SUID_COUNT=$(docker run --rm --platform "$PLATFORM" "$IMAGE" find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || true)
 else
-  SUID_COUNT=$(docker run --rm "$IMAGE" find / -perm /4000 -type f 2>/dev/null | wc -l || true)
+  SUID_COUNT=$(docker run --rm --platform "$PLATFORM" "$IMAGE" find / -perm /4000 -type f 2>/dev/null | wc -l || true)
 fi
 SUID_COUNT=$(echo "$SUID_COUNT" | tr -d '[:space:]')
 check "No unexpected SUID binaries" "$( [ "${SUID_COUNT:-0}" -eq 0 ] && echo PASS || echo "${SUID_COUNT} unexpected SUID binaries found")"
-WW_COUNT=$(docker run --user root --rm "$IMAGE" find / -perm -002 -type f 2>/dev/null | wc -l || true)
+WW_COUNT=$(docker run --user root --platform "$PLATFORM" --rm "$IMAGE" find / -perm -002 -type f 2>/dev/null | wc -l || true)
 WW_COUNT=$(echo "$WW_COUNT" | tr -d '[:space:]')
 check "No world-writable files" "$( [ "${WW_COUNT:-0}" -eq 0 ] && echo PASS || echo "${WW_COUNT} world-writable files found")"
 

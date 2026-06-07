@@ -8,11 +8,17 @@
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base
 
+ARG SNAPSHOT_DATE=""
+
 # ---------------------------------------------------------------------------
 # Layer 1: BU base packages (shared across all flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
-RUN apt-get update \
+RUN if [ -n "$SNAPSHOT_DATE" ]; then \
+      sed -i "s|http://archive.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list \
+      && sed -i "s|http://security.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list; \
+    fi \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       git=1:2.43.0-1ubuntu7.3 \
       git-lfs=3.4.1-1ubuntu0.4 \
@@ -48,9 +54,16 @@ FROM bu-base AS go
 
 ARG GO_VERSION=1.26.4
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
-RUN GO_SHA256=1153d3d50e0ac764b447adfe05c2bcf08e889d42a02e0fe0259bd47f6733ad7f \
- && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz \
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      GO_ARCH=arm64; \
+      GO_SHA256=ef758ae7c6cf9267c9c0ef080b8965f453d89ab2d25d9eb22de4405925238768; \
+    else \
+      GO_ARCH=amd64; \
+      GO_SHA256=1153d3d50e0ac764b447adfe05c2bcf08e889d42a02e0fe0259bd47f6733ad7f; \
+    fi \
+ && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" -o /tmp/go.tar.gz \
  && echo "${GO_SHA256}  /tmp/go.tar.gz" | sha256sum -c - \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \

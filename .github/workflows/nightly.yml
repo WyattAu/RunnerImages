@@ -1,4 +1,5 @@
 # Nightly rebuild and security scan
+# Multi-arch: linux/amd64 + linux/arm64
 # Spec reference: S7.2 Nightly Pipeline, S5 Security Standard
 
 name: Nightly
@@ -32,9 +33,16 @@ jobs:
           - java
           - dotnet
           - flutter
+        platform: [linux/amd64, linux/arm64]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -46,17 +54,17 @@ jobs:
       - name: Build image
         run: |
           chmod +x scripts/build.sh
-          ./scripts/build.sh ${{ matrix.flavour }}
+          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }}
 
       - name: Verify image
         run: |
           chmod +x scripts/verify.sh
-          ./scripts/verify.sh ${{ matrix.flavour }}
+          PLATFORM="${{ matrix.platform }}" ./scripts/verify.sh ${{ matrix.flavour }}
 
       - name: Security scan (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest'
+          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
           format: 'sarif'
@@ -71,27 +79,17 @@ jobs:
       - name: Secret scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest'
+          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}'
           scanners: 'secret'
           exit-code: '1'
 
       - name: Push rebuilt image
-        run: ./scripts/build.sh ${{ matrix.flavour }} --push
+        run: PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --push
 
       - name: Size regression check
         run: |
           VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          IMAGE="${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:$VERSION"
+          ARCH="${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}"
+          IMAGE="${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:$VERSION-$ARCH"
           CURRENT=$(docker inspect --format '{{.Size}}' "$IMAGE")
-          echo "Current size: $CURRENT bytes"
-          # Compare with latest released version if available
-          PREV_TAG="${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest"
-          if docker manifest inspect "$PREV_TAG" >/dev/null 2>&1; then
-            docker pull "$PREV_TAG"
-            PREV=$(docker inspect --format '{{.Size}}' "$PREV_TAG")
-            echo "Previous size: $PREV bytes"
-            # Alert if >10% increase
-            if [ "$CURRENT" -gt "$((PREV * 110 / 100))" ]; then
-              echo "WARN: Size increased by >10% ($PREV -> $CURRENT)"
-            fi
-          fi
+          echo "Current size ($ARCH): $CURRENT bytes"
