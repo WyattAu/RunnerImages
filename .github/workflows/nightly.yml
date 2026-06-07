@@ -27,6 +27,11 @@ jobs:
           - node
           - python
           - heavy
+          - rust
+          - go
+          - java
+          - dotnet
+          - flutter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

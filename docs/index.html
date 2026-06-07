@@ -834,11 +834,43 @@ jobs:
           </article>
 
           <article class="flavour-card" role="listitem">
-            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
-            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Rust</h3>
+            <p class="flavour-card__desc">Rust 1.96 with cargo and rustup. Full native compilation support.</p>
+            <p class="flavour-card__packages">rustc 1.96 / cargo / rustup / g++ / libssl-dev</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Go</h3>
+            <p class="flavour-card__desc">Go 1.26 with standard toolchain. Statically linked, no dependencies.</p>
+            <p class="flavour-card__packages">go 1.26 / g++</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Java</h3>
+            <p class="flavour-card__desc">OpenJDK 21 with Maven. Java and Kotlin workflows.</p>
+            <p class="flavour-card__packages">openjdk 21 / maven / g++</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">.NET</h3>
+            <p class="flavour-card__desc">.NET 8.0 SDK for C# and F# workflows.</p>
+            <p class="flavour-card__packages">dotnet-sdk 8.0 / g++ / pkg-config</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
             <h3 class="flavour-card__name">Flutter</h3>
-            <p class="flavour-card__desc">Mobile and frontend workflows. Flutter SDK with Dart and Android SDK.</p>
-            <p class="flavour-card__packages">flutter / dart / android-sdk / cmdline-tools / cmake / ninja-build</p>
+            <p class="flavour-card__desc">Flutter 3.44 with Dart and build tools. Web and desktop builds.</p>
+            <p class="flavour-card__packages">flutter 3.44 / dart / cmake / ninja-build / clang</p>
           </article>
         </div>
       </div>
@@ -975,6 +1007,11 @@ jobs:
 #   python           + python3, pip, venv         (204MB)
 #   node             + node 22, npm, yarn, pnpm   (259MB)
 #   heavy            + node + python + docker     (282MB)
+#   rust             + rustc, cargo, rustup       (TBD)
+#   go               + go 1.26                    (TBD)
+#   java             + openjdk 21, maven          (TBD)
+#   dotnet           + .net 8.0 sdk               (TBD)
+#   flutter          + flutter 3.44, dart         (TBD)
 #
 # Tags follow semver: 1, 1.0, 1.0.0, latest</code></pre>
             </div>

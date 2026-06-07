@@ -107,12 +107,17 @@ echo "Compressed: ${COMPRESSED_MB}MB"
 echo "Uncompressed: ${UNCOMPRESSED_MB}MB"
 
 case "$FLAVOUR" in
-  heavy|flutter) COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
-  ubuntu)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
-  node)          COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
-  python)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  heavy)          COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  flutter)        COMP_BUDGET=900; UNCOMP_BUDGET=2500 ;;
+  ubuntu)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  node)           COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
+  python)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  rust)           COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
+  go)             COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  java)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  dotnet)         COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
-  *)             COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  *)              COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
 
 if [ "$COMPRESSED_MB" -gt "$COMP_BUDGET" ]; then

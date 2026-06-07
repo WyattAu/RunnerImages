@@ -2,6 +2,22 @@
 
 All notable changes to RunnerImages are documented here.
 
+## [1.1.0] - 2026-06-07
+
+### Added
+
+- **rust flavour**: BU + Rust 1.96.0 + cargo + rustup + g++ + libssl-dev. RUSTUP_HOME=/usr/local/rustup, CARGO_HOME=/usr/local/cargo.
+- **go flavour**: BU + Go 1.26.4 from official tarball (SHA256 verified) + g++ + sudo.
+- **java flavour**: BU + OpenJDK 21 (headless) + Maven + g++ + libssl-dev + sudo. JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64.
+- **dotnet flavour**: BU + .NET 8.0 SDK + g++ + libssl-dev + pkg-config + sudo.
+- **flutter flavour**: BU + Flutter 3.44.1 SDK + Dart + cmake + ninja-build + clang + GTK/GLU dev + sudo. No Android SDK (users add in workflow).
+- Nightly pipeline: 10-flavour matrix (was 5).
+- Cross-flavour consistency check: Node.js version/SHA, docker-ce-cli version.
+- Reproducibility: SOURCE_DATE_EPOCH=0 in all Dockerfiles.
+- Cosign keyless signing with GitHub OIDC for all flavours.
+- SBOM generation (SPDX) for all flavours.
+- SECURITY.md, CONTRIBUTING.md.
+
 ## [1.0.0] - 2026-06-07
 
 ### Added

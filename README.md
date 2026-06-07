@@ -11,6 +11,11 @@ Deterministic Docker images for Forgejo Actions CI runners. Pinned digests, lock
 | **python** | base + Python 3.12, pip, venv, dev headers | 204MB | Python CI, ML pipelines |
 | **node** | base + Node.js 22, npm, yarn, pnpm | 259MB | JS/TS CI, npm builds |
 | **heavy** | base + Node.js + Python + Docker CLI | 282MB | Monorepos, mixed stacks |
+| **rust** | base + Rust 1.96, cargo, rustup | TBD | Rust/Cargo workflows |
+| **go** | base + Go 1.26 | TBD | Go workflows |
+| **java** | base + OpenJDK 21, Maven | TBD | Java/Kotlin workflows |
+| **dotnet** | base + .NET 8.0 SDK | TBD | C#/.NET workflows |
+| **flutter** | base + Flutter 3.44, Dart, build tools | TBD | Flutter/Dart, mobile/web |
 
 ## Quick Start
 

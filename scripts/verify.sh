@@ -93,6 +93,11 @@ HAS_PYTHON=false
 HAS_SUDO=false
 HAS_PKG_CONFIG=false
 HAS_PING=false
+HAS_RUST=false
+HAS_GO=false
+HAS_JAVA=false
+HAS_DOTNET=false
+HAS_FLUTTER=false
 
 case "$FLAVOUR" in
   base-universal) ;;
@@ -100,7 +105,11 @@ case "$FLAVOUR" in
   node)           HAS_NODE=true; HAS_SUDO=true ;;
   python)         HAS_PYTHON=true; HAS_SUDO=true ;;
   heavy)          HAS_DOCKER=true; HAS_NODE=true; HAS_PYTHON=true; HAS_SUDO=true; HAS_PKG_CONFIG=true; HAS_PING=true ;;
-  flutter)        HAS_DOCKER=true; HAS_NODE=true; HAS_SUDO=true ;;
+  rust)           HAS_RUST=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
+  go)             HAS_GO=true; HAS_SUDO=true ;;
+  java)           HAS_JAVA=true; HAS_SUDO=true ;;
+  dotnet)         HAS_DOTNET=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
+  flutter)        HAS_FLUTTER=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
   *)              echo "WARN: Unknown flavour '$FLAVOUR', running BU-only checks" ;;
 esac
 
@@ -241,6 +250,50 @@ if [ "$HAS_DOCKER" = true ]; then
   check "docker CLI responds" "$(run "docker version --format \"{{.Client.Version}}\" 2>/dev/null | grep -q '.' && echo PASS || echo docker CLI unresponsive")"
 fi
 
+# --- Rust checks (flavour-conditional) ---
+echo "Rust:"
+if [ "$HAS_RUST" = true ]; then
+  check "rustc available" "$(run "rustc --version" | grep -q 'rustc' && echo PASS || echo 'not found')"
+  check "cargo available" "$(run "cargo --version" | grep -q 'cargo' && echo PASS || echo 'not found')"
+  check "rustup available" "$(run "rustup --version" | grep -q 'rustup' && echo PASS || echo 'not found')"
+else
+  check "rustc NOT present" "$( (run "rustc --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'rustc should not be present')"
+fi
+
+# --- Go checks (flavour-conditional) ---
+echo "Go:"
+if [ "$HAS_GO" = true ]; then
+  check "go available" "$(run "go version" | grep -q 'go' && echo PASS || echo 'not found')"
+else
+  check "go NOT present" "$( (run "go version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'go should not be present')"
+fi
+
+# --- Java checks (flavour-conditional) ---
+echo "Java:"
+if [ "$HAS_JAVA" = true ]; then
+  check "java available" "$(run "java --version" | grep -q 'openjdk' && echo PASS || echo 'not found')"
+  check "javac available" "$(run "javac --version" | grep -q 'javac' && echo PASS || echo 'not found')"
+else
+  check "java NOT present" "$( (run "java --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'java should not be present')"
+fi
+
+# --- .NET checks (flavour-conditional) ---
+echo ".NET:"
+if [ "$HAS_DOTNET" = true ]; then
+  check "dotnet available" "$(run "dotnet --version" | grep -q '.' && echo PASS || echo 'not found')"
+else
+  check "dotnet NOT present" "$( (run "dotnet --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'dotnet should not be present')"
+fi
+
+# --- Flutter checks (flavour-conditional) ---
+echo "Flutter:"
+if [ "$HAS_FLUTTER" = true ]; then
+  check "flutter available" "$(run "flutter --version" | grep -q 'Flutter' && echo PASS || echo 'not found')"
+  check "dart available" "$(run "dart --version" | grep -q 'Dart' && echo PASS || echo 'not found')"
+else
+  check "flutter NOT present" "$( (run "flutter --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'flutter should not be present')"
+fi
+
 # --- Entrypoint check (C9) ---
 echo "Entrypoint:"
 ENTRYPOINT=$(docker inspect --format '{{.Config.Entrypoint}}' "$IMAGE")
@@ -286,12 +339,17 @@ UNCOMPRESSED_BYTES=$(docker inspect --format '{{.Size}}' "$IMAGE")
 UNCOMPRESSED_MB=$((UNCOMPRESSED_BYTES / 1024 / 1024))
 
 case "$FLAVOUR" in
-  heavy|flutter) COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
-  ubuntu)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
-  node)          COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
-  python)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  heavy)        COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  flutter)      COMP_BUDGET=900; UNCOMP_BUDGET=2500 ;;
+  ubuntu)       COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  node)         COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
+  python)       COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  rust)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
+  go)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  java)         COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  dotnet)       COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
-  *)             COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
+  *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
 
 check "Compressed <= ${COMP_BUDGET}MB" "$( [ "$COMPRESSED_MB" -le "$COMP_BUDGET" ] && echo PASS || echo "${COMPRESSED_MB}MB (budget: ${COMP_BUDGET}MB)")"
