@@ -6,7 +6,11 @@ All notable changes to RunnerImages are documented here.
 
 ### Added
 
-- **Multi-arch support**: All 10 flavours now build for linux/amd64 and linux/arm64. CI uses QEMU + Docker Buildx for cross-architecture builds. Multi-arch manifests created with `docker buildx imagetools`.
+- **bun flavour**: BU + Bun 1.3.14 + pnpm. Multi-arch (x64/aarch64). For Bun-first workflows.
+- **rust-full flavour**: BU + Rust 1.96 + wasm-pack + cross + protobuf-compiler + sqlx-cli + cmake + libsqlite3-dev. Extended Rust toolchain for WASM and full-stack development.
+- **pnpm flavour**: BU + Node.js 22 + pnpm only (no yarn). Lightweight alternative to full node flavour.
+- **nix flavour**: BU + Nix package manager (single-user install). For flake-based projects.
+- **Multi-arch support**: All flavours now build for linux/amd64 and linux/arm64. CI uses QEMU + Docker Buildx for cross-architecture builds. Multi-arch manifests created with `docker buildx imagetools`.
 - **Bit-for-bit reproducibility**: `SNAPSHOT_DATE` build arg pins apt sources to `snapshot.ubuntu.com` for deterministic package metadata. All Dockerfiles support `SNAPSHOT_DATE` via the BU layer.
 - **Renovate Go tracking**: Go version ARG in go/Dockerfile now tracked by Renovate with `golang-version` datasource.
 - **Per-arch image tags**: Images pushed as `<version>-amd64` and `<version>-arm64`; manifest job creates unified multi-arch tags (`latest`, `<version>`, `<major>`, `<minor>`).
@@ -16,11 +20,12 @@ All notable changes to RunnerImages are documented here.
 - **Node.js Dockerfiles**: Use `TARGETARCH` to select amd64 (x64) or arm64 tarball with per-arch SHA256 verification.
 - **Go Dockerfile**: Uses `TARGETARCH` to select amd64 or arm64 tarball with per-arch SHA256 verification.
 - **Java Dockerfile**: `JAVA_HOME` dynamically set based on `TARGETARCH` (was hardcoded to `amd64`).
-- **build.sh**: Accepts `PLATFORM` env var (default: `linux/amd64`). Pushes per-arch tags only. Supports `SNAPSHOT_DATE` build arg.
-- **verify.sh**: Accepts `PLATFORM` env var. All `docker run` calls include `--platform` flag.
+- **build.sh**: Accepts `PLATFORM` env var (default: `linux/amd64`). Pushes per-arch tags only. Supports `SNAPSHOT_DATE` build arg. Added size budgets for bun, rust-full, pnpm, nix.
+- **verify.sh**: Accepts `PLATFORM` env var. All `docker run` calls include `--platform` flag. Added capability checks for bun, rust-full, nix.
 - **Makefile**: All targets pass `PLATFORM` env var.
 - **CI build.yml**: Matrix expanded to include `platform: [linux/amd64, linux/arm64]`. Added QEMU, Buildx, and manifest merge job.
-- **CI nightly.yml**: Same multi-arch matrix as build.yml.
+- **CI nightly.yml**: Same multi-arch matrix as build.yml. Added bun, rust-full, pnpm, nix to matrix.
+- **Removed strip --strip-unneeded**: This was corrupting arm64 binaries (make, unzip) during QEMU cross-compilation.
 
 ## [1.1.0] - 2026-06-07
 

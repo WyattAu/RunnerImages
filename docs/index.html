@@ -872,6 +872,38 @@ jobs:
             <p class="flavour-card__desc">Flutter 3.44 with Dart and build tools. Web and desktop builds.</p>
             <p class="flavour-card__packages">flutter 3.44 / dart / cmake / ninja-build / clang</p>
           </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Bun</h3>
+            <p class="flavour-card__desc">Bun 1.3 runtime with pnpm. For Bun-first workflows.</p>
+            <p class="flavour-card__packages">bun 1.3 / pnpm / g++ / python3</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">pnpm</h3>
+            <p class="flavour-card__desc">Node.js 22 with pnpm only. Lighter than full node.</p>
+            <p class="flavour-card__packages">node 22 / pnpm / g++ / python3</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Rust Full</h3>
+            <p class="flavour-card__desc">Rust with wasm-pack, cross, protobuf, sqlx. Extended toolchain.</p>
+            <p class="flavour-card__packages">rust 1.96 / wasm-pack / cross / protoc / sqlx / cmake</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Nix</h3>
+            <p class="flavour-card__desc">Nix package manager. For flake-based reproducible builds.</p>
+            <p class="flavour-card__packages">nix / nixpkgs</p>
+          </article>
         </div>
       </div>
     </section>
@@ -1006,12 +1038,16 @@ jobs:
 #   ubuntu           + docker-cli, sudo           (202MB)
 #   python           + python3, pip, venv         (204MB)
 #   node             + node 22, npm, yarn, pnpm   (259MB)
+#   pnpm             + node 22, pnpm only          (TBD)
+#   bun              + bun 1.3, pnpm               (TBD)
 #   heavy            + node + python + docker     (282MB)
 #   rust             + rustc, cargo, rustup       (471MB)
+#   rust-full        + rust + wasm, protobuf, sqlx (TBD)
 #   go               + go 1.26                    (255MB)
 #   java             + openjdk 21, maven          (355MB)
 #   dotnet           + .net 8.0 sdk               (376MB)
 #   flutter          + flutter 3.44, dart         (2001MB)
+#   nix              + nix package manager         (TBD)
 #
 # Tags follow semver: 1, 1.0, 1.0.0, latest</code></pre>
             </div>

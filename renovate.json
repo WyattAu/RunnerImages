@@ -4,15 +4,18 @@
 # What Renovate auto-updates:
 #   - Base image digest (ubuntu:24.04@sha256:...)
 #   - GitHub Actions versions (actions/checkout, docker/login-action, etc.)
-#   - Node.js version (via Dockerfile ARG in node/heavy flavours)
+#   - Node.js version (via Dockerfile ARG in node/pnpm/heavy flavours)
 #   - Go version (via Dockerfile ARG in go flavour)
+#   - Bun version (via Dockerfile ARG in bun flavour)
 #
 # What requires manual updates:
 #   - docker-ce-cli version (pinned in Dockerfile, no apt datasource)
 #   - Node.js tarball SHA256 (must be manually verified per version, both amd64 and arm64)
 #   - Go tarball SHA256 (must be manually verified per version, both amd64 and arm64)
+#   - Bun tarball SHA256 (must be manually verified per version, both amd64 and arm64)
 #   - Rust version (via rustup, no direct tarball datasource)
 #   - Flutter version (no standard datasource for tarball releases)
+#   - Nix version (installed via official installer)
 #   - apt package versions (pinned in Dockerfile, Ubuntu repo only)
 
 {
@@ -25,7 +28,7 @@
     {
       "description": "Track NODE_VERSION ARG in Dockerfiles",
       "customType": "regex",
-      "managerFilePatterns": ["/^images\\/(node|heavy)\\/Dockerfile$/"],
+      "managerFilePatterns": ["/^images\\/(node|pnpm|heavy)\\/Dockerfile$/"],
       "matchStrings": [
         "ARG NODE_VERSION=(?<currentValue>[^\\s]+)"
       ],
@@ -42,6 +45,17 @@
       ],
       "depNameTemplate": "go",
       "datasourceTemplate": "golang-version",
+      "versioningTemplate": "loose"
+    },
+    {
+      "description": "Track BUN_VERSION ARG in Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images\\/bun\\/Dockerfile$/"],
+      "matchStrings": [
+        "ARG BUN_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "bun",
+      "datasourceTemplate": "github-releases",
       "versioningTemplate": "loose"
     }
   ],
@@ -77,6 +91,25 @@
       "semanticCommitType": "feat",
       "labels": ["golang", "automated"],
       "commitMessageSuffix": " (also update GO_SHA256 for amd64+arm64 manually)"
+    },
+    {
+      "description": "Bun version updates (from Dockerfile ARG)",
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["bun"],
+      "enabled": true,
+      "semanticCommitType": "feat",
+      "labels": ["bun", "automated"],
+      "commitMessageSuffix": " (also update BUN_SHA256 for amd64+arm64 manually)"
+    },
+    {
+      "description": "Node.js in pnpm flavour",
+      "matchDatasources": ["node-version"],
+      "matchFileNames": ["images/pnpm/Dockerfile"],
+      "matchDepNames": ["node"],
+      "enabled": true,
+      "semanticCommitType": "feat",
+      "labels": ["nodejs", "pnpm", "automated"],
+      "commitMessageSuffix": " (also update NODE_SHA256 for amd64+arm64 manually)"
     }
   ],
   "docker": {

@@ -10,12 +10,16 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **ubuntu** | base + Docker CLI, sudo, build tools | 202MB | General CI, DinD, builds |
 | **python** | base + Python 3.12, pip, venv, dev headers | 204MB | Python CI, ML pipelines |
 | **node** | base + Node.js 22, npm, yarn, pnpm | 259MB | JS/TS CI, npm builds |
+| **pnpm** | base + Node.js 22, pnpm | TBD | Lightweight pnpm-only CI |
+| **bun** | base + Bun 1.3, pnpm | TBD | Bun-first workflows |
 | **heavy** | base + Node.js + Python + Docker CLI | 282MB | Monorepos, mixed stacks |
 | **rust** | base + Rust 1.96, cargo, rustup | 471MB | Rust/Cargo workflows |
+| **rust-full** | base + Rust + wasm-pack, cross, protobuf, sqlx | TBD | Rust + WASM, full toolchain |
 | **go** | base + Go 1.26 | 255MB | Go workflows |
 | **java** | base + OpenJDK 21, Maven | 355MB | Java/Kotlin workflows |
 | **dotnet** | base + .NET 8.0 SDK | 376MB | C#/.NET workflows |
 | **flutter** | base + Flutter 3.44, Dart, build tools | 2001MB | Flutter/Dart, mobile/web |
+| **nix** | base + Nix package manager | TBD | Flake-based builds |
 
 ## Quick Start
 
@@ -53,11 +57,38 @@ Need Docker CLI (DinD)?
 Need Node.js / npm / yarn / pnpm?
   -> node
 
+Need pnpm only (lighter)?
+  -> pnpm
+
+Need Bun?
+  -> bun
+
 Need Python / pip / venv?
   -> python
 
 Need Node + Python + Docker?
   -> heavy
+
+Need Rust / Cargo?
+  -> rust
+
+Need Rust + WASM + protobuf + sqlx?
+  -> rust-full
+
+Need Go?
+  -> go
+
+Need Java / Kotlin?
+  -> java
+
+Need .NET / C#?
+  -> dotnet
+
+Need Flutter / Dart?
+  -> flutter
+
+Need Nix flakes?
+  -> nix
 
 Just git + curl + make?
   -> base-universal
@@ -117,13 +148,17 @@ images/
   base-universal/   Dockerfile, VERSION, README.md
   ubuntu/           Dockerfile, VERSION, README.md
   node/             Dockerfile, VERSION, README.md
+  pnpm/             Dockerfile, VERSION, README.md
+  bun/              Dockerfile, VERSION, README.md
   python/           Dockerfile, VERSION, README.md
   heavy/            Dockerfile, VERSION, README.md
   rust/             Dockerfile, VERSION, README.md
+  rust-full/        Dockerfile, VERSION, README.md
   go/               Dockerfile, VERSION, README.md
   java/             Dockerfile, VERSION, README.md
   dotnet/           Dockerfile, VERSION, README.md
   flutter/          Dockerfile, VERSION, README.md
+  nix/              Dockerfile, VERSION, README.md
   shared/           BU fragment (canonical layer definition)
 scripts/
   build.sh          Build, push, sign, scan
