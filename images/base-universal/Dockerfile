@@ -55,8 +55,6 @@ RUN userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && rm -rf /var/lib/apt/lists/* \
- && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
- && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # OCI Labels

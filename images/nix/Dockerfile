@@ -63,8 +63,6 @@ RUN apt-get update \
  && for i in $(seq 1 10); do useradd -c "Nix build user $i" -d /var/empty -g nixbld -G nixbld -M -N -r -s "$(which nologin)" "nixbld$i" 2>/dev/null || true; done \
  && curl -L https://nixos.org/nix/install | sh -s -- --no-daemon \
  && rm -rf /var/lib/apt/lists/* \
- && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
- && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true \
  && chmod 4755 /usr/bin/sudo
 
 # ---------------------------------------------------------------------------
