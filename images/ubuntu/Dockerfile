@@ -65,18 +65,16 @@ RUN apt-get update \
       net-tools=2.10-0.1ubuntu4.4 \
  && apt-get purge -y gnupg \
  && apt-get autoremove -y \
- && NODE_SHA256=2e5d13569282d016861fae7c8f935e741693c269101a5bebcf761a5376d1f99f \
- && ARCH=$(dpkg --print-architecture) \
- && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" -o /tmp/node.tar.xz \
- && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
- && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
- && rm -f /tmp/node.tar.xz \
- && node --version | grep -q "v${NODE_VERSION}" \
-  && { userdel -r ubuntu 2>/dev/null || true; } \
-  && { groupdel ubuntu 2>/dev/null || true; } \
+  && NODE_SHA256=2e5d13569282d016861fae7c8f935e741693c269101a5bebcf761a5376d1f99f \
+  && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
+  && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
+  && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+  && rm -f /tmp/node.tar.xz \
+  && node --version | grep -q "v${NODE_VERSION}" \
+  && userdel -r ubuntu \
   && groupadd -g 1000 runner \
- && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
- && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
+  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
+  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
  && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
