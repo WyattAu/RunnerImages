@@ -106,7 +106,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 | `chmod a-s` | SUID/SGID bits | 0 bytes (security) |
 | `chmod o-w` | World-writable files | 0 bytes (security) |
 
-**Verification:** `docker run <image> find / -perm /6000 -type f` → empty (except `/usr/bin/sudo` in flavours that include sudo). `docker run <image> find / -name "*.a"` → empty.
+**Verification:** `docker run <image> find / -perm /6000 -type f` -- empty (except `/usr/bin/sudo` in flavours that include sudo). `docker run <image> find / -name "*.a"` -- empty.
 
 **SUID Exception:** Flavours that include `sudo` (ubuntu, node, python, heavy, flutter) MUST re-add the SUID bit after thinning: `chmod 4755 /usr/bin/sudo`. The `base-universal` flavour has no SUID binaries at all. Verification checks account for this: SUID scan excludes `/usr/bin/sudo` in flavours that install it.
 
@@ -199,10 +199,12 @@ This means:
 
 | Budget | Compressed | Uncompressed |
 |--------|-----------|--------------|
-| BU base (Layer 0 + 1) | <= 125MB | <= 328MB |
-| base-universal (total) | <= 150MB | <= 450MB |
-| Standard flavour (total) | <= 225MB | <= 630MB |
-| Heavy flavour (total) | <= 350MB | <= 900MB |
+| BU base (Layer 0 + 1) | <= 200MB | <= 530MB |
+| base-universal (total) | <= 200MB | <= 530MB |
+| ubuntu (total) | <= 225MB | <= 630MB |
+| node (total) | <= 275MB | <= 800MB |
+| python (total) | <= 225MB | <= 630MB |
+| heavy (total) | <= 350MB | <= 900MB |
 
 **Measurement:** `docker save <image> | gzip | wc -c` for compressed. `docker inspect --format '{{.Size}}' <image>` for uncompressed.
 

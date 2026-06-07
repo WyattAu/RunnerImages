@@ -10,11 +10,11 @@ Every flavour is a **superset** of the Base Universal (BU) set. Flavours only **
 
 ```
 Base Universal (BU)
-  ├── ubuntu       (BU + docker-cli + build-essential)
-  ├── node         (BU + node 22 LTS + npm + yarn + pnpm)
-  ├── python       (BU + python 3.13 + pip + venv + build-essential)
-  ├── flutter      (BU + flutter + dart + android-sdk)
-  └── heavy        (BU + node + python + docker-cli + build-essential)
+  ├── ubuntu       (BU + docker-cli + g++ + pkg-config + sudo)
+  ├── node         (BU + node 22 LTS + npm + yarn + pnpm + g++ + python3)
+  ├── python       (BU + python 3.12 + pip + venv + g++ + python3-dev + libffi-dev)
+  ├── flutter      (BU + flutter + dart + android-sdk) [planned]
+  └── heavy        (BU + node + python + docker-cli + g++ + pkg-config + sudo)
 ```
 
 ## Layer Architecture
@@ -61,7 +61,6 @@ RUN apt-get update \
     git=<ver> \
     git-lfs=<ver> \
     openssh-client=<ver> \
-    openssh-keygen=<ver> \
     # Build
     make=<ver> \
     build-essential=<ver> \
@@ -95,7 +94,7 @@ RUN apt-get update \
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~35 |
+| Package count | ~18 |
 | Compressed | ~100MB |
 | Uncompressed | ~250MB |
 | Use case | Minimal CI (shell scripts, static analysis) |
@@ -145,8 +144,8 @@ ENTRYPOINT ["/bin/bash"]
 
 | Category | Packages |
 |----------|----------|
-| VCS | `git`, `git-lfs`, `openssh-client`, `openssh-keygen` |
-| Build | `make`, `build-essential` |
+| VCS | `git`, `git-lfs`, `openssh-client` |
+| Build | `make`, `build-essential` (gcc) |
 | Data | `jq`, `yq` |
 | HTTP | `curl`, `wget` |
 | Archive | `zip`, `unzip`, `zstd`, `tar`, `gzip` |
@@ -155,10 +154,9 @@ ENTRYPOINT ["/bin/bash"]
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~35 |
-| Compressed | ~100MB |
-| Uncompressed | ~250MB |
-| Layer depth | 2 (base + bu-base) |
+| Compressed | ~190MB |
+| Uncompressed | ~524MB |
+| Layer depth | 3 (base + bu-base + user) |
 | Use case | Minimal CI (shell scripts, static analysis) |
 
 **Verification rules:**
@@ -183,7 +181,7 @@ docker run --rm <image> python3 --version 2>&1 | grep -q "not found"
 
 ## ubuntu: Universal Default
 
-**BU + Docker CLI + full build tools.** The recommended default for most workflows.
+**BU + Docker CLI + build tools + network utilities.** The recommended default for most workflows.
 
 | Category | Additional Packages |
 |----------|-------------------|
@@ -193,9 +191,8 @@ docker run --rm <image> python3 --version 2>&1 | grep -q "not found"
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~42 |
-| Compressed | ~200MB |
-| Uncompressed | ~550MB |
+| Compressed | ~202MB |
+| Uncompressed | ~560MB |
 | Layer depth | 3 (base + bu-base + ubuntu) |
 | Use case | General CI, Docker-in-Docker, builds |
 
@@ -218,20 +215,18 @@ docker run --rm <image> ping -c 1 127.0.0.1
 
 ## node: JavaScript/TypeScript Workflows
 
-**BU + Node.js 22 LTS + npm + package managers.**
+**BU + Node.js 22 LTS + npm + yarn + pnpm.**
 
 | Category | Additional Packages |
 |----------|-------------------|
-| Languages | `nodejs` (22.x), `npm` |
-| Package managers | `yarn` (via npm), `pnpm` (via npm) |
+| Languages | `node` (22.22.3, from tarball), `npm`, `yarn`, `pnpm` |
 | Build | `g++` (for native modules), `python3` (for node-gyp) |
-| System | `libstdc++6` (native module support) |
+| System | `sudo` |
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~40 |
-| Compressed | ~180MB |
-| Uncompressed | ~500MB |
+| Compressed | ~259MB |
+| Uncompressed | ~753MB |
 | Layer depth | 3 (base + bu-base + node) |
 | Use case | JS/TS CI, npm/yarn/pnpm builds |
 
@@ -255,19 +250,18 @@ docker run --rm <image> docker --version 2>&1 | grep -q "not found"
 
 ## python: Python/ML Workflows
 
-**BU + Python 3.13 + pip + venv + build tools for native extensions.**
+**BU + Python 3.12 + pip + venv + build tools for native extensions.**
 
 | Category | Additional Packages |
 |----------|-------------------|
-| Languages | `python3` (3.13), `python3-pip`, `python3-venv` |
+| Languages | `python3` (3.12), `python3-pip`, `python3-venv` |
 | Build | `g++` (for C extensions), `python3-dev` (headers), `libffi-dev` |
-| System | `libssl-dev`, `libbz2-dev`, `libreadline-dev` |
+| System | `libssl-dev`, `sudo` |
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~42 |
-| Compressed | ~190MB |
-| Uncompressed | ~520MB |
+| Compressed | ~204MB |
+| Uncompressed | ~561MB |
 | Layer depth | 3 (base + bu-base + python) |
 | Use case | Python CI, ML pipelines, data science |
 
@@ -288,7 +282,7 @@ docker run --rm <image> node --version 2>&1 | grep -q "not found"
 
 ---
 
-## flutter: Mobile/Frontend Workflows
+## flutter: Mobile/Frontend Workflows [Planned]
 
 **BU + Flutter SDK + Dart + Android SDK.**
 
@@ -330,15 +324,14 @@ docker run --rm <image> adb --version
 | Category | Additional Packages |
 |----------|-------------------|
 | Docker | `docker-ce-cli` |
-| Languages | `nodejs` (22.x), `npm`, `python3` (3.13), `python3-pip`, `python3-venv` |
-| Build | `g++`, `python3-dev`, `pkg-config`, `libssl-dev` |
+| Languages | `node` (22.22.3), `npm`, `yarn`, `pnpm`, `python3` (3.12), `python3-pip`, `python3-venv` |
+| Build | `g++`, `pkg-config`, `python3-dev`, `libffi-dev`, `libssl-dev` |
 | System | `sudo`, `iputils-ping`, `net-tools` |
 
 | Metric | Value |
 |--------|-------|
-| Package count | ~55 |
-| Compressed | ~280MB |
-| Uncompressed | ~750MB |
+| Compressed | ~282MB |
+| Uncompressed | ~818MB |
 | Layer depth | 3 (base + bu-base + heavy) |
 | Use case | Monorepos, mixed Node+Python, complex CI |
 

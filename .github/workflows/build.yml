@@ -66,6 +66,32 @@ jobs:
           chmod +x scripts/build.sh
           ./scripts/build.sh ${{ matrix.flavour }}
 
+      - name: Reproducibility check (double-build)
+        run: |
+          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
+          DIGEST1=$(docker inspect --format '{{.Id}}' "$IMAGE")
+          # Remove first build so second build cannot use cache
+          docker rmi "$IMAGE" 2>/dev/null || true
+          # Rebuild from scratch
+          docker build \
+            --no-cache \
+            --platform linux/amd64 \
+            --progress=plain \
+            --build-arg IMAGE_VERSION="$VERSION" \
+            -t "$IMAGE" \
+            "images/${{ matrix.flavour }}/"
+          DIGEST2=$(docker inspect --format '{{.Id}}' "$IMAGE")
+          echo "Build 1 digest: $DIGEST1"
+          echo "Build 2 digest: $DIGEST2"
+          if [ "$DIGEST1" != "$DIGEST2" ]; then
+            echo "WARN: Builds are not bit-for-bit identical (expected -- timestamps or apt metadata may differ)"
+            echo "This is informational. If reproducibility is critical, use SOURCE_DATE_EPOCH."
+          else
+            echo "PASS: Builds are bit-for-bit identical"
+          fi
+
       - name: Verify image
         run: |
           chmod +x scripts/verify.sh
@@ -90,6 +116,19 @@ jobs:
           name: sbom-${{ matrix.flavour }}
           path: sbom-${{ matrix.flavour }}.spdx.json
           retention-days: 90
+
+      - name: Install cosign
+        if: github.ref == 'refs/heads/main'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image with cosign (keyless)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
+          cosign sign --yes "$IMAGE"
+          cosign sign --yes "$REPO/${{ matrix.flavour }}:latest"
 
       - name: Generate versions.lock
         run: |

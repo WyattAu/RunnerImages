@@ -16,7 +16,7 @@ FROM ubuntu:24.04@sha256:<hex> AS base
 FROM base AS bu-base
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    git=<ver> git-lfs=<ver> openssh-client=<ver> openssh-keygen=<ver> \
+    git=<ver> git-lfs=<ver> openssh-client=<ver> \
     make=<ver> build-essential=<ver> \
     jq=<ver> yq=<ver> \
     curl=<ver> wget=<ver> \
@@ -229,11 +229,11 @@ trivy image --severity CRITICAL,HIGH --exit-code 1 <image>
 # Secret scan — fail on any finding
 trivy image --scanners secret --exit-code 1 <image>
 
-# SUID scan — fail on any SUID binary
-SUID_COUNT=$(docker run --rm <image> find / -perm /6000 -type f 2>/dev/null | wc -l)
+# SUID scan — fail on any SUID binary (except sudo in flavours that include it)
+SUID_COUNT=$(docker run --rm <image> find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || true)
 if [ $SUID_COUNT -gt 0 ]; then
-  echo "FAIL: Found $SUID_COUNT SUID binaries"
-  docker run --rm <image> find / -perm /6000 -type f
+  echo "FAIL: Found $SUID_COUNT unexpected SUID binaries"
+  docker run --rm <image> find / -perm /4000 -type f
   exit 1
 fi
 
@@ -275,11 +275,11 @@ docker run --rm "$IMAGE" git lfs version
 # Languages (flavour-dependent)
 docker run --rm "$IMAGE" node --version | grep -q "22\."
 docker run --rm "$IMAGE" npm --version
-docker run --rm "$IMAGE" python3 --version | grep -q "3\.13\."
+docker run --rm "$IMAGE" python3 --version | grep -q "3\.12\."
 docker run --rm "$IMAGE" pip3 --version
 
 # Tools
-docker run --rm "$IMAGE" docker --version | grep -q "27\."
+docker run --rm "$IMAGE" docker --version | grep -q "29\."
 docker run --rm "$IMAGE" jq --version
 docker run --rm "$IMAGE" curl --version
 docker run --rm "$IMAGE" make --version

@@ -47,11 +47,14 @@ When 6 flavours share Layer 0 and Layer 1, the registry stores those layers **on
 
 | Layer | Compressed Target | Uncompressed Target |
 |-------|-------------------|---------------------|
-| Layer 0 (ubuntu base) | ≤ 25MB | ≤ 78MB |
-| Layer 1 (BU base) | ≤ 100MB | ≤ 250MB |
-| Layer 2 (flavour-specific) | ≤ 100MB | ≤ 300MB |
-| **Total (standard)** | **≤ 225MB** | **≤ 630MB** |
-| **Total (heavy)** | **≤ 350MB** | **≤ 900MB** |
+| Layer 0 (ubuntu base) | ~25MB | ~78MB |
+| Layer 1 (BU base) | ~165MB | ~446MB |
+| Layer 2 (flavour-specific) | ~12-92MB | ~36-294MB |
+| **base-universal (total)** | **~190MB** | **~524MB** |
+| **ubuntu (total)** | **~202MB** | **~560MB** |
+| **python (total)** | **~204MB** | **~561MB** |
+| **node (total)** | **~259MB** | **~753MB** |
+| **heavy (total)** | **~282MB** | **~818MB** |
 
 ### Thinning Protocol
 
@@ -83,7 +86,7 @@ RUN locale-gen C.UTF-8 && rm -rf /usr/share/locale/*
 | `doc` directories | Never read in CI |
 | `*.a` static archives | Never linked in CI |
 | `*.h` header files (unless build-essential) | Only needed for compilation |
-| SUID/SGID binaries | Container has no `su`, `sudo`, or `setuid` |
+| SUID/SGID binaries | Container has no `su`; `sudo` is the only exception (re-added with `chmod 4755` in flavours that include it) |
 | Debug symbols | Wasted space |
 | `info` pages | Never read in CI |
 | `/usr/share/locale/*` (except en_US) | CI uses C.UTF-8 |
