@@ -74,3 +74,6 @@ jobs:
 
       - name: BU layer consistency check
         run: bash scripts/check-bu-consistency.sh
+
+      - name: Node.js version/SHA consistency check
+        run: bash scripts/check-cross-flavour-consistency.sh
