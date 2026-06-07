@@ -1,0 +1,46 @@
+# Renovate configuration for automated dependency updates
+# Spec reference: S9.3 Update Mechanism, P6 Maintainable
+
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": ["every weekend"],
+  "packageRules": [
+    {
+      "description": "Pin base image digest updates",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ubuntu"],
+      "enabled": true,
+      "semanticCommitType": "feat",
+      "labels": ["base-image", "automated"]
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "semanticCommitType": "ci"
+    },
+    {
+      "description": "Node.js version updates in Dockerfiles",
+      "matchDatasources": ["node-version"],
+      "matchDepNames": ["node"],
+      "enabled": true,
+      "semanticCommitType": "feat",
+      "labels": ["nodejs", "automated"]
+    }
+  ],
+  "docker": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on Monday"]
+  },
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "rebaseWhen": "behind-base-branch",
+  "labels": ["dependencies", "automated"],
+  "reviewers": ["WyattAu"]
+}
