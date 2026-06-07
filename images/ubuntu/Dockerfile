@@ -72,9 +72,9 @@ RUN apt-get update \
  && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
  && rm -f /tmp/node.tar.xz \
  && node --version | grep -q "v${NODE_VERSION}" \
- && userdel -r ubuntu 2>/dev/null || true \
- && groupdel ubuntu 2>/dev/null || true \
- && groupadd -g 1000 runner \
+  && { userdel -r ubuntu 2>/dev/null || true; } \
+  && { groupdel ubuntu 2>/dev/null || true; } \
+  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
