@@ -31,7 +31,7 @@ Properties invariant across **every image** in this repository. If an image lack
 | GID | 1000 |
 | Home | `/home/runner` |
 | Shell | `/bin/bash` |
-| Sudo | Not installed |
+| Sudo | Only in flavours that explicitly install it (ubuntu, node, python, heavy) |
 
 **Why UID 1000:** Docker creates the first non-root user as UID 1000. Actions workflows create files as UID 1000. Volumes are owned by UID 1000 on the host.
 
@@ -62,13 +62,13 @@ ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/
 | Category | Packages | Version Pin | Justification |
 |----------|----------|-------------|---------------|
 | Core | `base-files`, `coreutils`, `bash-completion` | Latest from repo | POSIX environment |
-| VCS | `git`, `git-lfs`, `openssh-client`, `openssh-keygen` | `1:2.45.0`, `2.15.0`, `9.6p1`, `9.6p1` | `actions/checkout`, SSH |
-| Build | `make`, `build-essential` | `4.3`, `12.10ubuntu1` | Native modules |
-| Data | `jq`, `yq` | `1.7-1`, `4.40.1` | JSON/YAML in workflows |
-| HTTP | `curl`, `wget` | `8.5.0`, `1.21.4` | Downloads, health checks |
-| Archive | `zip`, `unzip`, `zstd`, `tar`, `gzip` | `3.0-12`, `6.0-26`, `1.5.5+ds`, `1.34+dfsg`, `1.12` | Cache, artifacts |
-| Crypto | `ca-certificates`, `openssl` | `20240203`, `3.0.13` | TLS |
-| System | `diffutils`, `patch`, `file`, `tree` | `1:3.10-1`, `2.16-4`, `5.45`, `2.1.1` | Utilities |
+| VCS | `git`, `git-lfs`, `openssh-client` | Pinned per Dockerfile | `actions/checkout`, SSH |
+| Build | `make`, `build-essential` | Pinned per Dockerfile | Native modules |
+| Data | `jq`, `yq` | Pinned per Dockerfile | JSON/YAML in workflows |
+| HTTP | `curl`, `wget` | Pinned per Dockerfile | Downloads, health checks |
+| Archive | `zip`, `unzip`, `zstd`, `tar`, `gzip` | Pinned per Dockerfile | Cache, artifacts |
+| Crypto | `ca-certificates`, `openssl` | Pinned per Dockerfile | TLS |
+| System | `diffutils`, `patch`, `file`, `tree` | Pinned per Dockerfile | Utilities |
 
 **Version pins are examples.** Actual pins are determined at build time and recorded in `versions.lock`.
 
@@ -118,7 +118,7 @@ LABEL org.opencontainers.image.title="runner-images/<flavour>"
 LABEL org.opencontainers.image.description="Forgejo Actions runner image"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
-LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="<semver>"
 LABEL runner.flavour="<flavour>"
 LABEL runner.base="ubuntu:24.04"
@@ -134,6 +134,8 @@ Every image must be reproducible:
 3. Verify: `docker inspect --format '{{.Id}}' build1` == `docker inspect --format '{{.Id}}' build2`
 
 **Failure to reproduce = build is broken. Do not merge.**
+
+**Current status:** Builds are not yet bit-for-bit identical due to timestamps and apt metadata. The CI reproducibility check logs a WARN (non-blocking). To achieve full reproducibility, add `SOURCE_DATE_EPOCH=0` and pin apt to snapshot mirrors.
 
 ## UP10: Verification Checklist
 

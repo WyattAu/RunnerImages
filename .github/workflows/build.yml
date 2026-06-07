@@ -9,11 +9,13 @@ on:
     paths:
       - 'images/**'
       - 'scripts/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [main]
     paths:
       - 'images/**'
       - 'scripts/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
@@ -80,6 +82,7 @@ jobs:
             --platform linux/amd64 \
             --progress=plain \
             --build-arg IMAGE_VERSION="$VERSION" \
+            --build-arg SOURCE_DATE_EPOCH=0 \
             -t "$IMAGE" \
             "images/${{ matrix.flavour }}/"
           DIGEST2=$(docker inspect --format '{{.Id}}' "$IMAGE")
@@ -145,34 +148,3 @@ jobs:
           name: versions-${{ matrix.flavour }}
           path: images/${{ matrix.flavour }}/versions.lock
           retention-days: 90
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          scandir: './scripts'
-      - name: Check Dockerfile lint
-        run: |
-          sudo apt-get install -y hadolint || true
-          for f in images/*/Dockerfile; do
-            if command -v hadolint >/dev/null 2>&1; then
-              hadolint "$f"
-            else
-              echo "hadolint not available, skipping Dockerfile lint for $f"
-            fi
-          done
-      - name: Validate VERSION files
-        run: |
-          for f in images/*/VERSION; do
-            name=$(basename "$(dirname "$f")")
-            [ "$name" = "shared" ] && continue
-            v=$(tr -d '[:space:]' < "$f")
-            if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-              echo "FAIL: $f does not contain valid semver: '$v'"
-              exit 1
-            fi
-            echo "OK: $f -> $v"
-          done

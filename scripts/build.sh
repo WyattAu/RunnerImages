@@ -84,6 +84,7 @@ docker build \
   --platform linux/amd64 \
   --progress=plain \
   --build-arg IMAGE_VERSION="$VERSION" \
+  --build-arg SOURCE_DATE_EPOCH=0 \
   -t "$IMAGE" \
   -t "$LATEST" \
   -t "$MAJOR_TAG" \

@@ -22,7 +22,7 @@ repos:
 
       - id: hadolint
         name: hadolint (Dockerfile lint)
-        entry: hadolint
+        entry: scripts/hooks/hadolint-wrapper.sh
         language: system
         types: [file]
         files: Dockerfile
