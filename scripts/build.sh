@@ -69,14 +69,6 @@ if [ "$SCAN" = true ] && ! command -v trivy >/dev/null 2>&1; then
   exit 1
 fi
 
-MAJOR="${VERSION%%.*}"
-MINOR="${VERSION%.*}"
-
-IMAGE="$REPO/$FLAVOUR:$VERSION"
-LATEST="$REPO/$FLAVOUR:latest"
-MAJOR_TAG="$REPO/$FLAVOUR:$MAJOR"
-MINOR_TAG="$REPO/$FLAVOUR:$MINOR"
-
 PLATFORM="${PLATFORM:-linux/amd64}"
 ARCH="${PLATFORM#linux/}"
 
@@ -90,6 +82,7 @@ docker build \
   --progress=plain \
   --build-arg IMAGE_VERSION="$VERSION" \
   --build-arg SOURCE_DATE_EPOCH=0 \
+  ${SNAPSHOT_DATE:+--build-arg SNAPSHOT_DATE="$SNAPSHOT_DATE"} \
   -t "$IMAGE" \
   "$FLAVOUR_DIR/"
 
