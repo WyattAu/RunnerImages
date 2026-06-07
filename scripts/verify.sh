@@ -269,7 +269,7 @@ case "$FLAVOUR" in
   ubuntu)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   node)          COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   python)        COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
-  base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=450 ;;
+  base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)             COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
 

@@ -61,6 +61,8 @@ RUN apt-get update \
  && rm -f /tmp/node.tar.xz \
  && node --version | grep -q "v${NODE_VERSION}" \
  && npm install -g yarn pnpm \
+ && yarn --version \
+ && pnpm --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
