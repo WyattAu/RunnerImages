@@ -108,9 +108,13 @@ case "$FLAVOUR" in
   node)           COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
   python)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   rust)           COMP_BUDGET=550; UNCOMP_BUDGET=1800 ;;
+  rust-full)      COMP_BUDGET=600; UNCOMP_BUDGET=2000 ;;
   go)             COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   java)           COMP_BUDGET=400; UNCOMP_BUDGET=900 ;;
   dotnet)         COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
+  bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
+  pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
+  nix)            COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)              COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac

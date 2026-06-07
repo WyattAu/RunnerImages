@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - flutter flavour
-# Layer count: 3 (base + bu-base + flutter)
-# BU + Flutter SDK + Dart + build tools
+# Forgejo Actions runner image - pnpm flavour
+# Layer count: 3 (base + bu-base + pnpm)
+# BU + Node.js 22 LTS + pnpm (no yarn) + g++ + python3 (node-gyp)
 # Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
@@ -46,29 +46,33 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# Layer 2: Flutter-specific additions + user setup (single RUN)
+# Layer 2: pnpm-specific additions + user setup (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS flutter
+FROM bu-base AS pnpm
 
-ARG FLUTTER_VERSION=3.44.1
+ARG NODE_VERSION=22.22.3
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      cmake \
-      ninja-build \
       g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
-      clang \
-      libgtk-3-dev \
-      libglu1-mesa \
+      python3=3.12.3-0ubuntu2.1 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- && curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
- && mkdir -p /opt/flutter \
- && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
- && rm -f /tmp/flutter.tar.xz \
- && /opt/flutter/bin/flutter config --no-analytics \
- && /opt/flutter/bin/flutter --version \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      NODE_ARCH=arm64; \
+      NODE_SHA256=1c4a9933a5e45bc88f54f70b5f91232c127ec49f1a5989d23fb85824c7adf9b7; \
+    else \
+      NODE_ARCH=x64; \
+      NODE_SHA256=2e5d13569282d016861fae7c8f935e741693c269101a5bebcf761a5376d1f99f; \
+    fi \
+ && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" -o /tmp/node.tar.xz \
+ && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
+ && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+ && rm -f /tmp/node.tar.xz \
+ && node --version | grep -q "v${NODE_VERSION}" \
+ && npm install -g pnpm \
+ && pnpm --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
@@ -82,13 +86,13 @@ RUN apt-get update \
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/flutter"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Flutter SDK with Dart and build tools"
+LABEL org.opencontainers.image.title="runner-images/pnpm"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Node.js 22 LTS with pnpm"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="flutter"
+LABEL runner.flavour="pnpm"
 LABEL runner.base="ubuntu:24.04"
 LABEL runner.base.digest="sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54"
 
@@ -101,7 +105,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/home/runner/.local/bin:/opt/flutter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime

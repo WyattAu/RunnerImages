@@ -29,10 +29,14 @@ jobs:
           - python
           - heavy
           - rust
+          - rust-full
           - go
           - java
           - dotnet
           - flutter
+          - bun
+          - pnpm
+          - nix
         platform: [linux/amd64, linux/arm64]
     runs-on: ubuntu-latest
     steps:

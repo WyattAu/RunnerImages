@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - flutter flavour
-# Layer count: 3 (base + bu-base + flutter)
-# BU + Flutter SDK + Dart + build tools
+# Forgejo Actions runner image - bun flavour
+# Layer count: 3 (base + bu-base + bun)
+# BU + Bun 1.3.14 + npm + pnpm + g++ + python3 (node-gyp)
 # Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
@@ -46,29 +46,33 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
-# Layer 2: Flutter-specific additions + user setup (single RUN)
+# Layer 2: Bun-specific additions + user setup (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS flutter
+FROM bu-base AS bun
 
-ARG FLUTTER_VERSION=3.44.1
+ARG BUN_VERSION=1.3.14
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      cmake \
-      ninja-build \
       g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
-      clang \
-      libgtk-3-dev \
-      libglu1-mesa \
+      python3=3.12.3-0ubuntu2.1 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- && curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
- && mkdir -p /opt/flutter \
- && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
- && rm -f /tmp/flutter.tar.xz \
- && /opt/flutter/bin/flutter config --no-analytics \
- && /opt/flutter/bin/flutter --version \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      BUN_ARCH=aarch64; \
+      BUN_SHA256=a27ffb63a8310375836e0d6f668ae17fa8d8d18b88c37c821c65331973a19a3b; \
+    else \
+      BUN_ARCH=x64; \
+      BUN_SHA256=951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f; \
+    fi \
+ && curl -fsSL "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-${BUN_ARCH}.zip" -o /tmp/bun.zip \
+ && echo "${BUN_SHA256}  /tmp/bun.zip" | sha256sum -c - \
+ && unzip /tmp/bun.zip -d /usr/local \
+ && rm -f /tmp/bun.zip \
+ && bun --version \
+ && npm install -g pnpm \
+ && pnpm --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
@@ -82,13 +86,13 @@ RUN apt-get update \
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/flutter"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Flutter SDK with Dart and build tools"
+LABEL org.opencontainers.image.title="runner-images/bun"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Bun 1.3.14 with npm, pnpm"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="flutter"
+LABEL runner.flavour="bun"
 LABEL runner.base="ubuntu:24.04"
 LABEL runner.base.digest="sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54"
 
@@ -101,7 +105,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/home/runner/.local/bin:/opt/flutter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/home/runner/.bun/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime
