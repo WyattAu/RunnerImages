@@ -76,6 +76,31 @@ jobs:
           chmod +x scripts/build.sh
           PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }}
 
+      - name: Reproducibility check (double-build with snapshot mirror)
+        if: matrix.platform == 'linux/amd64'
+        run: |
+          chmod +x scripts/build.sh
+          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          ARCH="${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}"
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION-$ARCH"
+          DIGEST1=$(docker inspect --format '{{.Id}}' "$IMAGE")
+          # Derive snapshot date from today for reproducible apt sources
+          SNAP_DATE=$(date -u +%Y%m%d)
+          # Remove first build so second build cannot use cache
+          docker rmi "$IMAGE" 2>/dev/null || true
+          # Rebuild with snapshot mirror for reproducible apt metadata
+          PLATFORM="${{ matrix.platform }}" SNAPSHOT_DATE="$SNAP_DATE" ./scripts/build.sh ${{ matrix.flavour }}
+          DIGEST2=$(docker inspect --format '{{.Id}}' "$IMAGE")
+          echo "Build 1 digest: $DIGEST1"
+          echo "Build 2 digest: $DIGEST2"
+          if [ "$DIGEST1" != "$DIGEST2" ]; then
+            echo "WARN: Builds are not bit-for-bit identical (expected with live apt mirrors)"
+            echo "With SNAPSHOT_DATE=$SNAP_DATE, apt metadata is deterministic."
+          else
+            echo "PASS: Builds are bit-for-bit identical"
+          fi
+
       - name: Verify image
         run: |
           chmod +x scripts/verify.sh

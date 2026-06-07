@@ -1,19 +1,24 @@
 # Forgejo Actions runner image - java flavour
-# Layer count: 3 (base + bu-no-strip-base + java)
-# BU-no-strip + OpenJDK 21 + Maven
-# Uses BU-no-strip variant: strip --strip-unneeded corrupts dpkg-managed
-# OpenJDK binaries (renames to .dpkg-tmp). Package versions pinned per spec.
+# Layer count: 3 (base + bu-base + java)
+# BU + OpenJDK 21 + Maven
+# Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image pinned by digest
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base
 
+ARG SNAPSHOT_DATE=""
+
 # ---------------------------------------------------------------------------
-# Layer 1: BU-no-strip base packages (shared across strip-sensitive flavours)
+# Layer 1: BU base packages (shared across all flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
-RUN apt-get update \
+RUN if [ -n "$SNAPSHOT_DATE" ]; then \
+      sed -i "s|http://archive.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list \
+      && sed -i "s|http://security.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list; \
+    fi \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       git=1:2.43.0-1ubuntu7.3 \
       git-lfs=3.4.1-1ubuntu0.4 \
@@ -34,9 +39,11 @@ RUN apt-get update \
       diffutils=1:3.10-1build1 \
       patch=2.7.6-7build3 \
       file=1:5.45-3build1 \
-      tree=2.1.1-2ubuntu3.24.0.2 \
+      tree=2.1.1-2ubuntu3.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
+ && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
+ && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 

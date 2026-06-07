@@ -1,6 +1,6 @@
 # RunnerImages
 
-Deterministic Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds.
+Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**.
 
 ## Flavours
 
@@ -71,8 +71,9 @@ Something else?
 ```bash
 git clone https://github.com/WyattAu/RunnerImages.git
 cd RunnerImages
-make build                    # build ubuntu (default)
+make build                    # build ubuntu (default, amd64)
 make build FLAVOUR=node       # build a specific flavour
+PLATFORM=linux/arm64 make build  # build for arm64
 make verify                   # run verification suite
 make lint                     # shellcheck + hadolint
 ```
@@ -93,10 +94,10 @@ Docker stores shared layers once. Pulling `ubuntu` then `node` only downloads th
 
 | Pillar | Description |
 |--------|-------------|
-| Deterministic | Pinned base digests, pinned package versions, SHA256-verified tarballs |
+| Deterministic | Pinned base digests, pinned package versions, SHA256-verified tarballs, apt snapshot mirrors for reproducibility |
 | Thin | Size budgets enforced at build time, no man pages/docs/static libs |
 | Secure | No SUID except sudo, no world-writable files, Trivy scans in CI |
-| Compatible | amd64, UID/GID 1000, Docker CLI, standard entrypoint |
+| Multi-arch | linux/amd64 + linux/arm64 with per-arch SHA256 verification |
 | Auditable | OCI labels, versions.lock, SBOM (SPDX), cosign signing |
 | Maintainable | Renovate for automated updates, shellcheck + hadolint in CI |
 
@@ -104,9 +105,9 @@ Docker stores shared layers once. Pulling `ubuntu` then `node` only downloads th
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| Build | push to main (images/scripts/workflows) | Build, verify, push, SBOM, cosign sign |
+| Build | push to main (images/scripts/workflows) | Build, verify, push (amd64+arm64), SBOM, cosign sign |
 | Lint | push to main | shellcheck, hadolint, VERSION validation |
-| Nightly | daily at 03:00 UTC | Rebuild, Trivy scan, size regression |
+| Nightly | daily at 03:00 UTC | Rebuild (amd64+arm64), Trivy scan, size regression |
 | Pages | push to main (docs/) | Deploy landing page |
 
 ## Repository Structure
@@ -118,6 +119,12 @@ images/
   node/             Dockerfile, VERSION, README.md
   python/           Dockerfile, VERSION, README.md
   heavy/            Dockerfile, VERSION, README.md
+  rust/             Dockerfile, VERSION, README.md
+  go/               Dockerfile, VERSION, README.md
+  java/             Dockerfile, VERSION, README.md
+  dotnet/           Dockerfile, VERSION, README.md
+  flutter/          Dockerfile, VERSION, README.md
+  shared/           BU fragment (canonical layer definition)
 scripts/
   build.sh          Build, push, sign, scan
   verify.sh         40+ verification checks (flavour-aware)

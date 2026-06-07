@@ -8,11 +8,17 @@
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base
 
+ARG SNAPSHOT_DATE=""
+
 # ---------------------------------------------------------------------------
 # Layer 1: BU base packages (shared across all flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
-RUN apt-get update \
+RUN if [ -n "$SNAPSHOT_DATE" ]; then \
+      sed -i "s|http://archive.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list \
+      && sed -i "s|http://security.ubuntu.com/ubuntu|https://snapshot.ubuntu.com/ubuntu/${SNAPSHOT_DATE}T000000Z|g" /etc/apt/sources.list; \
+    fi \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       git=1:2.43.0-1ubuntu7.3 \
       git-lfs=3.4.1-1ubuntu0.4 \

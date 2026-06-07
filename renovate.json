@@ -4,11 +4,15 @@
 # What Renovate auto-updates:
 #   - Base image digest (ubuntu:24.04@sha256:...)
 #   - GitHub Actions versions (actions/checkout, docker/login-action, etc.)
-#   - Node.js version (via images/shared/.node-version file)
+#   - Node.js version (via Dockerfile ARG in node/heavy flavours)
+#   - Go version (via Dockerfile ARG in go flavour)
 #
 # What requires manual updates:
 #   - docker-ce-cli version (pinned in Dockerfile, no apt datasource)
-#   - Node.js tarball SHA256 (must be manually verified per version)
+#   - Node.js tarball SHA256 (must be manually verified per version, both amd64 and arm64)
+#   - Go tarball SHA256 (must be manually verified per version, both amd64 and arm64)
+#   - Rust version (via rustup, no direct tarball datasource)
+#   - Flutter version (no standard datasource for tarball releases)
 #   - apt package versions (pinned in Dockerfile, Ubuntu repo only)
 
 {
@@ -28,6 +32,17 @@
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version",
       "versioningTemplate": "node"
+    },
+    {
+      "description": "Track GO_VERSION ARG in Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images\\/go\\/Dockerfile$/"],
+      "matchStrings": [
+        "ARG GO_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "go",
+      "datasourceTemplate": "golang-version",
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [
@@ -52,7 +67,16 @@
       "enabled": true,
       "semanticCommitType": "feat",
       "labels": ["nodejs", "automated"],
-      "commitMessageSuffix": " (also update NODE_SHA256 manually)"
+      "commitMessageSuffix": " (also update NODE_SHA256 for amd64+arm64 manually)"
+    },
+    {
+      "description": "Go version updates (from Dockerfile ARG)",
+      "matchDatasources": ["golang-version"],
+      "matchDepNames": ["go"],
+      "enabled": true,
+      "semanticCommitType": "feat",
+      "labels": ["golang", "automated"],
+      "commitMessageSuffix": " (also update GO_SHA256 for amd64+arm64 manually)"
     }
   ],
   "docker": {

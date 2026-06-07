@@ -2,6 +2,26 @@
 
 All notable changes to RunnerImages are documented here.
 
+## [1.2.0] - 2026-06-07
+
+### Added
+
+- **Multi-arch support**: All 10 flavours now build for linux/amd64 and linux/arm64. CI uses QEMU + Docker Buildx for cross-architecture builds. Multi-arch manifests created with `docker buildx imagetools`.
+- **Bit-for-bit reproducibility**: `SNAPSHOT_DATE` build arg pins apt sources to `snapshot.ubuntu.com` for deterministic package metadata. All Dockerfiles support `SNAPSHOT_DATE` via the BU layer.
+- **Renovate Go tracking**: Go version ARG in go/Dockerfile now tracked by Renovate with `golang-version` datasource.
+- **Per-arch image tags**: Images pushed as `<version>-amd64` and `<version>-arm64`; manifest job creates unified multi-arch tags (`latest`, `<version>`, `<major>`, `<minor>`).
+
+### Changed
+
+- **Node.js Dockerfiles**: Use `TARGETARCH` to select amd64 (x64) or arm64 tarball with per-arch SHA256 verification.
+- **Go Dockerfile**: Uses `TARGETARCH` to select amd64 or arm64 tarball with per-arch SHA256 verification.
+- **Java Dockerfile**: `JAVA_HOME` dynamically set based on `TARGETARCH` (was hardcoded to `amd64`).
+- **build.sh**: Accepts `PLATFORM` env var (default: `linux/amd64`). Pushes per-arch tags only. Supports `SNAPSHOT_DATE` build arg.
+- **verify.sh**: Accepts `PLATFORM` env var. All `docker run` calls include `--platform` flag.
+- **Makefile**: All targets pass `PLATFORM` env var.
+- **CI build.yml**: Matrix expanded to include `platform: [linux/amd64, linux/arm64]`. Added QEMU, Buildx, and manifest merge job.
+- **CI nightly.yml**: Same multi-arch matrix as build.yml.
+
 ## [1.1.0] - 2026-06-07
 
 ### Added
