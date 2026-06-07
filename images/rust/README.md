@@ -41,8 +41,8 @@ jobs:
 
 | Metric | Value |
 |--------|-------|
-| Compressed | TBD |
-| Uncompressed | TBD |
+| Compressed | 471MB |
+| Uncompressed | 1789MB |
 | Layers | 3 |
 
 ## Changelog
