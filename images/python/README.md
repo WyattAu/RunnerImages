@@ -1,6 +1,6 @@
-# runner-images/ubuntu
+# runner-images/python
 
-Docker CLI and build tools for general CI workflows. The recommended default for most pipelines.
+Python 3.12 with pip, venv, and native extension support. Includes g++, python3-dev, and libffi-dev for C extension compilation.
 
 ## Base
 
@@ -17,37 +17,31 @@ Docker CLI and build tools for general CI workflows. The recommended default for
 | Archive | zip, unzip, zstd, tar, gzip |
 | Crypto | ca-certificates, openssl |
 | System | diffutils, patch, file, tree |
-| Docker | docker-ce-cli |
-| Build extra | g++ (explicit), pkg-config, libssl-dev |
-| System extra | sudo, iputils-ping, net-tools |
+| Python | python3 3.12, pip, venv |
+| Build extra | g++, python3-dev, libffi-dev, libssl-dev |
+| System extra | sudo |
 
 ## Usage
 
 ```yaml
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/wyattau/runner-images/ubuntu:1
+      image: ghcr.io/wyattau/runner-images/python:1
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t app .
-      - run: make test
+      - run: pip install -r requirements.txt
+      - run: pytest
 ```
 
 ## Size
 
 | Metric | Value |
 |--------|-------|
-| Compressed | 202MB |
-| Uncompressed | 560MB |
+| Compressed | 204MB |
+| Uncompressed | 561MB |
 | Layers | 3 |
-
-## Labels
-
-```
-ubuntu-latest:docker://ghcr.io/wyattau/runner-images/ubuntu:1.0.0
-```
 
 ## Changelog
 

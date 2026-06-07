@@ -1,6 +1,6 @@
-# runner-images/ubuntu
+# runner-images/base-universal
 
-Docker CLI and build tools for general CI workflows. The recommended default for most pipelines.
+BU (Base Universal) layer only. Minimal CI image with git, curl, jq, make, gcc, and standard utilities. No Docker CLI, no Node.js, no Python, no sudo.
 
 ## Base
 
@@ -17,37 +17,27 @@ Docker CLI and build tools for general CI workflows. The recommended default for
 | Archive | zip, unzip, zstd, tar, gzip |
 | Crypto | ca-certificates, openssl |
 | System | diffutils, patch, file, tree |
-| Docker | docker-ce-cli |
-| Build extra | g++ (explicit), pkg-config, libssl-dev |
-| System extra | sudo, iputils-ping, net-tools |
 
 ## Usage
 
 ```yaml
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/wyattau/runner-images/ubuntu:1
+      image: ghcr.io/wyattau/runner-images/base-universal:1
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t app .
-      - run: make test
+      - run: make lint
 ```
 
 ## Size
 
 | Metric | Value |
 |--------|-------|
-| Compressed | 202MB |
-| Uncompressed | 560MB |
+| Compressed | 190MB |
+| Uncompressed | 524MB |
 | Layers | 3 |
-
-## Labels
-
-```
-ubuntu-latest:docker://ghcr.io/wyattau/runner-images/ubuntu:1.0.0
-```
 
 ## Changelog
 

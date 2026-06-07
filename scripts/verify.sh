@@ -220,6 +220,25 @@ else
   check "can install packages" "$(docker run --user root --rm "$IMAGE" -c "apt-get update >/dev/null 2>&1 && apt-get install -y --no-install-recommends htop >/dev/null 2>&1 && rm -rf /var/lib/apt/lists/*" >/dev/null 2>&1 && echo PASS || echo 'failed')"
 fi
 
+# --- Compatibility tests (functional smoke tests) ---
+echo "Compatibility:"
+check "git clone works" "$(run "git clone --depth=1 https://github.com/git-fixtures/basic.git /tmp/git-test >/dev/null 2>&1 && rm -rf /tmp/git-test" >/dev/null 2>&1 && echo PASS || echo 'git clone failed')"
+
+if [ "$HAS_PYTHON" = true ]; then
+  check "pip install works" "$(run "pip3 install --user requests >/dev/null 2>&1 && python3 -c 'import requests' && rm -rf /home/runner/.local/lib" >/dev/null 2>&1 && echo PASS || echo 'pip install failed')"
+  check "venv create works" "$(run "python3 -m venv /tmp/testvenv && /tmp/testvenv/bin/pip install requests >/dev/null 2>&1 && /tmp/testvenv/bin/python3 -c 'import requests' && rm -rf /tmp/testvenv" >/dev/null 2>&1 && echo PASS || echo 'venv failed')"
+fi
+
+if [ "$HAS_NODE" = true ]; then
+  check "npm install works" "$(run "mkdir /tmp/npm-test && cd /tmp/npm-test && npm init -y >/dev/null 2>&1 && npm install lodash >/dev/null 2>&1 && node -e 'require(\"lodash\")' && rm -rf /tmp/npm-test" >/dev/null 2>&1 && echo PASS || echo 'npm install failed')"
+  check "node requires native modules" "$(run "mkdir /tmp/native-test && cd /tmp/native-test && npm init -y >/dev/null 2>&1 && npm install node-addon-api >/dev/null 2>&1 && rm -rf /tmp/native-test" >/dev/null 2>&1 && echo PASS || echo 'native module build failed')"
+fi
+
+if [ "$HAS_DOCKER" = true ]; then
+  # Docker CLI smoke test (won't connect to daemon in CI but binary works)
+  check "docker CLI responds" "$(run "docker version --format \"{{.Client.Version}}\" 2>/dev/null | grep -q '.' && echo PASS || echo docker CLI unresponsive")"
+fi
+
 # --- Entrypoint check (C9) ---
 echo "Entrypoint:"
 ENTRYPOINT=$(docker inspect --format '{{.Config.Entrypoint}}' "$IMAGE")

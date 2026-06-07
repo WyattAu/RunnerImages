@@ -22,7 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         flavour:
+          - base-universal
           - ubuntu
+          - node
+          - python
+          - heavy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

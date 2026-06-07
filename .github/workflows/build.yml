@@ -19,6 +19,7 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
@@ -73,6 +74,22 @@ jobs:
       - name: Push image
         if: github.ref == 'refs/heads/main'
         run: ./scripts/build.sh ${{ matrix.flavour }} --push
+
+      - name: Generate SBOM
+        if: github.ref == 'refs/heads/main'
+        uses: anchore/sbom-action@v0
+        with:
+          image: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest'
+          format: spdx-json
+          output-file: 'sbom-${{ matrix.flavour }}.spdx.json'
+
+      - name: Upload SBOM
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.flavour }}
+          path: sbom-${{ matrix.flavour }}.spdx.json
+          retention-days: 90
 
       - name: Generate versions.lock
         run: |

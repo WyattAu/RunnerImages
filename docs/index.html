@@ -772,9 +772,8 @@ jobs:
       image: ghcr.io/wyattau/runner-images/ubuntu:1
     steps:
       - uses: actions/checkout@v4
-      - run: node --version
-      - run: docker --version
-      - run: make build</code></pre>
+      - run: docker build -t app .
+      - run: make test</code></pre>
         </div>
       </div>
     </section>
@@ -797,33 +796,41 @@ jobs:
           <article class="flavour-card" role="listitem">
             <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
             <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">base-universal</h3>
+            <p class="flavour-card__desc">Minimal CI. git, curl, jq, make, gcc. No extras.</p>
+            <p class="flavour-card__packages">git / curl / jq / make / gcc / g++ / wget / zip / openssl / ssh</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
             <h3 class="flavour-card__name">Ubuntu</h3>
-            <p class="flavour-card__desc">Universal default. Docker CLI, Node.js 22, full build tools. The recommended starting point.</p>
-            <p class="flavour-card__packages">docker-ce-cli / node 22 / npm / g++ / pkg-config / libssl-dev / sudo / git / curl / jq / make</p>
+            <p class="flavour-card__desc">Docker CLI and build tools. The recommended default for most workflows.</p>
+            <p class="flavour-card__packages">docker-ce-cli / g++ / pkg-config / libssl-dev / sudo / git / curl / jq / make</p>
           </article>
 
           <article class="flavour-card" role="listitem">
-            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
-            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
             <h3 class="flavour-card__name">Node</h3>
-            <p class="flavour-card__desc">JavaScript and TypeScript workflows. Node.js 22 LTS with npm, yarn, and pnpm.</p>
-            <p class="flavour-card__packages">node 22 LTS / npm / yarn / pnpm / g++ / python3 (node-gyp)</p>
+            <p class="flavour-card__desc">Node.js 22 LTS with npm, yarn, and pnpm. Includes g++ and python3 for native modules.</p>
+            <p class="flavour-card__packages">node 22 / npm / yarn / pnpm / g++ / python3 (node-gyp)</p>
           </article>
 
           <article class="flavour-card" role="listitem">
-            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
-            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
             <h3 class="flavour-card__name">Python</h3>
-            <p class="flavour-card__desc">Python and ML workflows. Python 3.13 with pip, venv, and native extension support.</p>
-            <p class="flavour-card__packages">python 3.13 / pip / venv / g++ / python3-dev / libffi-dev</p>
+            <p class="flavour-card__desc">Python 3.12 with pip, venv, and native extension support.</p>
+            <p class="flavour-card__packages">python3 3.12 / pip / venv / g++ / python3-dev / libffi-dev / libssl-dev</p>
           </article>
 
           <article class="flavour-card" role="listitem">
-            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
-            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
             <h3 class="flavour-card__name">Heavy</h3>
-            <p class="flavour-card__desc">Kitchen sink for monorepos. Node, Python, Docker CLI, and full build tools in one image.</p>
-            <p class="flavour-card__packages">node 22 / python 3.13 / docker-ce-cli / npm / pip / g++</p>
+            <p class="flavour-card__desc">Kitchen sink for monorepos. Node.js, Python, Docker CLI, and full build tools.</p>
+            <p class="flavour-card__packages">node 22 / python3 3.12 / docker-ce-cli / npm / pip / g++ / pkg-config</p>
           </article>
 
           <article class="flavour-card" role="listitem">
@@ -962,11 +969,14 @@ jobs:
             <div class="quickstart__code-wrapper">
               <pre><code>docker pull ghcr.io/wyattau/runner-images/ubuntu:1
 
-# Tags follow semver:
-#   1         -- major (latest 1.x.x)
-#   1.0       -- minor (latest 1.0.x)
-#   1.0.0     -- exact
-#   latest    -- most recent</code></pre>
+# All flavours:
+#   base-universal   git, curl, jq, make, gcc   (190MB)
+#   ubuntu           + docker-cli, sudo           (202MB)
+#   python           + python3, pip, venv         (204MB)
+#   node             + node 22, npm, yarn, pnpm   (259MB)
+#   heavy            + node + python + docker     (282MB)
+#
+# Tags follow semver: 1, 1.0, 1.0.0, latest</code></pre>
             </div>
           </div>
 

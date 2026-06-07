@@ -1,6 +1,6 @@
-# runner-images/ubuntu
+# runner-images/node
 
-Docker CLI and build tools for general CI workflows. The recommended default for most pipelines.
+Node.js 22 LTS with npm, yarn, and pnpm. Includes g++ and python3 for native module compilation (node-gyp).
 
 ## Base
 
@@ -17,9 +17,9 @@ Docker CLI and build tools for general CI workflows. The recommended default for
 | Archive | zip, unzip, zstd, tar, gzip |
 | Crypto | ca-certificates, openssl |
 | System | diffutils, patch, file, tree |
-| Docker | docker-ce-cli |
-| Build extra | g++ (explicit), pkg-config, libssl-dev |
-| System extra | sudo, iputils-ping, net-tools |
+| Node.js | node 22.22.3, npm, yarn, pnpm |
+| Build extra | g++ (explicit), python3 (node-gyp) |
+| System extra | sudo |
 
 ## Usage
 
@@ -28,26 +28,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/wyattau/runner-images/ubuntu:1
+      image: ghcr.io/wyattau/runner-images/node:1
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t app .
-      - run: make test
+      - run: npm ci
+      - run: npm test
 ```
 
 ## Size
 
 | Metric | Value |
 |--------|-------|
-| Compressed | 202MB |
-| Uncompressed | 560MB |
+| Compressed | 259MB |
+| Uncompressed | 753MB |
 | Layers | 3 |
-
-## Labels
-
-```
-ubuntu-latest:docker://ghcr.io/wyattau/runner-images/ubuntu:1.0.0
-```
 
 ## Changelog
 

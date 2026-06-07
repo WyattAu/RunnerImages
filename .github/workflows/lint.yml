@@ -63,3 +63,6 @@ jobs:
             fi
             echo "OK: $f has no banned packages"
           done
+
+      - name: BU layer consistency check
+        run: bash scripts/check-bu-consistency.sh

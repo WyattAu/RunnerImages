@@ -1,6 +1,6 @@
-# runner-images/ubuntu
+# runner-images/heavy
 
-Docker CLI and build tools for general CI workflows. The recommended default for most pipelines.
+Kitchen sink for monorepos. Node.js 22 + Python 3.12 + Docker CLI + full build tools in one image.
 
 ## Base
 
@@ -18,7 +18,9 @@ Docker CLI and build tools for general CI workflows. The recommended default for
 | Crypto | ca-certificates, openssl |
 | System | diffutils, patch, file, tree |
 | Docker | docker-ce-cli |
-| Build extra | g++ (explicit), pkg-config, libssl-dev |
+| Node.js | node 22.22.3, npm, yarn, pnpm |
+| Python | python3 3.12, pip, venv |
+| Build extra | g++, pkg-config, python3-dev, libffi-dev, libssl-dev |
 | System extra | sudo, iputils-ping, net-tools |
 
 ## Usage
@@ -28,9 +30,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/wyattau/runner-images/ubuntu:1
+      image: ghcr.io/wyattau/runner-images/heavy:1
     steps:
       - uses: actions/checkout@v4
+      - run: npm ci
+      - run: pip install -r requirements.txt
       - run: docker build -t app .
       - run: make test
 ```
@@ -39,15 +43,9 @@ jobs:
 
 | Metric | Value |
 |--------|-------|
-| Compressed | 202MB |
-| Uncompressed | 560MB |
+| Compressed | 282MB |
+| Uncompressed | 818MB |
 | Layers | 3 |
-
-## Labels
-
-```
-ubuntu-latest:docker://ghcr.io/wyattau/runner-images/ubuntu:1.0.0
-```
 
 ## Changelog
 
