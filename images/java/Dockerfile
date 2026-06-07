@@ -1,9 +1,7 @@
 # Forgejo Actions runner image - java flavour
-# BU variant: bu-no-strip
-# Layer count: 3 (base + bu-no-strip-base + java)
-# BU-no-strip + OpenJDK 21 + Maven
-# Uses BU-no-strip variant: strip --strip-unneeded corrupts dpkg-managed
-# OpenJDK binaries and dpkg tools used during installation.
+# Layer count: 3 (base + bu-base + java)
+# BU + OpenJDK 21 + Maven
+# Package versions pinned per spec
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image pinned by digest
@@ -13,7 +11,7 @@ FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae
 ARG SNAPSHOT_DATE=""
 
 # ---------------------------------------------------------------------------
-# Layer 1: BU-no-strip base packages (strip-sensitive flavours)
+# Layer 1: BU base packages (shared across all flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
 RUN if [ -n "$SNAPSHOT_DATE" ]; then \
@@ -44,6 +42,7 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
       tree=2.1.1-2ubuntu3.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
+ && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
@@ -62,16 +61,13 @@ RUN apt-get update \
       g++=4:13.2.0-7ubuntu1 \
       libssl-dev=3.0.13-0ubuntu3.9 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- # Restore binaries dpkg renamed to .dpkg-tmp (dpkg internal strip corruption)
- && for f in $(find /usr/bin /usr/lib/jvm /usr/share/maven -name '*.dpkg-tmp' 2>/dev/null); do \
-      base="${f%.dpkg-tmp}"; [ ! -e "$base" ] && mv "$f" "$base" || rm -f "$f"; \
-    done \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
+ && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true \
  && chmod 4755 /usr/bin/sudo

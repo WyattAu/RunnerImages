@@ -42,7 +42,6 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
       tree=2.1.1-2ubuntu3.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
- && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
  && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
@@ -59,7 +58,6 @@ RUN userdel -r ubuntu \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
- && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
  && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true

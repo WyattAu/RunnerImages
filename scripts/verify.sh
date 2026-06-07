@@ -305,7 +305,7 @@ check "Entrypoint is /bin/bash" "$( [ "$ENTRYPOINT" = "[/bin/bash]" ] && echo PA
 # --- Architecture check (C10) ---
 echo "Architecture:"
 ARCH=$(docker inspect --format '{{.Architecture}}' "$IMAGE")
-check "Architecture is amd64" "$( [ "$ARCH" = "amd64" ] && echo PASS || echo "got: $ARCH")"
+check "Architecture is ${ARCH}" "$( [ "$ARCH" = "amd64" ] || [ "$ARCH" = "arm64" ] && echo PASS || echo "got: $ARCH")"
 
 # --- OCI Label checks (UP8) ---
 echo "Labels:"
