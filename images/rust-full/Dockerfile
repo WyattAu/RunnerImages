@@ -62,9 +62,9 @@ RUN apt-get update \
       pkg-config=1.8.1-2build1 \
       libssl-dev=3.0.13-0ubuntu3.9 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
-      protobuf-compiler=3.12.4-1ubuntu7.22.04.1 \
-      libsqlite3-dev=3.45.1-1ubuntu2 \
-      cmake=3.28.3-1build0.24.04.1 \
+      protobuf-compiler \
+      libsqlite3-dev \
+      cmake \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} --no-modify-path \
  && chmod -R a+rwX /usr/local/cargo /usr/local/rustup \
  && curl -sL "https://github.com/nickelc/wasm-pack/releases/latest/download/wasm-pack-$(uname -s)-$(uname -m).tar.gz" \

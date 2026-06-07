@@ -153,8 +153,8 @@ check "ssh-keygen available" "$(run "which ssh-keygen" | grep -q 'ssh-keygen' &&
 
 # --- Build checks (BU) ---
 echo "Build:"
-check "make available" "$(run "make --version" | grep -q 'GNU Make' && echo PASS || echo 'not found')"
-check "gcc available" "$(run "gcc --version" | grep -q 'gcc' && echo PASS || echo 'not found')"
+check "make available" "$(run "command -v make && make --version" | grep -q 'GNU Make' && echo PASS || echo 'not found')"
+check "gcc available" "$(run "command -v gcc && gcc --version" | grep -q 'gcc' && echo PASS || echo 'not found')"
 check "g++ available" "$(run "g++ --version" | grep -q 'g++' && echo PASS || echo 'not found')"
 
 # --- Data checks ---
@@ -170,7 +170,7 @@ check "wget available" "$(run "wget --version" | grep -q 'GNU Wget' && echo PASS
 # --- Archive checks ---
 echo "Archive:"
 check "zip available" "$(run "zip --version" | grep -q 'Copyright' && echo PASS || echo 'not found')"
-check "unzip available" "$(run "unzip -v" | grep -q 'UnZip' && echo PASS || echo 'not found')"
+check "unzip available" "$(run "command -v unzip && unzip -v" | grep -q 'UnZip' && echo PASS || echo 'not found')"
 check "zstd available" "$(run "zstd --version" | grep -qi 'zstd\|zstandard' && echo PASS || echo 'not found')"
 check "tar available" "$(run "tar --version" | grep -q 'tar' && echo PASS || echo 'not found')"
 check "gzip available" "$(run "gzip --version" | grep -q 'gzip' && echo PASS || echo 'not found')"
