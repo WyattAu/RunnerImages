@@ -59,6 +59,8 @@ RUN apt-get update \
       maven \
       g++=4:13.2.0-7ubuntu1 \
       libssl-dev=3.0.13-0ubuntu3.9 \
+ # Install sudo separately — conflicts with OpenJDK in same apt transaction
+ && apt-get install -y --no-install-recommends \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
