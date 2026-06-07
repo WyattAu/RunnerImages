@@ -63,8 +63,8 @@ RUN apt-get update \
  && mkdir -p /opt/flutter \
  && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
  && rm -f /tmp/flutter.tar.xz \
- && /opt/flutter/bin/flutter precache \
  && /opt/flutter/bin/flutter config --no-analytics \
+ && /opt/flutter/bin/flutter --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
