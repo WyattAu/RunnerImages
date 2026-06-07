@@ -1,0 +1,65 @@
+# Pre-commit checks (lint, validate, test)
+# Runs on every push/PR regardless of changed paths
+
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Shellcheck
+        run: shellcheck scripts/*.sh
+
+      - name: Validate VERSION files
+        run: |
+          for f in images/*/VERSION; do
+            v=$(tr -d '[:space:]' < "$f")
+            if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "FAIL: $f invalid semver: '$v'"
+              exit 1
+            fi
+            echo "OK: $f -> $v"
+          done
+
+      - name: Check base image digest pinning
+        run: |
+          for f in images/*/Dockerfile; do
+            if ! grep -qP 'FROM ubuntu:24.04@sha256:' "$f"; then
+              echo "FAIL: $f must pin base image by SHA256 digest"
+              exit 1
+            fi
+            echo "OK: $f has pinned digest"
+          done
+
+      - name: Check for secrets in Dockerfiles
+        run: |
+          for f in images/*/Dockerfile; do
+            if grep -qiE '(password|secret|token|api_key|private_key)\s*=' "$f"; then
+              echo "FAIL: Potential secret found in $f"
+              grep -niE '(password|secret|token|api_key|private_key)\s*=' "$f"
+              exit 1
+            fi
+            echo "OK: $f has no secrets"
+          done
+
+      - name: Check for banned packages
+        run: |
+          BANNED="docker-ce[^-]|containerd|runc|systemd|dbus|cron|openssh-server|supervisord|pm2"
+          for f in images/*/Dockerfile; do
+            if grep -qiP "(apt-get install.*($BANNED))" "$f"; then
+              echo "FAIL: Banned package found in $f"
+              exit 1
+            fi
+            echo "OK: $f has no banned packages"
+          done

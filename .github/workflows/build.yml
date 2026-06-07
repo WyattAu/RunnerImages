@@ -1,0 +1,119 @@
+# Build and verify runner images on push/PR to main
+# Spec reference: S7.1 Build Pipeline
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'images/**'
+      - 'scripts/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'images/**'
+      - 'scripts/**'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      flavours: ${{ steps.detect.outputs.flavours }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect changed flavours
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.base_ref }}"
+            CHANGED=$(git diff --name-only "origin/${BASE}...HEAD" -- 'images/*' | grep -oP 'images/\K[^/]+' | sort -u)
+          else
+            CHANGED=$(ls images/)
+          fi
+          echo "flavours=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.flavours != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        flavour: ${{ fromJson(needs.detect-changes.outputs.flavours) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh ${{ matrix.flavour }}
+
+      - name: Verify image
+        run: |
+          chmod +x scripts/verify.sh
+          ./scripts/verify.sh ${{ matrix.flavour }}
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./scripts/build.sh ${{ matrix.flavour }} --push
+
+      - name: Generate versions.lock
+        run: |
+          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
+          docker run --rm "$IMAGE" dpkg-query -W -f '$${Package}=$${Version}\n' | sort \
+            > "images/${{ matrix.flavour }}/versions.lock"
+
+      - name: Upload versions.lock
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: versions-${{ matrix.flavour }}
+          path: images/${{ matrix.flavour }}/versions.lock
+          retention-days: 90
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+      - name: Check Dockerfile lint
+        run: |
+          sudo apt-get install -y hadolint || true
+          for f in images/*/Dockerfile; do
+            if command -v hadolint >/dev/null 2>&1; then
+              hadolint "$f"
+            else
+              echo "hadolint not available, skipping Dockerfile lint for $f"
+            fi
+          done
+      - name: Validate VERSION files
+        run: |
+          for f in images/*/VERSION; do
+            v=$(tr -d '[:space:]' < "$f")
+            if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "FAIL: $f does not contain valid semver: '$v'"
+              exit 1
+            fi
+            echo "OK: $f -> $v"
+          done
