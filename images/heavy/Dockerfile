@@ -41,7 +41,6 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
       file=1:5.45-3build1 \
       tree=2.1.1-2ubuntu3.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
- && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
@@ -96,7 +95,6 @@ RUN apt-get update \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
- && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true \
  && chmod 4755 /usr/bin/sudo
