@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Deterministic, minimal Docker images for Forgejo Actions CI runners. Pinned digests, version-locked packages, reproducible builds.">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta property="og:title" content="RunnerImages">
+  <meta property="og:description" content="Deterministic Docker images for Forgejo Actions CI runners">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wyattau.github.io/RunnerImages/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="RunnerImages">
+  <meta name="twitter:description" content="Deterministic Docker images for Forgejo Actions CI runners">
+  <title>RunnerImages -- Deterministic Docker images for CI runners</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-black: #0A0A0A;
+      --c-white: #F5F5F0;
+      --c-accent: #FF3D00;
+      --c-mid: #B0B0A8;
+      --c-surface: #F5F5F0;
+      --c-surface-alt: #EBEAE5;
+      --c-card: #FFFFFF;
+      --c-code-bg: #1A1A1A;
+      --c-code-text: #E8E8E0;
+      --c-border: #D0D0C8;
+      --z-0: 0;
+      --z-1: 1;
+      --z-2: 4;
+      --z-4: 16;
+      --shadow-0: none;
+      --shadow-1: 0 1px 3px rgba(10,10,10,0.08), 0 1px 2px rgba(10,10,10,0.12);
+      --shadow-2: 0 4px 12px rgba(10,10,10,0.1), 0 2px 4px rgba(10,10,10,0.14);
+      --shadow-4: 0 12px 40px rgba(10,10,10,0.12), 0 4px 12px rgba(10,10,10,0.16);
+      --font-heading: 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Space Grotesk', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --radius-sm: 0;
+      --radius-md: 0;
+      --radius-lg: 0;
+      --blob-1: 60% 40% 50% 50% / 50% 60% 40% 50%;
+      --blob-2: 40% 50% 60% 50% / 50% 40% 60% 50%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --c-black: #F5F5F0;
+        --c-white: #0E0E0E;
+        --c-mid: #808078;
+        --c-surface: #141414;
+        --c-surface-alt: #1C1C1C;
+        --c-card: #1A1A1A;
+        --c-code-bg: #0A0A0A;
+        --c-code-text: #D8D8D0;
+        --c-border: #2A2A2A;
+        --shadow-1: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.4);
+        --shadow-2: 0 4px 12px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.4);
+        --shadow-4: 0 12px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.5);
+      }
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--c-black);
+      background-color: var(--c-white);
+      overflow-x: hidden;
+    }
+
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      background: var(--c-accent);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      font-family: var(--font-body);
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 9999;
+      border: none;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+
+    .container {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .container--narrow {
+      max-width: 56rem;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    h1 { font-size: clamp(2.5rem, 8vw, 5.5rem); }
+    h2 { font-size: clamp(1.75rem, 4vw, 3rem); }
+    h3 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); }
+
+    a {
+      color: var(--c-accent);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.15s ease;
+    }
+
+    a:hover, a:focus-visible {
+      border-bottom-color: var(--c-accent);
+    }
+
+    a:focus-visible {
+      outline: 2px solid var(--c-accent);
+      outline-offset: 2px;
+    }
+
+    code, pre {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+    }
+
+    pre {
+      background: var(--c-code-bg);
+      color: var(--c-code-text);
+      padding: 1.5rem;
+      overflow-x: auto;
+      border: 2px solid var(--c-border);
+      line-height: 1.7;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    code {
+      background: var(--c-code-bg);
+      color: var(--c-code-text);
+      padding: 0.15em 0.4em;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border: 2px solid;
+    }
+
+    .tag--available {
+      color: #1a7a1a;
+      border-color: #1a7a1a;
+      background: rgba(26,122,26,0.08);
+    }
+
+    .tag--planned {
+      color: var(--c-mid);
+      border-color: var(--c-mid);
+      background: rgba(176,176,168,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tag--available {
+        color: #4ade4a;
+        border-color: #4ade4a;
+        background: rgba(74,222,74,0.1);
+      }
+    }
+
+    /* ===== CURVED DIVIDERS ===== */
+    .section-divider {
+      position: relative;
+      height: 80px;
+      overflow: hidden;
+    }
+
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      width: 110%;
+      height: 100%;
+      background: var(--c-surface-alt);
+      border-radius: 0 0 50% 50%;
+    }
+
+    .section-divider--flip::before {
+      border-radius: 50% 50% 0 0;
+      bottom: auto;
+      top: 0;
+    }
+
+    /* ===== BLOB DECORATIONS ===== */
+    .blob {
+      position: absolute;
+      border-radius: var(--blob-1);
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: var(--z-0);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .blob { opacity: 0.04; }
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: var(--z-4);
+      background: var(--c-white);
+      border-bottom: 2px solid var(--c-black);
+      box-shadow: var(--shadow-2);
+    }
+
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+
+    .nav__brand {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: var(--c-black);
+      border-bottom: none;
+    }
+
+    .nav__links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav__links a {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-black);
+      border-bottom: none;
+      padding: 0.25rem 0;
+    }
+
+    .nav__links a:hover,
+    .nav__links a:focus-visible {
+      color: var(--c-accent);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      padding: clamp(4rem, 10vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+      background: var(--c-surface);
+      overflow: hidden;
+    }
+
+    .hero__blob-1 {
+      top: -10%;
+      right: -8%;
+      width: 45vw;
+      height: 45vw;
+      max-width: 500px;
+      max-height: 500px;
+      background: var(--c-accent);
+      border-radius: var(--blob-1);
+    }
+
+    .hero__blob-2 {
+      bottom: -15%;
+      left: -5%;
+      width: 30vw;
+      height: 30vw;
+      max-width: 350px;
+      max-height: 350px;
+      background: var(--c-black);
+      border-radius: var(--blob-2);
+      opacity: 0.03;
+    }
+
+    .hero__title {
+      position: relative;
+      z-index: var(--z-1);
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .hero__title-accent {
+      color: var(--c-accent);
+    }
+
+    .hero__subtitle {
+      position: relative;
+      z-index: var(--z-1);
+      font-size: clamp(1rem, 2.5vw, 1.35rem);
+      font-weight: 400;
+      max-width: 36rem;
+      margin-bottom: 2.5rem;
+      color: var(--c-mid);
+    }
+
+    .hero__code {
+      position: relative;
+      z-index: var(--z-2);
+      box-shadow: var(--shadow-4);
+      max-width: 42rem;
+    }
+
+    .hero__code-label {
+      background: var(--c-accent);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      display: inline-block;
+    }
+
+    .hero__code pre {
+      margin: 0;
+      border-top: none;
+    }
+
+    /* ===== SECTION ===== */
+    .section {
+      position: relative;
+      padding: clamp(3rem, 8vw, 6rem) 0;
+    }
+
+    .section--alt {
+      background: var(--c-surface-alt);
+    }
+
+    .section__header {
+      margin-bottom: clamp(2rem, 4vw, 3.5rem);
+    }
+
+    .section__label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .section__title {
+      position: relative;
+      z-index: var(--z-1);
+    }
+
+    /* ===== FLAVOURS ===== */
+    .flavours-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      position: relative;
+      z-index: var(--z-1);
+    }
+
+    @media (min-width: 768px) {
+      .flavours-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .flavours-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .flavour-card {
+      background: var(--c-card);
+      border: 2px solid var(--c-border);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-1);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .flavour-card:hover {
+      box-shadow: var(--shadow-2);
+      transform: translateY(-2px);
+    }
+
+    .flavour-card__blob {
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
+      opacity: 0.07;
+    }
+
+    .flavour-card__name {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.35rem;
+    }
+
+    .flavour-card__desc {
+      font-size: 0.9rem;
+      color: var(--c-mid);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .flavour-card__packages {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--c-mid);
+      line-height: 1.8;
+    }
+
+    .flavour-card__tag {
+      margin-bottom: 1rem;
+    }
+
+    /* ===== ARCHITECTURE ===== */
+    .arch-layers {
+      position: relative;
+      z-index: var(--z-1);
+      max-width: 42rem;
+      margin: 0 auto;
+    }
+
+    .arch-layer {
+      background: var(--c-card);
+      border: 2px solid var(--c-border);
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow-1);
+      position: relative;
+      margin-bottom: 0;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    }
+
+    .arch-layer:nth-child(2) {
+      margin-left: 1.5rem;
+      margin-right: -0.5rem;
+      box-shadow: var(--shadow-2);
+      z-index: var(--z-1);
+    }
+
+    .arch-layer:nth-child(3) {
+      margin-left: 3rem;
+      margin-right: -1rem;
+      box-shadow: var(--shadow-4);
+      z-index: var(--z-2);
+    }
+
+    @media (min-width: 768px) {
+      .arch-layer:nth-child(2) {
+        margin-left: 3rem;
+        margin-right: -0.5rem;
+      }
+      .arch-layer:nth-child(3) {
+        margin-left: 6rem;
+        margin-right: -1rem;
+      }
+    }
+
+    .arch-layer__num {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .arch-layer__title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .arch-layer__desc {
+      font-size: 0.85rem;
+      color: var(--c-mid);
+      line-height: 1.5;
+    }
+
+    .arch-layer__desc code {
+      font-size: 0.78rem;
+    }
+
+    /* ===== PILLARS ===== */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      position: relative;
+      z-index: var(--z-1);
+    }
+
+    @media (min-width: 768px) {
+      .pillars-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .pillars-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .pillar-card {
+      background: var(--c-card);
+      border: 2px solid var(--c-border);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-1);
+      position: relative;
+    }
+
+    .pillar-card__num {
+      font-family: var(--font-mono);
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--c-accent);
+      opacity: 0.15;
+      position: absolute;
+      top: 0.75rem;
+      right: 1rem;
+      pointer-events: none;
+    }
+
+    .pillar-card__title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .pillar-card__body {
+      font-size: 0.85rem;
+      color: var(--c-mid);
+      line-height: 1.6;
+    }
+
+    /* ===== QUICK START ===== */
+    .quickstart__steps {
+      display: grid;
+      gap: 1.5rem;
+      position: relative;
+      z-index: var(--z-1);
+      max-width: 48rem;
+    }
+
+    .quickstart__step {
+      position: relative;
+    }
+
+    .quickstart__step-num {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .quickstart__step-title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .quickstart__code-wrapper {
+      position: relative;
+    }
+
+    .quickstart__code-wrapper pre {
+      margin: 0;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      position: relative;
+      border-top: 2px solid var(--c-black);
+      padding: 2.5rem 0;
+      background: var(--c-surface);
+    }
+
+    .footer__inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .footer__col {
+      min-width: 12rem;
+    }
+
+    .footer__heading {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--c-mid);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer__text {
+      font-size: 0.85rem;
+      color: var(--c-mid);
+      line-height: 1.6;
+    }
+
+    .footer__link {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--c-black);
+      margin-bottom: 0.25rem;
+      border-bottom: none;
+    }
+
+    .footer__link:hover,
+    .footer__link:focus-visible {
+      color: var(--c-accent);
+    }
+
+    .footer__bottom {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--c-border);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--c-mid);
+      letter-spacing: 0.03em;
+    }
+
+    /* ===== AMOEBIC ORGANIC SECTION DIVIDERS ===== */
+    .wave-divider {
+      width: 100%;
+      height: 60px;
+      overflow: hidden;
+      line-height: 0;
+    }
+
+    .wave-divider svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== RESPONSIVE TWEAKS ===== */
+    @media (max-width: 480px) {
+      .nav__links {
+        gap: 0.75rem;
+      }
+
+      .nav__links a {
+        font-size: 0.65rem;
+      }
+
+      .flavour-card {
+        padding: 1.25rem;
+      }
+
+      .pillar-card {
+        padding: 1.25rem;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .container {
+        padding: 0 2rem;
+      }
+    }
+
+    /* ===== REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .flavour-card {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <nav class="nav" role="navigation" aria-label="Primary navigation">
+    <div class="nav__inner">
+      <a href="#top" class="nav__brand" aria-label="RunnerImages home">RUNNERIMAGES</a>
+      <ul class="nav__links">
+        <li><a href="#flavours">Flavours</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#pillars">Pillars</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="https://github.com/WyattAu/RunnerImages" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="top" aria-label="Introduction">
+      <div class="blob hero__blob-1" aria-hidden="true"></div>
+      <div class="blob hero__blob-2" aria-hidden="true"></div>
+      <div class="container">
+        <h1 class="hero__title">RUNNER<span class="hero__title-accent">IMAGES</span></h1>
+        <p class="hero__subtitle">Deterministic Docker images for CI runners. Pinned digests, locked versions, reproducible builds. No surprises.</p>
+        <div class="hero__code" role="img" aria-label="Example Forgejo Actions workflow using the ubuntu image">
+          <span class="hero__code-label">forgejo-actions workflow</span>
+          <pre><code>on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/ubuntu:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --version
+      - run: docker --version
+      - run: make build</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave divider: surface -> surface-alt -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,0 L1440,0 L1440,20 C1200,60 960,0 720,40 C480,80 240,10 0,50 Z" fill="var(--c-surface-alt)"/>
+      </svg>
+    </div>
+
+    <!-- ===== FLAVOURS ===== -->
+    <section class="section section--alt" id="flavours" aria-label="Image flavours">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__label">Flavours</span>
+          <h2 class="section__title">Pick your base</h2>
+        </header>
+        <div class="flavours-grid" role="list">
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-accent);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--available">Available</span></div>
+            <h3 class="flavour-card__name">Ubuntu</h3>
+            <p class="flavour-card__desc">Universal default. Docker CLI, Node.js 22, full build tools. The recommended starting point.</p>
+            <p class="flavour-card__packages">docker-ce-cli / node 22 / npm / g++ / pkg-config / libssl-dev / sudo / git / curl / jq / make</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <h3 class="flavour-card__name">Node</h3>
+            <p class="flavour-card__desc">JavaScript and TypeScript workflows. Node.js 22 LTS with npm, yarn, and pnpm.</p>
+            <p class="flavour-card__packages">node 22 LTS / npm / yarn / pnpm / g++ / python3 (node-gyp)</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <h3 class="flavour-card__name">Python</h3>
+            <p class="flavour-card__desc">Python and ML workflows. Python 3.13 with pip, venv, and native extension support.</p>
+            <p class="flavour-card__packages">python 3.13 / pip / venv / g++ / python3-dev / libffi-dev</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <h3 class="flavour-card__name">Heavy</h3>
+            <p class="flavour-card__desc">Kitchen sink for monorepos. Node, Python, Docker CLI, and full build tools in one image.</p>
+            <p class="flavour-card__packages">node 22 / python 3.13 / docker-ce-cli / npm / pip / g++</p>
+          </article>
+
+          <article class="flavour-card" role="listitem">
+            <div class="flavour-card__blob" style="background:var(--c-mid);" aria-hidden="true"></div>
+            <div class="flavour-card__tag"><span class="tag tag--planned">Planned</span></div>
+            <h3 class="flavour-card__name">Flutter</h3>
+            <p class="flavour-card__desc">Mobile and frontend workflows. Flutter SDK with Dart and Android SDK.</p>
+            <p class="flavour-card__packages">flutter / dart / android-sdk / cmdline-tools / cmake / ninja-build</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave divider: surface-alt -> surface -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,60 L1440,60 L1440,40 C1200,0 960,60 720,20 C480,-20 240,50 0,10 Z" fill="var(--c-surface)"/>
+      </svg>
+    </div>
+
+    <!-- ===== ARCHITECTURE ===== -->
+    <section class="section" id="architecture" aria-label="Layer architecture">
+      <div class="container container--narrow">
+        <header class="section__header">
+          <span class="section__label">Architecture</span>
+          <h2 class="section__title">Three layers. Zero waste.</h2>
+        </header>
+        <div class="arch-layers" role="list" aria-label="Image layer architecture">
+          <div class="arch-layer" role="listitem">
+            <div class="arch-layer__num">Layer 0</div>
+            <h3 class="arch-layer__title">Base</h3>
+            <p class="arch-layer__desc"><code>ubuntu:24.04@sha256:&lt;digest&gt;</code> -- pinned by SHA256 digest. Prevents supply-chain drift. ~78 MB uncompressed.</p>
+          </div>
+          <div class="arch-layer" role="listitem">
+            <div class="arch-layer__num">Layer 1</div>
+            <h3 class="arch-layer__title">BU Base</h3>
+            <p class="arch-layer__desc">Shared build utilities: git, curl, jq, make, gcc, wget, zip, openssl, and more. Shared across all flavours. ~250 MB uncompressed.</p>
+          </div>
+          <div class="arch-layer" role="listitem">
+            <div class="arch-layer__num">Layer 2</div>
+            <h3 class="arch-layer__title">Flavour</h3>
+            <p class="arch-layer__desc">Flavour-specific packages and user setup. Docker deduplicates Layers 0 and 1 across images. Max 4 layers enforced at build time.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave divider: surface -> surface-alt -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,0 L1440,0 L1440,15 C1100,65 800,5 550,45 C300,85 150,15 0,55 Z" fill="var(--c-surface-alt)"/>
+      </svg>
+    </div>
+
+    <!-- ===== PILLARS ===== -->
+    <section class="section section--alt" id="pillars" aria-label="Design pillars">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__label">Pillars</span>
+          <h2 class="section__title">Six principles. Zero compromises.</h2>
+        </header>
+        <div class="pillars-grid" role="list" aria-label="The six design pillars">
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P1</span>
+            <h3 class="pillar-card__title">Deterministic</h3>
+            <p class="pillar-card__body">Pinned base digests, pinned package versions, SHA256-verified tarballs. A build is the same bitstring every time. No "works on my machine."</p>
+          </article>
+
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P2</span>
+            <h3 class="pillar-card__title">Thin</h3>
+            <p class="pillar-card__body">Compressed budget enforced at build time. No man pages, no docs, no static libs, no caches. Every byte earns its place.</p>
+          </article>
+
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P3</span>
+            <h3 class="pillar-card__title">Secure</h3>
+            <p class="pillar-card__body">No SUID except sudo, no world-writable files, no secrets in image. Trivy scans in CI. Minimal attack surface.</p>
+          </article>
+
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P4</span>
+            <h3 class="pillar-card__title">Compatible</h3>
+            <p class="pillar-card__body">amd64 architecture, standard UID/GID 1000, Docker CLI for sibling containers. Works with any standard Forgejo or GitHub Actions workflow.</p>
+          </article>
+
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P5</span>
+            <h3 class="pillar-card__title">Auditable</h3>
+            <p class="pillar-card__body">OCI labels, versions.lock per build, SBOM generation with syft, cosign signing. Every component traceable.</p>
+          </article>
+
+          <article class="pillar-card" role="listitem">
+            <span class="pillar-card__num" aria-hidden="true">P6</span>
+            <h3 class="pillar-card__title">Maintainable</h3>
+            <p class="pillar-card__body">Renovate for automated updates, shellcheck and hadolint in CI, pre-commit hooks, single-command build. Updates tested and reversible.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave divider: surface-alt -> surface -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,60 L1440,60 L1440,45 C1100,-5 800,55 550,15 C300,-25 150,45 0,5 Z" fill="var(--c-surface)"/>
+      </svg>
+    </div>
+
+    <!-- ===== QUICK START ===== -->
+    <section class="section" id="quickstart" aria-label="Quick start guide">
+      <div class="container container--narrow">
+        <header class="section__header">
+          <span class="section__label">Quick Start</span>
+          <h2 class="section__title">Up and running</h2>
+        </header>
+        <div class="quickstart__steps">
+          <div class="quickstart__step">
+            <div class="quickstart__step-num">Step 01</div>
+            <h3 class="quickstart__step-title">Use in a workflow</h3>
+            <div class="quickstart__code-wrapper">
+              <pre><code>on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/ubuntu:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: make build</code></pre>
+            </div>
+          </div>
+
+          <div class="quickstart__step">
+            <div class="quickstart__step-num">Step 02</div>
+            <h3 class="quickstart__step-title">Pull directly</h3>
+            <div class="quickstart__code-wrapper">
+              <pre><code>docker pull ghcr.io/wyattau/runner-images/ubuntu:1
+
+# Tags follow semver:
+#   1         -- major (latest 1.x.x)
+#   1.0       -- minor (latest 1.0.x)
+#   1.0.0     -- exact
+#   latest    -- most recent</code></pre>
+            </div>
+          </div>
+
+          <div class="quickstart__step">
+            <div class="quickstart__step-num">Step 03</div>
+            <h3 class="quickstart__step-title">Build from source</h3>
+            <div class="quickstart__code-wrapper">
+              <pre><code>git clone https://github.com/WyattAu/RunnerImages.git
+cd RunnerImages
+make build                  # build ubuntu (default)
+make build FLAVOUR=ubuntu   # explicit flavour
+make verify                 # run verification suite</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__col">
+          <h4 class="footer__heading">Project</h4>
+          <p class="footer__text">Deterministic Docker images for Forgejo Actions CI runners.</p>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__heading">Links</h4>
+          <a href="https://github.com/WyattAu/RunnerImages" class="footer__link" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+          <a href="https://github.com/WyattAu/RunnerImages/pkgs/container/runner-images" class="footer__link" target="_blank" rel="noopener noreferrer">Container Registry</a>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__heading">License</h4>
+          <p class="footer__text">Apache License 2.0</p>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        RunnerImages -- <time datetime="2026-06-07">Last updated 2026-06-07</time>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
