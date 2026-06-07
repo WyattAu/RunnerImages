@@ -1,7 +1,9 @@
 # Forgejo Actions runner image - java flavour
-# Layer count: 3 (base + bu-base + java)
-# BU + OpenJDK 21 + Maven
-# Package versions pinned per spec
+# BU variant: bu-no-strip
+# Layer count: 3 (base + bu-no-strip-base + java)
+# BU-no-strip + OpenJDK 21 + Maven
+# Uses BU-no-strip variant: strip --strip-unneeded corrupts dpkg-managed
+# OpenJDK binaries and dpkg tools used during installation.
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image pinned by digest
@@ -11,7 +13,7 @@ FROM ubuntu:24.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae
 ARG SNAPSHOT_DATE=""
 
 # ---------------------------------------------------------------------------
-# Layer 1: BU base packages (shared across all flavours)
+# Layer 1: BU-no-strip base packages (strip-sensitive flavours)
 # ---------------------------------------------------------------------------
 FROM base AS bu-base
 RUN if [ -n "$SNAPSHOT_DATE" ]; then \
@@ -42,8 +44,6 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
       tree=2.1.1-2ubuntu3.24.04.2 \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /usr/share/man/* /usr/share/doc/* /usr/share/info/* \
- && find /usr/bin -type f -executable -exec strip --strip-unneeded {} + 2>/dev/null || true \
- && find /usr/lib -name "*.a" -delete 2>/dev/null || true \
  && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true \
  && find / -perm -002 -type f -exec chmod o-w {} + 2>/dev/null || true
 
