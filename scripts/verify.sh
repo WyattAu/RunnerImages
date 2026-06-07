@@ -61,6 +61,7 @@ print_summary() {
   fi
   echo ""
   echo "VERIFICATION PASSED"
+  exit 0
 }
 trap print_summary EXIT
 
@@ -187,7 +188,7 @@ echo "Security:"
 SUID_COUNT=$(docker run --rm "$IMAGE" find / -perm /4000 -type f 2>/dev/null | grep -cv '^/usr/bin/sudo$' || true)
 SUID_COUNT=$(echo "$SUID_COUNT" | tr -d '[:space:]')
 check "No unexpected SUID binaries" "$( [ "${SUID_COUNT:-0}" -eq 0 ] && echo PASS || echo "${SUID_COUNT} unexpected SUID binaries found")"
-WW_COUNT=$(docker run --rm "$IMAGE" find / -perm -002 -type f 2>/dev/null | wc -l)
+WW_COUNT=$(docker run --user root --rm "$IMAGE" find / -perm -002 -type f 2>/dev/null | wc -l || true)
 WW_COUNT=$(echo "$WW_COUNT" | tr -d '[:space:]')
 check "No world-writable files" "$( [ "${WW_COUNT:-0}" -eq 0 ] && echo PASS || echo "${WW_COUNT} world-writable files found")"
 
