@@ -63,9 +63,9 @@ RUN apt-get update \
       libssl-dev=3.0.13-0ubuntu3.9 \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
  # Restore binaries dpkg renamed to .dpkg-tmp (dpkg internal strip corruption)
- && find /usr/bin -name '*.dpkg-tmp' -exec sh -c 'base="${1%.dpkg-tmp}"; [ ! -e "$base" ] && mv "$1" "$base"' _ {} \; 2>/dev/null || true \
- && find /usr/lib/jvm -name '*.dpkg-tmp' -exec sh -c 'base="${1%.dpkg-tmp}"; [ ! -e "$base" ] && mv "$1" "$base"' _ {} \; 2>/dev/null || true \
- && find /usr/share/maven -name '*.dpkg-tmp' -exec sh -c 'base="${1%.dpkg-tmp}"; [ ! -e "$base" ] && mv "$1" "$base"' _ {} \; 2>/dev/null || true \
+ && for f in $(find /usr/bin /usr/lib/jvm /usr/share/maven -name '*.dpkg-tmp' 2>/dev/null); do \
+      base="${f%.dpkg-tmp}"; [ ! -e "$base" ] && mv "$f" "$base" || rm -f "$f"; \
+    done \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
