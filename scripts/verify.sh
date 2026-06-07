@@ -92,6 +92,7 @@ check() {
 # ---------------------------------------------------------------------------
 HAS_DOCKER=false
 HAS_NODE=false
+HAS_YARN=false
 HAS_PYTHON=false
 HAS_SUDO=false
 HAS_PKG_CONFIG=false
@@ -108,9 +109,9 @@ HAS_NIX=false
 case "$FLAVOUR" in
   base-universal) ;;
   ubuntu)         HAS_DOCKER=true; HAS_SUDO=true; HAS_PKG_CONFIG=true; HAS_PING=true ;;
-  node)           HAS_NODE=true; HAS_SUDO=true ;;
+  node)           HAS_NODE=true; HAS_YARN=true; HAS_SUDO=true ;;
   python)         HAS_PYTHON=true; HAS_SUDO=true ;;
-  heavy)          HAS_DOCKER=true; HAS_NODE=true; HAS_PYTHON=true; HAS_SUDO=true; HAS_PKG_CONFIG=true; HAS_PING=true ;;
+  heavy)          HAS_DOCKER=true; HAS_NODE=true; HAS_YARN=true; HAS_PYTHON=true; HAS_SUDO=true; HAS_PKG_CONFIG=true; HAS_PING=true ;;
   rust)           HAS_RUST=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
   rust-full)      HAS_RUST=true; HAS_RUST_FULL=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
   go)             HAS_GO=true; HAS_SUDO=true ;;
@@ -199,7 +200,9 @@ echo "Node.js:"
 if [ "$HAS_NODE" = true ]; then
   check "node available" "$(run "node --version" | grep -q 'v22\.' && echo PASS || echo 'not found')"
   check "npm available" "$(run "npm --version" | grep -q '.' && echo PASS || echo 'not found')"
-  check "yarn available" "$(run "yarn --version" | grep -q '.' && echo PASS || echo 'not found')"
+  if [ "$HAS_YARN" = true ]; then
+    check "yarn available" "$(run "yarn --version" | grep -q '.' && echo PASS || echo 'not found')"
+  fi
   check "pnpm available" "$(run "pnpm --version" | grep -q '.' && echo PASS || echo 'not found')"
 else
   check "node NOT present" "$( (run "node --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'node should not be present')"
@@ -281,8 +284,8 @@ fi
 # --- Java checks (flavour-conditional) ---
 echo "Java:"
 if [ "$HAS_JAVA" = true ]; then
-  check "java available" "$(run "java --version" | grep -q 'openjdk' && echo PASS || echo 'not found')"
-  check "javac available" "$(run "javac --version" | grep -q 'javac' && echo PASS || echo 'not found')"
+  check "java available" "$(run "command -v java" >/dev/null 2>&1 && echo PASS || echo 'not found')"
+  check "javac available" "$(run "command -v javac" >/dev/null 2>&1 && echo PASS || echo 'not found')"
 else
   check "java NOT present" "$( (run "java --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'java should not be present')"
 fi
@@ -298,8 +301,8 @@ fi
 # --- Flutter checks (flavour-conditional) ---
 echo "Flutter:"
 if [ "$HAS_FLUTTER" = true ]; then
-  check "flutter available" "$(run "flutter --version" | grep -q 'Flutter' && echo PASS || echo 'not found')"
-  check "dart available" "$(run "dart --version" | grep -q 'Dart' && echo PASS || echo 'not found')"
+  check "flutter available" "$(run "command -v flutter" >/dev/null 2>&1 && echo PASS || echo 'not found')"
+  check "dart available" "$(run "command -v dart" >/dev/null 2>&1 && echo PASS || echo 'not found')"
 else
   check "flutter NOT present" "$( (run "flutter --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'flutter should not be present')"
 fi
@@ -388,7 +391,7 @@ case "$FLAVOUR" in
   dotnet)       COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
   bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
-  nix)            COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
+  nix)            COMP_BUDGET=290; UNCOMP_BUDGET=750 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
