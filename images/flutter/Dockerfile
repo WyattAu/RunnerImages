@@ -51,11 +51,11 @@ ARG IMAGE_VERSION=dev
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      cmake=3.28.3-1build7 \
-      ninja-build=1.11.1-2 \
+      cmake \
+      ninja-build \
       g++=4:13.2.0-7ubuntu1 \
       pkg-config=1.8.1-2build1 \
-      clang=1:18.1.3-1ubuntu2 \
+      clang \
       libgtk-3-dev \
       libglu1-mesa \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
