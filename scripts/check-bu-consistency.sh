@@ -30,12 +30,13 @@ for dir in "${FLAVOUR_DIRS[@]}"; do
   fi
 
   if [ "$name" = "base-universal" ]; then
-    # Verify base-universal contains the BU apt-get block
-    if grep -q 'apt-get install.*git=' "$dockerfile" && \
-       grep -q 'apt-get install.*curl=' "$dockerfile" && \
-       grep -q 'apt-get install.*jq=' "$dockerfile" && \
-       grep -q 'apt-get install.*make=' "$dockerfile" && \
-       grep -q 'apt-get install.*build-essential' "$dockerfile"; then
+    # Verify base-universal contains the BU apt-get block (multi-line patterns)
+    if grep -q 'apt-get install' "$dockerfile" && \
+       grep -q 'git=' "$dockerfile" && \
+       grep -q 'curl=' "$dockerfile" && \
+       grep -q 'jq=' "$dockerfile" && \
+       grep -q 'make=' "$dockerfile" && \
+       grep -q 'build-essential' "$dockerfile"; then
       echo "PASS: $name (contains BU apt-get block)"
     else
       echo "FAIL: $name -- missing BU apt-get block"
