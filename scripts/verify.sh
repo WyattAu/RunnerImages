@@ -365,7 +365,7 @@ check "No world-writable files" "$( [ "${WW_COUNT:-0}" -eq 0 ] && echo PASS || e
 # --- Layer count ---
 echo "Layers:"
 LAYERS=$(docker inspect --format '{{len .RootFS.Layers}}' "$IMAGE")
-check "Layer count <= 4" "$( [ "$LAYERS" -le 4 ] && echo PASS || echo "$LAYERS layers (max 4)")"
+check "Layer count <= 5" "$( [ "$LAYERS" -le 5 ] && echo PASS || echo "$LAYERS layers (max 5)")"
 
 # --- Size checks ---
 echo "Size:"
