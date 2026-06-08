@@ -13,8 +13,6 @@ SCAN=false
 REPO="${REPO:-ghcr.io/wyattau/runner-images}"
 COSIGN_KEY="${COSIGN_KEY:-$HOME/.cosign/cosign.key}"
 FLAVOUR_DIR="images/$FLAVOUR"
-PLATFORM="${PLATFORM:-linux/amd64}"
-ARCH="${PLATFORM#linux/}"
 
 # Validate flavour directory
 if [ ! -d "$FLAVOUR_DIR" ]; then
@@ -33,36 +31,6 @@ if [ ! -f "$FLAVOUR_DIR/Dockerfile" ]; then
 fi
 
 VERSION=$(tr -d '[:space:]' < "$FLAVOUR_DIR/VERSION")
-
-# ---------------------------------------------------------------------------
-# B1: Ensure base-universal image exists before building child flavours
-# ---------------------------------------------------------------------------
-if [ "$FLAVOUR" != "base-universal" ]; then
-  BASE_VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION" 2>/dev/null || echo "1.0.0")
-  BASE_IMAGE="$REPO/base-universal:${BASE_VERSION}-${ARCH}"
-  BASE_IMAGE_LATEST="$REPO/base-universal:latest"
-  # The exact reference used in child Dockerfiles' FROM directive
-  BASE_FROM_REF="$REPO/base-universal:${BASE_VERSION}"
-
-  # Check if base image exists locally
-  if ! docker image inspect "$BASE_IMAGE" >/dev/null 2>&1 && \
-     ! docker image inspect "$BASE_IMAGE_LATEST" >/dev/null 2>&1; then
-    echo "=== Base-universal image not found locally. Building it first... ==="
-    PLATFORM="$PLATFORM" ./scripts/build.sh base-universal
-    echo ""
-    echo "=== Resuming build of $FLAVOUR ==="
-  fi
-
-  # Ensure the base image is tagged with the exact reference child Dockerfiles expect
-  if ! docker image inspect "$BASE_FROM_REF" >/dev/null 2>&1; then
-    # Try to find the arch-tagged version and re-tag it
-    if docker image inspect "$BASE_IMAGE" >/dev/null 2>&1; then
-      docker tag "$BASE_IMAGE" "$BASE_FROM_REF"
-    elif docker image inspect "$BASE_IMAGE_LATEST" >/dev/null 2>&1; then
-      docker tag "$BASE_IMAGE_LATEST" "$BASE_FROM_REF"
-    fi
-  fi
-fi
 
 # Semver validation (MAJOR.MINOR.PATCH with optional pre-release)
 if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
@@ -100,6 +68,9 @@ if [ "$SCAN" = true ] && ! command -v trivy >/dev/null 2>&1; then
   echo "ERROR: trivy is required for --scan but not found in PATH"
   exit 1
 fi
+
+PLATFORM="${PLATFORM:-linux/amd64}"
+ARCH="${PLATFORM#linux/}"
 
 echo "=== Building $FLAVOUR:$VERSION ($PLATFORM) ==="
 
@@ -182,14 +153,6 @@ if [ "$PUSH" = true ]; then
   echo "=== Pushing $IMAGE to $REPO ==="
   docker push "$IMAGE"
   echo "Pushed: $IMAGE"
-
-  # For base-universal: also tag and push as latest for child images
-  if [ "$FLAVOUR" = "base-universal" ]; then
-    LATEST_TAG="$REPO/base-universal:latest-${ARCH}"
-    docker tag "$IMAGE" "$LATEST_TAG"
-    docker push "$LATEST_TAG"
-    echo "Pushed: $LATEST_TAG"
-  fi
 fi
 
 # Sign

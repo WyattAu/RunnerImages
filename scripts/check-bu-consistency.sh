@@ -1,21 +1,38 @@
 #!/usr/bin/env bash
 # check-bu-consistency.sh
-# Verifies B1 layered architecture: child images inherit from base-universal.
+# Verifies that the BU layer block is identical across all flavour Dockerfiles.
+# Supports two BU variants:
+#   - bu.fragment (with strip) — used by most flavours
+#   - bu-no-strip.fragment (without strip) — used by strip-sensitive flavours
 #
-# Rules:
-#   - base-universal/Dockerfile: must contain the BU apt-get block
-#   - All other flavours: must use "FROM ghcr.io/wyattau/runner-images/base-universal:" as base
-#   - No flavour should duplicate BU packages (git, curl, jq, make, build-essential, etc.)
+# Each Dockerfile is checked against BOTH fragments; it must match exactly one.
+# A Dockerfile declares its variant via a comment on line 2:
+#   "# BU variant: bu-no-strip"  →  checks against bu-no-strip.fragment
+#   (no comment or any other value)  →  checks against bu.fragment
 #
-# Exit 1 on any violation.
+# Exit 1 on any mismatch.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FRAGMENT_STRIP="$REPO_ROOT/images/shared/bu.fragment"
+FRAGMENT_NOSTRIP="$REPO_ROOT/images/shared/bu-no-strip.fragment"
 FLAVOUR_DIRS=("$REPO_ROOT"/images/*/)
 
-errors=0
+if [ ! -f "$FRAGMENT_STRIP" ]; then
+  echo "ERROR: BU fragment not found at $FRAGMENT_STRIP"
+  exit 1
+fi
+if [ ! -f "$FRAGMENT_NOSTRIP" ]; then
+  echo "ERROR: BU-no-strip fragment not found at $FRAGMENT_NOSTRIP"
+  exit 1
+fi
 
+# Extract canonical BU blocks from fragments
+canonical_strip=$(sed -n '/^# BU-START$/,/^# BU-END$/p' "$FRAGMENT_STRIP")
+canonical_nostrip=$(sed -n '/^# BU-NO-STRIP-START$/,/^# BU-NO-STRIP-END$/p' "$FRAGMENT_NOSTRIP")
+
+errors=0
 for dir in "${FLAVOUR_DIRS[@]}"; do
   dockerfile="$dir/Dockerfile"
   name=$(basename "$dir")
@@ -25,74 +42,52 @@ for dir in "${FLAVOUR_DIRS[@]}"; do
     continue
   fi
 
-  if [ "$name" = "shared" ]; then
+  # Determine which BU variant this Dockerfile uses
+  # Check first 5 lines for "# BU variant: bu-no-strip"
+  variant="bu"
+  if head -5 "$dockerfile" | grep -q '# BU variant: bu-no-strip'; then
+    variant="bu-no-strip"
+  fi
+
+  # Select canonical block based on variant
+  if [ "$variant" = "bu-no-strip" ]; then
+    canonical="$canonical_nostrip"
+  else
+    canonical="$canonical_strip"
+  fi
+
+  # Extract BU block from Dockerfile
+  actual=$(sed -n "/^FROM ubuntu:24\.04@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54 AS base$/,/&& find \/ -perm -002.*|| true$/p" "$dockerfile")
+
+  if [ -z "$actual" ]; then
+    echo "FAIL: $name -- BU block not found"
+    errors=$((errors + 1))
     continue
   fi
 
-  if [ "$name" = "base-universal" ]; then
-    # Verify base-universal contains the BU apt-get block
-    if grep -q 'apt-get install.*git=' "$dockerfile" && \
-       grep -q 'apt-get install.*curl=' "$dockerfile" && \
-       grep -q 'apt-get install.*jq=' "$dockerfile" && \
-       grep -q 'apt-get install.*make=' "$dockerfile" && \
-       grep -q 'apt-get install.*build-essential' "$dockerfile"; then
-      echo "PASS: $name (contains BU apt-get block)"
-    else
-      echo "FAIL: $name -- missing BU apt-get block"
-      errors=$((errors + 1))
-    fi
+  # Compare: strip comment-only lines and blank lines, keep only active instructions
+  canon_block=$(echo "$canonical" | sed -n '/^FROM ubuntu/,/|| true$/p' | grep -v '^\s*#' | grep -v '^\s*$')
+  actual_block=$(echo "$actual" | grep -v '^\s*#' | grep -v '^\s*$')
 
-    # Verify USER/WORKDIR/ENTRYPOINT are NOT set (children need root)
-    if grep -qE '^\s*USER\s+runner' "$dockerfile"; then
-      echo "FAIL: $name -- must not set USER runner (children need root access)"
-      errors=$((errors + 1))
-    else
-      echo "PASS: $name (no USER directive — children can run as root)"
-    fi
+  if [ "$canon_block" = "$actual_block" ]; then
+    echo "PASS: $name (variant: $variant)"
   else
-    # Verify child image uses FROM base-universal
-    if grep -qE 'FROM\s+ghcr\.io/wyattau/runner-images/base-universal:' "$dockerfile"; then
-      echo "PASS: $name (inherits from base-universal)"
-    else
-      echo "FAIL: $name -- must use 'FROM ghcr.io/wyattau/runner-images/base-universal:...' as base"
-      errors=$((errors + 1))
-    fi
-
-    # Verify child image does NOT contain BU packages
-    bu_packages=("git=" "git-lfs=" "openssh-client=" "jq=" "yq=" "wget=" "zstd=" "tree=")
-    found_bu=0
-    for pkg in "${bu_packages[@]}"; do
-      if grep -q "apt-get install.*${pkg}" "$dockerfile"; then
-        echo "FAIL: $name -- duplicates BU package: $pkg"
-        found_bu=1
-      fi
-    done
-    if [ "$found_bu" -eq 0 ]; then
-      echo "PASS: $name (no BU package duplication)"
-    else
-      errors=$((errors + 1))
-    fi
-
-    # Verify child image sets USER runner at the end
-    if grep -qE '^\s*USER\s+runner' "$dockerfile"; then
-      echo "PASS: $name (sets USER runner)"
-    else
-      echo "FAIL: $name -- must set 'USER runner' at the end"
-      errors=$((errors + 1))
-    fi
+    echo "FAIL: $name -- BU block ($variant variant) differs from canonical fragment"
+    diff <(echo "$canon_block") <(echo "$actual_block") || true
+    errors=$((errors + 1))
   fi
 done
 
 if [ "$errors" -gt 0 ]; then
   echo ""
-  echo "ERROR: $errors consistency violation(s) found."
-  echo ""
-  echo "B1 Architecture Rules:"
-  echo "  - base-universal: contains BU apt-get block, NO USER/WORKDIR/ENTRYPOINT"
-  echo "  - All other flavours: FROM base-universal, no BU duplication, sets USER runner"
+  echo "ERROR: $errors flavour(s) have divergent BU blocks."
+  echo "Fix: Update the Dockerfile(s) to match the correct fragment:"
+  echo "  - images/shared/bu.fragment (standard)"
+  echo "  - images/shared/bu-no-strip.fragment (strip-sensitive)"
+  echo "Declare variant: add '# BU variant: bu-no-strip' on line 2 of the Dockerfile"
   exit 1
 fi
 
 echo ""
-echo "All flavours conform to B1 layered architecture."
+echo "All flavours match their canonical BU fragment."
 exit 0
