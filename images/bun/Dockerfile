@@ -1,6 +1,6 @@
 # Forgejo Actions runner image - bun flavour
 # Layer count: 2 (bu-base + bun)
-# BU packages from base-universal, Bun 1.3.14 + npm + pnpm + g++ + python3
+# BU packages from base-universal, Bun 1.3.14 + g++ + python3
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -33,9 +33,11 @@ RUN apt-get update \
  && unzip /tmp/bun.zip -d /usr/local \
  && mv /usr/local/bun-linux-${BUN_ARCH}/bun /usr/local/bin/bun \
  && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
- && /usr/local/bin/bun --version \
- && /usr/local/bin/bun install -g pnpm \
- && /root/.bun/bin/pnpm --version \
+ && chmod +x /usr/local/bin/bun \
+ && bun --version \
+ && userdel -r ubuntu \
+ && groupadd -g 1000 runner \
+ && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
@@ -44,7 +46,7 @@ RUN apt-get update \
 # OCI Labels
 # ---------------------------------------------------------------------------
 LABEL org.opencontainers.image.title="runner-images/bun"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Bun 1.3.14 with npm, pnpm"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Bun 1.3.14"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

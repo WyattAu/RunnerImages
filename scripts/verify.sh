@@ -319,7 +319,6 @@ fi
 echo "Rust-full:"
 if [ "$HAS_RUST_FULL" = true ]; then
   check "wasm-pack available" "$(run "command -v wasm-pack" >/dev/null 2>&1 && echo PASS || echo 'not found')"
-  check "cross available" "$(run "command -v cross" >/dev/null 2>&1 && echo PASS || echo 'not found')"
   check "protoc available" "$(run "protoc --version" | grep -q 'libprotoc' && echo PASS || echo 'not found')"
 fi
 

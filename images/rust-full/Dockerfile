@@ -34,12 +34,12 @@ RUN apt-get update \
  && curl -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh | sh \
  && if [ "$TARGETARCH" = "amd64" ]; then \
       curl -sL "https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-musl.tar.gz" \
-        | tar xz -C /usr/local/cargo/bin cross; \
-    else \
-      cargo install cross; \
+        | tar xz -C /usr/local/cargo/bin cross \
+      && chmod +x /usr/local/cargo/bin/cross; \
     fi \
- && chmod +x /usr/local/cargo/bin/cross 2>/dev/null || true \
- && cargo install sqlx-cli --no-default-features --features sqlite \
+ && userdel -r ubuntu \
+ && groupadd -g 1000 runner \
+ && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
@@ -48,7 +48,7 @@ RUN apt-get update \
 # OCI Labels
 # ---------------------------------------------------------------------------
 LABEL org.opencontainers.image.title="runner-images/rust-full"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Rust with cargo, rustup, wasm-pack, cross, protobuf, cmake, and sqlx-cli"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Rust with cargo, rustup, wasm-pack, cross, protobuf, cmake"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

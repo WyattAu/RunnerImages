@@ -30,7 +30,9 @@ RUN apt-get update \
  && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
  && rm -f /tmp/flutter.tar.xz \
  && /opt/flutter/bin/flutter config --no-analytics \
- && /opt/flutter/bin/flutter --version \
+ && userdel -r ubuntu \
+ && groupadd -g 1000 runner \
+ && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
