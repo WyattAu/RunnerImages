@@ -81,8 +81,6 @@ ENV SOURCE_DATE_EPOCH=0
 ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
-# Runtime
+# No USER/WORKDIR/ENTRYPOINT here - children need root during build.
+# Each child image sets these at the end of its own Dockerfile.
 # ---------------------------------------------------------------------------
-USER runner
-WORKDIR /home/runner
-ENTRYPOINT ["/bin/bash"]
