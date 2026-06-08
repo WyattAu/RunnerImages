@@ -46,6 +46,9 @@ RUN if [ -n "$SNAPSHOT_DATE" ]; then \
 
 # ---------------------------------------------------------------------------
 # Layer 2: User setup (no flavour-specific packages)
+# NOTE: USER/WORKDIR/ENTRYPOINT intentionally omitted.
+#       This image is a base for child flavours that need root during build.
+#       Each child image sets USER runner, WORKDIR, ENTRYPOINT at the end.
 # ---------------------------------------------------------------------------
 FROM bu-base AS base-universal
 
@@ -82,7 +85,7 @@ ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/
 
 # ---------------------------------------------------------------------------
 # Runtime
+# NOTE: Running as root intentionally — child images need root for apt-get.
+#       Child images must set: USER runner / WORKDIR /home/runner / ENTRYPOINT
 # ---------------------------------------------------------------------------
-USER runner
-WORKDIR /home/runner
-ENTRYPOINT ["/bin/bash"]
+# No USER/WORKDIR/ENTRYPOINT here — this is a base image for child flavours
