@@ -17,10 +17,9 @@ RUN apt-get update \
       libgtk-3-dev \
       libglu1-mesa \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- && curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
- && mkdir -p /opt/flutter \
- && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
- && rm -f /tmp/flutter.tar.xz \
+ && git clone --depth 1 --branch ${FLUTTER_VERSION}-stable \
+      https://github.com/flutter/flutter.git /opt/flutter \
+ && git config --global --add safe.directory /opt/flutter \
  && chmod +x /opt/flutter/bin/flutter \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
