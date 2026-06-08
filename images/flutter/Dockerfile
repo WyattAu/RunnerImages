@@ -17,7 +17,7 @@ RUN apt-get update \
       libgtk-3-dev \
       libglu1-mesa \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- && git clone --depth 1 --branch ${FLUTTER_VERSION}-stable \
+ && git clone --depth 1 --branch ${FLUTTER_VERSION} \
       https://github.com/flutter/flutter.git /opt/flutter \
  && git config --global --add safe.directory /opt/flutter \
  && chmod +x /opt/flutter/bin/flutter \
