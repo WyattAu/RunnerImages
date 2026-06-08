@@ -53,6 +53,9 @@ jobs:
       matrix:
         flavour: ${{ fromJson(needs.detect-changes.outputs.flavours) }}
         platform: [linux/amd64, linux/arm64]
+        exclude:
+          - flavour: flutter
+            platform: linux/arm64
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

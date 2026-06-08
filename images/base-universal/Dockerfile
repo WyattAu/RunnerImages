@@ -54,7 +54,7 @@ ARG IMAGE_VERSION=dev
 RUN userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
- && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------------------------
 # OCI Labels

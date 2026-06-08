@@ -71,7 +71,7 @@ RUN apt-get update \
  && mv /usr/local/bun-linux-${BUN_ARCH}/bun /usr/local/bin/bun \
  && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
  && bun --version \
- && npm install -g pnpm \
+ && bun install -g pnpm \
  && pnpm --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \

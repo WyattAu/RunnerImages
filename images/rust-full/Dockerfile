@@ -51,6 +51,7 @@ FROM bu-base AS rust-full
 
 ARG RUST_VERSION=1.96.0
 ARG IMAGE_VERSION=dev
+ARG TARGETARCH
 
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
@@ -66,11 +67,15 @@ RUN apt-get update \
       cmake \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} --no-modify-path \
  && chmod -R a+rwX /usr/local/cargo /usr/local/rustup \
- && curl -sL "https://github.com/nickelc/wasm-pack/releases/latest/download/wasm-pack-$(uname -s)-$(uname -m).tar.gz" \
-      | tar xz -C /usr/local/cargo/bin --strip-components=1 wasm-pack \
- && curl -sL "https://github.com/cross-rs/cross/releases/latest/download/cross-$(uname -s)-$(uname -m).tar.gz" \
-      | tar xz -C /usr/local/cargo/bin cross \
- && chmod +x /usr/local/cargo/bin/wasm-pack /usr/local/cargo/bin/cross \
+ && curl -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh | sh \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      CROSS_ARCH=aarch64-unknown-linux-musl; \
+    else \
+      CROSS_ARCH=x86_64-unknown-linux-musl; \
+    fi \
+ && curl -sL "https://github.com/cross-rs/cross/releases/latest/download/cross-${CROSS_ARCH}.tar.gz" \
+       | tar xz -C /usr/local/cargo/bin cross \
+ && chmod +x /usr/local/cargo/bin/cross \
  && cargo install sqlx-cli --no-default-features --features sqlite \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
