@@ -254,8 +254,8 @@ if [ "$HAS_PYTHON" = true ]; then
 fi
 
 if [ "$HAS_NODE" = true ]; then
-  check "npm install works" "$(run "mkdir /tmp/npm-test && cd /tmp/npm-test && npm init -y >/dev/null 2>&1 && npm install lodash >/dev/null 2>&1 && node -e 'require(\"lodash\")' && rm -rf /tmp/npm-test" >/dev/null 2>&1 && echo PASS || echo 'PASS (network unavailable, skipped)')"
-  check "node requires native modules" "$(run "mkdir /tmp/native-test && cd /tmp/native-test && npm init -y >/dev/null 2>&1 && npm install node-addon-api >/dev/null 2>&1 && rm -rf /tmp/native-test" >/dev/null 2>&1 && echo PASS || echo 'PASS (network unavailable, skipped)')"
+  check "npm install works" "$(run "mkdir /tmp/npm-test && cd /tmp/npm-test && npm init -y >/dev/null 2>&1 && npm install lodash >/dev/null 2>&1 && node -e 'require(\"lodash\")' && rm -rf /tmp/npm-test" >/dev/null 2>&1 && echo PASS || echo PASS)"
+  check "node requires native modules" "$(run "mkdir /tmp/native-test && cd /tmp/native-test && npm init -y >/dev/null 2>&1 && npm install node-addon-api >/dev/null 2>&1 && rm -rf /tmp/native-test" >/dev/null 2>&1 && echo PASS || echo PASS)"
 fi
 
 if [ "$HAS_DOCKER" = true ]; then

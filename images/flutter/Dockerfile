@@ -1,16 +1,8 @@
-# Forgejo Actions runner image - flutter flavour
-# Layer count: 2 (bu-base + flutter)
-# BU packages from base-universal, Flutter SDK + Dart + build tools
+# Forgejo Actions runner image - flutter flavour (B1 layered)
+# Inherits BU packages from base-universal image
+# Adds: Flutter SDK + Dart + build tools
 
-# ---------------------------------------------------------------------------
-# Layer 0: Base image - BU layer from base-universal
-# ---------------------------------------------------------------------------
 FROM ghcr.io/wyattau/runner-images/base-universal:1.0.0 AS bu-base
-
-# ---------------------------------------------------------------------------
-# Layer 1: Flutter-specific additions (single RUN)
-# ---------------------------------------------------------------------------
-FROM bu-base AS flutter
 
 ARG FLUTTER_VERSION=3.44.1
 ARG IMAGE_VERSION=dev
@@ -29,9 +21,7 @@ RUN apt-get update \
  && mkdir -p /opt/flutter \
  && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
  && rm -f /tmp/flutter.tar.xz \
- && ls -la /opt/flutter/bin/flutter \
  && chmod +x /opt/flutter/bin/flutter \
- && /opt/flutter/bin/flutter config --no-analytics \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
@@ -39,9 +29,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
 
-# ---------------------------------------------------------------------------
-# OCI Labels
-# ---------------------------------------------------------------------------
 LABEL org.opencontainers.image.title="runner-images/flutter"
 LABEL org.opencontainers.image.description="Forgejo Actions runner image: Flutter SDK with Dart and build tools"
 LABEL org.opencontainers.image.vendor="WyattAu"
@@ -52,20 +39,14 @@ LABEL runner.flavour="flutter"
 LABEL runner.base="base-universal"
 LABEL runner.base.tag="1.0.0"
 
-# ---------------------------------------------------------------------------
-# Environment
-# ---------------------------------------------------------------------------
 ENV HOME=/home/runner
 ENV LANG=C.UTF-8
 ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/home/runner/.local/bin:/opt/flutter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/opt/flutter/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-# ---------------------------------------------------------------------------
-# Runtime
-# ---------------------------------------------------------------------------
 USER runner
 WORKDIR /home/runner
 ENTRYPOINT ["/bin/bash"]
