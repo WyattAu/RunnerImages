@@ -66,6 +66,7 @@ RUN apt-get update \
       libsqlite3-dev \
       cmake \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION} --no-modify-path \
+ && export PATH="/usr/local/cargo/bin:$PATH" \
  && chmod -R a+rwX /usr/local/cargo /usr/local/rustup \
  && curl -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh | sh \
  && if [ "$TARGETARCH" = "arm64" ]; then \

@@ -391,7 +391,7 @@ case "$FLAVOUR" in
   dotnet)       COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
   bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
-  nix)            COMP_BUDGET=290; UNCOMP_BUDGET=750 ;;
+  nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac

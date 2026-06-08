@@ -71,6 +71,7 @@ RUN apt-get update \
  && mv /usr/local/bun-linux-${BUN_ARCH}/bun /usr/local/bin/bun \
  && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
  && bun --version \
+ && export PATH="/root/.bun/bin:$PATH" \
  && bun install -g pnpm \
  && pnpm --version \
  && userdel -r ubuntu \
