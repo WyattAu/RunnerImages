@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       flavours: ${{ steps.detect.outputs.flavours }}
+      child_flavours: ${{ steps.detect.outputs.child_flavours }}
     steps:
       - uses: actions/checkout@v4
       - name: Detect changed flavours
@@ -45,6 +46,9 @@ jobs:
             CHANGED=$(ls images/ | grep -v '^shared$')
           fi
           echo "flavours=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+          # child_flavours excludes base-universal (handled by build-base)
+          CHILD=$(echo "$CHANGED" | grep -v '^base-universal$' || true)
+          echo "child_flavours=$(echo "$CHILD" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
 
   # B1: Build base-universal FIRST, then all child flavours depend on it
   build-base:
@@ -169,12 +173,11 @@ jobs:
     needs: [detect-changes, build-base]
     if: |
       always() &&
-      needs.detect-changes.outputs.flavours != '[]' &&
-      !contains(fromJson(needs.detect-changes.outputs.flavours), 'base-universal')
+      needs.detect-changes.outputs.child_flavours != '[]'
     strategy:
       fail-fast: false
       matrix:
-        flavour: ${{ fromJson(needs.detect-changes.outputs.flavours) }}
+        flavour: ${{ fromJson(needs.detect-changes.outputs.child_flavours) }}
         platform: [linux/amd64, linux/arm64]
         exclude:
           - flavour: flutter
@@ -264,15 +267,13 @@ jobs:
 
   # Create multi-arch manifest after all per-arch builds succeed
   manifest:
-    needs: build
+    needs: [detect-changes, build]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        flavour: ${{ fromJson(needs.detect-changes.outputs.flavours) }}
-        exclude:
-          - flavour: base-universal
+        flavour: ${{ fromJson(needs.detect-changes.outputs.child_flavours) }}
     steps:
       - uses: actions/checkout@v4
 

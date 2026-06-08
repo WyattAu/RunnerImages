@@ -35,9 +35,6 @@ RUN apt-get update \
  && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
  && chmod +x /usr/local/bin/bun \
  && bun --version \
- && userdel -r ubuntu \
- && groupadd -g 1000 runner \
- && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

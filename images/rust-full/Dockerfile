@@ -37,9 +37,6 @@ RUN apt-get update \
         | tar xz -C /usr/local/cargo/bin cross \
       && chmod +x /usr/local/cargo/bin/cross; \
     fi \
- && userdel -r ubuntu \
- && groupadd -g 1000 runner \
- && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
