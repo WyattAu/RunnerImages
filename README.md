@@ -10,16 +10,16 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **ubuntu** | base + Docker CLI, sudo, build tools | 202MB | General CI, DinD, builds |
 | **python** | base + Python 3.12, pip, venv, dev headers | 204MB | Python CI, ML pipelines |
 | **node** | base + Node.js 22, npm, yarn, pnpm | 259MB | JS/TS CI, npm builds |
-| **pnpm** | base + Node.js 22, pnpm | TBD | Lightweight pnpm-only CI |
-| **bun** | base + Bun 1.3, pnpm | TBD | Bun-first workflows |
+| **pnpm** | base + Node.js 22, pnpm (no yarn) | TBD | Lightweight pnpm-only CI |
+| **bun** | base + Bun 1.3 | TBD | Bun-first workflows (bun IS the package manager) |
 | **heavy** | base + Node.js + Python + Docker CLI | 282MB | Monorepos, mixed stacks |
 | **rust** | base + Rust 1.96, cargo, rustup | 471MB | Rust/Cargo workflows |
-| **rust-full** | base + Rust + wasm-pack, cross, protobuf, sqlx | TBD | Rust + WASM, full toolchain |
+| **rust-full** | base + Rust + wasm-pack, cross (amd64 only), protobuf, cmake | TBD | Rust + WASM, full toolchain |
 | **go** | base + Go 1.26 | 255MB | Go workflows |
 | **java** | base + OpenJDK 21, Maven | 355MB | Java/Kotlin workflows |
 | **dotnet** | base + .NET 8.0 SDK | 376MB | C#/.NET workflows |
-| **flutter** | base + Flutter 3.44, Dart, build tools | 2001MB | Flutter/Dart, mobile/web |
-| **nix** | base + Nix package manager | TBD | Flake-based builds |
+| **flutter** | base + Flutter SDK via git clone | 2001MB | Flutter/Dart, mobile/web |
+| **nix** | base + Nix package manager (single-user, flake-ready) | TBD | Flake-based builds |
 
 ## Quick Start
 
@@ -57,10 +57,10 @@ Need Docker CLI (DinD)?
 Need Node.js / npm / yarn / pnpm?
   -> node
 
-Need pnpm only (lighter)?
+Need pnpm only (no yarn, lighter)?
   -> pnpm
 
-Need Bun?
+Need Bun (bun IS the package manager)?
   -> bun
 
 Need Python / pip / venv?
@@ -111,11 +111,11 @@ make lint                     # shellcheck + hadolint
 
 ## Architecture
 
-Every image uses 3 layers for Docker layer deduplication:
+**B1 layered architecture**: `base-universal` is the shared base image. All 13 child flavours inherit from it. The BU layer is built once and shared across all flavours.
 
 ```
 Layer 0: ubuntu:24.04@sha256:<digest>    (shared, ~78MB)
-Layer 1: BU base (git, curl, jq, gcc...) (shared, ~250MB)
+Layer 1: base-universal (git, curl, jq, gcc...) (shared, ~250MB)
 Layer 2: flavour-specific packages       (unique per flavour)
 ```
 
@@ -136,7 +136,7 @@ Docker stores shared layers once. Pulling `ubuntu` then `node` only downloads th
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| Build | push to main (images/scripts/workflows) | Build, verify, push (amd64+arm64), SBOM, cosign sign |
+| Build | push to main (images/scripts/workflows) | 4 jobs: **build-base** (base-universal first), **build** (all child flavours), **manifest-base** (multi-arch for base-universal), **manifest** (multi-arch for all child flavours). Verify, push, SBOM, cosign sign. |
 | Lint | push to main | shellcheck, hadolint, VERSION validation |
 | Nightly | daily at 03:00 UTC | Rebuild (amd64+arm64), Trivy scan, size regression |
 | Pages | push to main (docs/) | Deploy landing page |
@@ -159,12 +159,11 @@ images/
   dotnet/           Dockerfile, VERSION, README.md
   flutter/          Dockerfile, VERSION, README.md
   nix/              Dockerfile, VERSION, README.md
-  shared/           BU fragment (canonical layer definition)
 scripts/
   build.sh          Build, push, sign, scan
   verify.sh         40+ verification checks (flavour-aware)
   hooks/            Pre-commit hooks (digest check, version check)
-.github/workflows/  CI/CD pipelines
+.github/workflows/  CI/CD pipelines (build, lint, nightly, pages)
 docs/               GitHub Pages landing page
 .specs/             Requirements and constraints
 ```

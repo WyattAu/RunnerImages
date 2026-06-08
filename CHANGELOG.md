@@ -2,6 +2,27 @@
 
 All notable changes to RunnerImages are documented here.
 
+## [1.3.0] - 2026-06-08
+
+### Added
+
+- **B1 layered architecture**: `base-universal` is the shared base image. All 13 child flavours inherit from it. BU layer is built once, shared across all flavours.
+- **Multi-arch support**: All flavours build for linux/amd64 and linux/arm64 (except flutter and nix which are amd64-only).
+- **14 flavours**: base-universal, ubuntu, node, pnpm, bun, python, heavy, rust, rust-full, go, java, dotnet, flutter, nix.
+- **Reproducible builds**: `SNAPSHOT_DATE` build arg pins apt sources to `snapshot.ubuntu.com` for deterministic package metadata.
+- **CI pipeline**: 4 jobs in build.yml — build-base (base-universal first), build (all child flavours), manifest-base (multi-arch for base-universal), manifest (multi-arch for all child flavours). Uses QEMU + Docker Buildx for cross-architecture builds.
+- **Cosign keyless signing**: All flavours signed with GitHub OIDC via cosign.
+- **SBOM generation**: SPDX SBOMs generated for all flavours via anchore/sbom-action.
+
+### Changed
+
+- **bun flavour**: Removed pnpm — bun IS the package manager.
+- **pnpm flavour**: No yarn — lightweight pnpm-only alternative.
+- **rust-full flavour**: Added cmake. cross is amd64-only. Removed sqlx-cli.
+- **flutter flavour**: Uses git clone for Flutter SDK (not apt).
+- **nix flavour**: Single-user install, flake-ready.
+- **CI workflow**: build-base job runs first, then build job depends on it. manifest-base creates multi-arch manifest for base-universal. manifest creates multi-arch manifests for all child flavours.
+
 ## [1.2.0] - 2026-06-07
 
 ### Added
