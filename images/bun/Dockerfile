@@ -70,10 +70,9 @@ RUN apt-get update \
  && unzip /tmp/bun.zip -d /usr/local \
  && mv /usr/local/bun-linux-${BUN_ARCH}/bun /usr/local/bin/bun \
  && rm -rf /tmp/bun.zip /usr/local/bun-linux-${BUN_ARCH} \
- && bun --version \
- && export PATH="/root/.bun/bin:$PATH" \
- && bun install -g pnpm \
- && pnpm --version \
+ && /usr/local/bin/bun --version \
+ && /usr/local/bin/bun install -g pnpm \
+ && /root/.bun/bin/pnpm --version \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
  && useradd -u 1000 -g 1000 -m -s /bin/bash runner \

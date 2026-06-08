@@ -69,14 +69,13 @@ RUN apt-get update \
  && export PATH="/usr/local/cargo/bin:$PATH" \
  && chmod -R a+rwX /usr/local/cargo /usr/local/rustup \
  && curl -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh | sh \
- && if [ "$TARGETARCH" = "arm64" ]; then \
-      CROSS_ARCH=aarch64-unknown-linux-musl; \
+ && if [ "$TARGETARCH" = "amd64" ]; then \
+      curl -sL "https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-musl.tar.gz" \
+        | tar xz -C /usr/local/cargo/bin cross; \
     else \
-      CROSS_ARCH=x86_64-unknown-linux-musl; \
+      cargo install cross; \
     fi \
- && curl -sL "https://github.com/cross-rs/cross/releases/latest/download/cross-${CROSS_ARCH}.tar.gz" \
-       | tar xz -C /usr/local/cargo/bin cross \
- && chmod +x /usr/local/cargo/bin/cross \
+ && chmod +x /usr/local/cargo/bin/cross 2>/dev/null || true \
  && cargo install sqlx-cli --no-default-features --features sqlite \
  && userdel -r ubuntu \
  && groupadd -g 1000 runner \
