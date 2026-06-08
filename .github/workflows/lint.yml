@@ -39,11 +39,6 @@ jobs:
           for f in images/*/Dockerfile; do
             name=$(basename "$(dirname "$f")")
             [ "$name" = "shared" ] && continue
-            # B1 child images use base-universal (no digest needed)
-            if grep -qP 'FROM\s+ghcr\.io/wyattau/runner-images/base-universal:' "$f"; then
-              echo "OK: $f (B1 layered — inherits from base-universal)"
-              continue
-            fi
             if ! grep -qP 'FROM ubuntu:24.04@sha256:' "$f"; then
               echo "FAIL: $f must pin base image by SHA256 digest"
               exit 1
