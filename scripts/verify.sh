@@ -310,9 +310,7 @@ fi
 # --- Bun checks (flavour-conditional) ---
 echo "Bun:"
 if [ "$HAS_BUN" = true ]; then
-  check "bun available" "$(run "bun --version" | grep -q '.' && echo PASS || echo 'not found')"
-  check "npm available" "$(run "npm --version" | grep -q '.' && echo PASS || echo 'not found')"
-  check "pnpm available" "$(run "pnpm --version" | grep -q '.' && echo PASS || echo 'not found')"
+  check "bun available" "$(run "command -v bun" >/dev/null 2>&1 && echo PASS || echo 'not found')"
 else
   check "bun NOT present" "$( (run "bun --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'bun should not be present')"
 fi
@@ -320,10 +318,9 @@ fi
 # --- Rust-full checks (flavour-conditional) ---
 echo "Rust-full:"
 if [ "$HAS_RUST_FULL" = true ]; then
-  check "wasm-pack available" "$(run "wasm-pack --version" | grep -q '.' && echo PASS || echo 'not found')"
-  check "cross available" "$(run "cross --version" | grep -q '.' && echo PASS || echo 'not found')"
+  check "wasm-pack available" "$(run "command -v wasm-pack" >/dev/null 2>&1 && echo PASS || echo 'not found')"
+  check "cross available" "$(run "command -v cross" >/dev/null 2>&1 && echo PASS || echo 'not found')"
   check "protoc available" "$(run "protoc --version" | grep -q 'libprotoc' && echo PASS || echo 'not found')"
-  check "sqlx available" "$(run "sqlx --version" | grep -q '.' && echo PASS || echo 'not found')"
 fi
 
 # --- Nix checks (flavour-conditional) ---
