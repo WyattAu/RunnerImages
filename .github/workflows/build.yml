@@ -225,7 +225,7 @@ jobs:
         run: |
           REPO="${{ env.REGISTRY }}/wyattau/runner-images"
           VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION-amd64"
           DIGEST1=$(docker inspect --format '{{.Id}}' "$IMAGE")
           SNAP_DATE=$(date -u +%Y%m%d)
           docker rmi "$IMAGE" 2>/dev/null || true

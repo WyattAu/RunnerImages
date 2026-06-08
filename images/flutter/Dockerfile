@@ -25,13 +25,12 @@ RUN apt-get update \
       libgtk-3-dev \
       libglu1-mesa \
       sudo=1.9.15p5-3ubuntu5.24.04.2 \
- && curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
- && mkdir -p /opt/flutter \
- && tar -xJf /tmp/flutter.tar.xz -C /opt --strip-components=1 \
- && rm -f /tmp/flutter.tar.xz \
+ && git clone --depth 1 --branch ${FLUTTER_VERSION}-stable \
+      https://github.com/flutter/flutter.git /opt/flutter \
  && /opt/flutter/bin/flutter config --no-analytics \
+ && /opt/flutter/bin/flutter precache \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
- && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /var/lib/apt/lists/* /opt/flutter/.git \
  && chmod 4755 /usr/bin/sudo
 
 # ---------------------------------------------------------------------------
