@@ -20,10 +20,9 @@ RUN apt-get update \
  && git clone --depth 1 --branch ${FLUTTER_VERSION} \
       https://github.com/flutter/flutter.git /opt/flutter \
  && git config --global --add safe.directory /opt/flutter \
- && chmod +x /opt/flutter/bin/flutter \
- && userdel -r ubuntu \
- && groupadd -g 1000 runner \
- && useradd -u 1000 -g 1000 -m -s /bin/bash runner \
+ && /opt/flutter/bin/flutter config --no-analytics \
+ && /opt/flutter/bin/flutter precache \
+ && chown -R runner:runner /opt/flutter \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
