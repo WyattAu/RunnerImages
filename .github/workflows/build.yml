@@ -138,10 +138,15 @@ jobs:
           for TAG in "$VERSION" "latest" "$MAJOR" "$MINOR"; do
             FULL_TAG="$REPO/base-universal:$TAG"
             echo "Creating manifest for $FULL_TAG"
-            docker buildx imagetools create -t "$FULL_TAG" \
-              "$REPO/base-universal:${VERSION}-amd64" \
-              "$REPO/base-universal:${VERSION}-arm64" \
-              || echo "WARN: manifest creation failed (one arch may be missing)"
+            # Check which arches are available
+            ARCHES=""
+            docker manifest inspect "$REPO/base-universal:${VERSION}-amd64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/base-universal:${VERSION}-amd64"
+            docker manifest inspect "$REPO/base-universal:${VERSION}-arm64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/base-universal:${VERSION}-arm64"
+            if [ -n "$ARCHES" ]; then
+              docker buildx imagetools create -t "$FULL_TAG" $ARCHES
+            else
+              echo "WARN: No arch images found for $FULL_TAG"
+            fi
           done
 
       - name: Install cosign
@@ -297,10 +302,15 @@ jobs:
           for TAG in "$VERSION" "latest" "$MAJOR" "$MINOR"; do
             FULL_TAG="$REPO/${{ matrix.flavour }}:$TAG"
             echo "Creating manifest for $FULL_TAG"
-            docker buildx imagetools create -t "$FULL_TAG" \
-              "$REPO/${{ matrix.flavour }}:${VERSION}-amd64" \
-              "$REPO/${{ matrix.flavour }}:${VERSION}-arm64" \
-              || echo "WARN: manifest creation failed (one arch may be missing)"
+            # Check which arches are available
+            ARCHES=""
+            docker manifest inspect "$REPO/${{ matrix.flavour }}:${VERSION}-amd64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/${{ matrix.flavour }}:${VERSION}-amd64"
+            docker manifest inspect "$REPO/${{ matrix.flavour }}:${VERSION}-arm64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/${{ matrix.flavour }}:${VERSION}-arm64"
+            if [ -n "$ARCHES" ]; then
+              docker buildx imagetools create -t "$FULL_TAG" $ARCHES
+            else
+              echo "WARN: No arch images found for $FULL_TAG"
+            fi
           done
 
       - name: Install cosign
