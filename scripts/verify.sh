@@ -105,6 +105,10 @@ HAS_FLUTTER=false
 HAS_BUN=false
 HAS_RUST_FULL=false
 HAS_NIX=false
+HAS_RUBY=false
+HAS_PHP=false
+HAS_ZIG=false
+HAS_SWIFT=false
 
 case "$FLAVOUR" in
   base-universal) ;;
@@ -121,6 +125,10 @@ case "$FLAVOUR" in
   bun)            HAS_BUN=true; HAS_SUDO=true ;;
   pnpm)           HAS_NODE=true; HAS_SUDO=true ;;
   nix)            HAS_NIX=true; HAS_SUDO=true ;;
+  ruby)           HAS_RUBY=true; HAS_SUDO=true ;;
+  php)            HAS_PHP=true; HAS_SUDO=true ;;
+  zig)            HAS_ZIG=true; HAS_SUDO=true ;;
+  swift)          HAS_SWIFT=true; HAS_SUDO=true ;;
   *)              echo "WARN: Unknown flavour '$FLAVOUR', running BU-only checks" ;;
 esac
 
@@ -330,6 +338,33 @@ else
   check "nix NOT present" "$( (run "nix --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'nix should not be present')"
 fi
 
+if [ "$HAS_RUBY" = true ]; then
+  check "ruby available" "$(run "ruby --version" | grep -q 'ruby' && echo PASS || echo 'not found')"
+  check "gem available" "$(run "gem --version" | grep -qE '^[0-9]' && echo PASS || echo 'not found')"
+  check "bundler available" "$(run "bundler --version" | grep -q 'Bundler' && echo PASS || echo 'not found')"
+else
+  check "ruby NOT present" "$( (run "ruby --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ruby should not be present')"
+fi
+
+if [ "$HAS_PHP" = true ]; then
+  check "php available" "$(run "php --version" | grep -q 'PHP' && echo PASS || echo 'not found')"
+  check "composer available" "$(run "composer --version" | grep -q 'Composer' && echo PASS || echo 'not found')"
+else
+  check "php NOT present" "$( (run "php --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'php should not be present')"
+fi
+
+if [ "$HAS_ZIG" = true ]; then
+  check "zig available" "$(run "zig version" | grep -qE '^[0-9]' && echo PASS || echo 'not found')"
+else
+  check "zig NOT present" "$( (run "zig version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'zig should not be present')"
+fi
+
+if [ "$HAS_SWIFT" = true ]; then
+  check "swift available" "$(run "swift --version" | grep -q 'Swift' && echo PASS || echo 'not found')"
+else
+  check "swift NOT present" "$( (run "swift --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'swift should not be present')"
+fi
+
 # --- Entrypoint check (C9) ---
 echo "Entrypoint:"
 ENTRYPOINT=$(docker inspect --format '{{.Config.Entrypoint}}' "$IMAGE")
@@ -388,6 +423,10 @@ case "$FLAVOUR" in
   bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
   nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
+  ruby)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
+  zig)            COMP_BUDGET=300; UNCOMP_BUDGET=700 ;;
+  swift)          COMP_BUDGET=800; UNCOMP_BUDGET=2500 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac

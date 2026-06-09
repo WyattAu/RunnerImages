@@ -1,0 +1,13 @@
+# Ruby CI with bundler
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/ruby:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: ruby --version
+      - run: gem --version
+      - run: bundle install
+      - run: bundle exec rake test

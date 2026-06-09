@@ -1,0 +1,13 @@
+# PHP CI with Composer
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/php:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: php --version
+      - run: composer --version
+      - run: composer install --prefer-dist --no-progress
+      - run: vendor/bin/phpunit

@@ -1,0 +1,12 @@
+# Swift CI with SPM
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/swift:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift build
+      - run: swift test

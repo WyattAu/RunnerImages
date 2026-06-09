@@ -1,0 +1,71 @@
+# Forgejo Actions runner image - php flavour
+# Layer count: 2 (bu-base + php)
+# BU packages from base-universal, PHP 8.3 + Composer + common extensions
+
+# ---------------------------------------------------------------------------
+# Layer 0: Base image - BU layer from base-universal
+# ---------------------------------------------------------------------------
+FROM ghcr.io/wyattau/runner-images/base-universal:1.0.0 AS bu-base
+
+# ---------------------------------------------------------------------------
+# Layer 1: PHP-specific additions (single RUN)
+# ---------------------------------------------------------------------------
+FROM bu-base AS php
+
+ARG IMAGE_VERSION=dev
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      php-cli=8.3.6-* \
+      php-common=8.3.6-* \
+      php-curl=8.3.6-* \
+      php-mbstring=8.3.6-* \
+      php-xml=8.3.6-* \
+      php-zip=8.3.6-* \
+      php-mysql=8.3.6-* \
+      php-pgsql=8.3.6-* \
+      php-sqlite3=8.3.6-* \
+      php-gd=8.3.6-* \
+      php-bcmath=8.3.6-* \
+      php-intl=8.3.6-* \
+      php-redis=6.0.* \
+      php-memcached=3.3.* \
+      unzip=6.0-28ubuntu4.1 \
+      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+ && curl -fsSL "https://getcomposer.org/installer" | php -- --install-dir=/usr/local/bin --filename=composer \
+ && php --version \
+ && composer --version \
+ && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
+ && rm -rf /var/lib/apt/lists/* \
+ && chmod 4755 /usr/bin/sudo
+
+# ---------------------------------------------------------------------------
+# OCI Labels
+# ---------------------------------------------------------------------------
+LABEL org.opencontainers.image.title="runner-images/php"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: PHP 8.3 with Composer"
+LABEL org.opencontainers.image.vendor="WyattAu"
+LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.version="$IMAGE_VERSION"
+LABEL runner.flavour="php"
+LABEL runner.base="base-universal"
+LABEL runner.base.tag="1.0.0"
+
+# ---------------------------------------------------------------------------
+# Environment
+# ---------------------------------------------------------------------------
+ENV HOME=/home/runner
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C:en
+ENV LC_ALL=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SOURCE_DATE_EPOCH=0
+ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# ---------------------------------------------------------------------------
+# Runtime
+# ---------------------------------------------------------------------------
+USER runner
+WORKDIR /home/runner
+ENTRYPOINT ["/bin/bash"]

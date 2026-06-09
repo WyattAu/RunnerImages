@@ -37,11 +37,17 @@ jobs:
           - bun
           - pnpm
           - nix
+          - ruby
+          - php
+          - zig
+          - swift
         platform: [linux/amd64, linux/arm64]
         exclude:
           - flavour: flutter
             platform: linux/arm64
           - flavour: nix
+            platform: linux/arm64
+          - flavour: swift
             platform: linux/arm64
     runs-on: ubuntu-latest
     steps:

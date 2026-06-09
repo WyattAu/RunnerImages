@@ -35,6 +35,10 @@ jobs:
           - dotnet
           - flutter
           - nix
+          - ruby
+          - php
+          - zig
+          - swift
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

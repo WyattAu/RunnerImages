@@ -143,6 +143,10 @@ case "$FLAVOUR" in
   bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
   nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
+  ruby)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
+  php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
+  zig)            COMP_BUDGET=300; UNCOMP_BUDGET=700 ;;
+  swift)          COMP_BUDGET=800; UNCOMP_BUDGET=2500 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)              COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac

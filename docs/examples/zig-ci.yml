@@ -1,0 +1,11 @@
+# Zig CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/zig:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: zig version
+      - run: zig build test

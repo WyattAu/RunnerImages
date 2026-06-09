@@ -66,6 +66,10 @@ docker pull --platform linux/arm64 ghcr.io/wyattau/runner-images/ubuntu:1.1.0
 | .NET / C# | dotnet | .NET 8.0 SDK, g++ |
 | Flutter / Dart | flutter | Flutter 3.44, cmake, ninja, clang |
 | Nix flakes | nix | Nix 2.34 (amd64 only) |
+| Ruby / Rails | ruby | Ruby 3.4, bundler, gem |
+| PHP / Laravel | php | PHP 8.3, Composer |
+| Zig | zig | Zig 0.16 |
+| Swift | swift | Swift 6.1, SPM (amd64 only) |
 | Just git + curl + make | base-universal | git, curl, jq, make, gcc |
 
 ## Example Workflows
@@ -88,6 +92,10 @@ See `docs/examples/` for complete workflow files:
 | `nix-ci.yml` | nix | Nix flake check and build |
 | `docker-dind.yml` | ubuntu | Docker-in-Docker |
 | `heavy-fullstack.yml` | heavy | Node + Python + Docker full-stack |
+| `ruby-ci.yml` | ruby | Ruby with bundler |
+| `php-ci.yml` | php | PHP with Composer |
+| `zig-ci.yml` | zig | Zig build and test |
+| `swift-ci.yml` | swift | Swift with SPM |
 
 ## Building from Source
 

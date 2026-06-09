@@ -1,6 +1,6 @@
 # RunnerImages
 
-Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**.
+Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**. 18 flavours.
 
 ## Tool Versions
 
@@ -15,6 +15,10 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | heavy | Node.js 22 + Python 3.12 | -- | Docker CLI, npm, yarn, pnpm, pip |
 | rust | Rust | 1.96.0 | cargo, rustup, g++, libssl-dev |
 | rust-full | Rust | 1.96.0 | wasm-pack, cross (amd64), protobuf, cmake |
+| ruby | Ruby | 3.4.4 | bundler, gem, libssl-dev, libffi-dev |
+| php | PHP | 8.3.x | Composer, curl/mbstring/xml/zip/mysql/pgsql/gd extensions |
+| zig | Zig | 0.16.0 | (multi-arch) |
+| swift | Swift | 6.1 | SPM (amd64 only) |
 | go | Go | 1.26.4 | g++ |
 | java | OpenJDK | 21.x | Maven, g++ |
 | dotnet | .NET SDK | 8.0.x | g++ |
@@ -38,6 +42,10 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **dotnet** | base + .NET 8.0 SDK | 353MB | C#/.NET workflows |
 | **rust** | base + Rust 1.96, cargo, rustup | 448MB | Rust/Cargo workflows |
 | **rust-full** | base + Rust + wasm-pack, cross, protobuf, cmake | 488MB | Rust + WASM, full toolchain |
+| **ruby** | base + Ruby 3.4, bundler, gem | TBD | Ruby CI, Rails |
+| **php** | base + PHP 8.3, Composer | TBD | PHP CI, Laravel |
+| **zig** | base + Zig 0.16 | TBD | Zig workflows |
+| **swift** | base + Swift 6.1 (amd64 only) | TBD | Swift CI, SPM |
 | **flutter** | base + Flutter SDK via git clone | 1577MB | Flutter/Dart, mobile/web |
 
 ## Quick Start
@@ -98,6 +106,18 @@ Need Rust / Cargo?
 Need Rust + WASM + protobuf + sqlx?
   -> rust-full
 
+Need Ruby / Rails?
+  -> ruby
+
+Need PHP / Laravel?
+  -> php
+
+Need Zig?
+  -> zig
+
+Need Swift?
+  -> swift
+
 Need Go?
   -> go
 
@@ -134,7 +154,7 @@ make lint                     # shellcheck + hadolint
 
 ## Architecture
 
-**B1 layered architecture**: `base-universal` is the shared base image. All 13 child flavours inherit from it. The BU layer is built once and shared across all flavours.
+**B1 layered architecture**: `base-universal` is the shared base image. All 17 child flavours inherit from it. The BU layer is built once and shared across all flavours.
 
 ```
 Layer 0: ubuntu:24.04@sha256:<digest>    (shared, ~78MB)
@@ -177,6 +197,10 @@ images/
   heavy/            Dockerfile, VERSION, README.md
   rust/             Dockerfile, VERSION, README.md
   rust-full/        Dockerfile, VERSION, README.md
+  ruby/             Dockerfile, VERSION, README.md
+  php/              Dockerfile, VERSION, README.md
+  zig/              Dockerfile, VERSION, README.md
+  swift/            Dockerfile, VERSION, README.md
   go/               Dockerfile, VERSION, README.md
   java/             Dockerfile, VERSION, README.md
   dotnet/           Dockerfile, VERSION, README.md

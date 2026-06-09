@@ -1,0 +1,76 @@
+# Forgejo Actions runner image - ruby flavour
+# Layer count: 2 (bu-base + ruby)
+# BU packages from base-universal, Ruby 3.4 + bundler + gem
+
+# ---------------------------------------------------------------------------
+# Layer 0: Base image - BU layer from base-universal
+# ---------------------------------------------------------------------------
+FROM ghcr.io/wyattau/runner-images/base-universal:1.0.0 AS bu-base
+
+# ---------------------------------------------------------------------------
+# Layer 1: Ruby-specific additions (single RUN)
+# ---------------------------------------------------------------------------
+FROM bu-base AS ruby
+
+ARG RUBY_VERSION=3.4.4
+ARG IMAGE_VERSION=dev
+ARG TARGETARCH
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libssl-dev=3.0.13-0ubuntu3.9 \
+      libffi-dev=3.4.6-1build1 \
+      libyaml-dev=0.2.5-1build1 \
+      zlib1g-dev=1:1.3.dfsg-3.1ubuntu2.1 \
+      libreadline-dev=8.2-4build1 \
+      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      RUBY_ARCH=aarch64; \
+    else \
+      RUBY_ARCH=x86_64; \
+    fi \
+ && curl -fsSL "https://cache.ruby-lang.org/pub/ruby/${RUBY_VERSION%.*}/ruby-${RUBY_VERSION}.tar.gz" -o /tmp/ruby.tar.gz \
+ && mkdir -p /tmp/ruby-src \
+ && tar -xzf /tmp/ruby.tar.gz -C /tmp/ruby-src --strip-components=1 \
+ && cd /tmp/ruby-src \
+ && ./configure --prefix=/usr/local --disable-install-doc --enable-shared \
+ && make -j$(nproc) \
+ && make install \
+ && cd / \
+ && rm -rf /tmp/ruby.tar.gz /tmp/ruby-src \
+ && gem install bundler --no-document \
+ && ruby --version \
+ && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
+ && rm -rf /var/lib/apt/lists/* \
+ && chmod 4755 /usr/bin/sudo
+
+# ---------------------------------------------------------------------------
+# OCI Labels
+# ---------------------------------------------------------------------------
+LABEL org.opencontainers.image.title="runner-images/ruby"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler and gem"
+LABEL org.opencontainers.image.vendor="WyattAu"
+LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.version="$IMAGE_VERSION"
+LABEL runner.flavour="ruby"
+LABEL runner.base="base-universal"
+LABEL runner.base.tag="1.0.0"
+
+# ---------------------------------------------------------------------------
+# Environment
+# ---------------------------------------------------------------------------
+ENV HOME=/home/runner
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C:en
+ENV LC_ALL=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SOURCE_DATE_EPOCH=0
+ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# ---------------------------------------------------------------------------
+# Runtime
+# ---------------------------------------------------------------------------
+USER runner
+WORKDIR /home/runner
+ENTRYPOINT ["/bin/bash"]
