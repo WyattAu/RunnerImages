@@ -1,6 +1,6 @@
 # Build and verify runner images on push/PR to main
 # Smart change detection: only builds changed flavours
-# Uses _build-reusable.yml for actual build logic
+# Uses build-reusable.yml for actual build logic
 
 name: Build
 
@@ -65,7 +65,7 @@ jobs:
   build:
     needs: detect
     if: needs.detect.outputs.flavours != '[]'
-    uses: ./.github/workflows/_build-reusable.yml
+    uses: ./.github/workflows/build-reusable.yml
     with:
       flavours: ${{ needs.detect.outputs.flavours }}
       push: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.push_images == 'true') }}

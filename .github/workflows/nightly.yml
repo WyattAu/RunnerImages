@@ -30,7 +30,7 @@ jobs:
 
   build:
     needs: discover
-    uses: ./.github/workflows/_build-reusable.yml
+    uses: ./.github/workflows/build-reusable.yml
     with:
       flavours: ${{ needs.discover.outputs.flavours }}
       push: true
