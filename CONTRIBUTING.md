@@ -96,3 +96,9 @@ See `.specs/00_requirements/pillars.md` for the full six pillars. In short:
 ## License
 
 Apache-2.0. By contributing, you agree your changes are licensed under the same terms.
+
+## Community
+
+- **Bug reports:** [GitHub Issues](https://github.com/WyattAu/RunnerImages/issues)
+- **Feature requests:** [GitHub Discussions](https://github.com/WyattAu/RunnerImages/discussions)
+- **Questions:** [GitHub Discussions Q&A](https://github.com/WyattAu/RunnerImages/discussions/categories/q-a)

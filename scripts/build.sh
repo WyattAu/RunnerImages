@@ -99,6 +99,10 @@ if [ "$SCAN" = true ] && ! command -v trivy >/dev/null 2>&1; then
   exit 1
 fi
 
+# Cache directory for downloaded tarballs (CI optimization)
+CACHE_DIR="${CACHE_DIR:-/tmp/runner-images-cache}"
+mkdir -p "$CACHE_DIR"
+
 echo "=== Building $FLAVOUR:$VERSION ($PLATFORM) ==="
 
 IMAGE="$REPO/$FLAVOUR:$VERSION-$ARCH"

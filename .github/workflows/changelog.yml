@@ -1,0 +1,89 @@
+# Generate changelog from conventional commits
+name: Generate Changelog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      'images/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        run: |
+          # Get the last version tag
+          LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -1 || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${LAST_TAG}..HEAD"
+          fi
+
+          echo "# Changelog" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          # Group commits by type
+          echo "## Recent Changes" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          # Features
+          FEATURES=$(git log ${RANGE} --oneline --grep='^feat' 2>/dev/null || true)
+          if [ -n "$FEATURES" ]; then
+            echo "### Features" >> CHANGELOG.md
+            echo "$FEATURES" | while read -r line; do
+              echo "- ${line}" >> CHANGELOG.md
+            done
+            echo "" >> CHANGELOG.md
+          fi
+
+          # Fixes
+          FIXES=$(git log ${RANGE} --oneline --grep='^fix' 2>/dev/null || true)
+          if [ -n "$FIXES" ]; then
+            echo "### Bug Fixes" >> CHANGELOG.md
+            echo "$FIXES" | while read -r line; do
+              echo "- ${line}" >> CHANGELOG.md
+            done
+            echo "" >> CHANGELOG.md
+          fi
+
+          # Other changes
+          OTHER=$(git log ${RANGE} --oneline --invert-grep --grep='^feat\|^fix' 2>/dev/null | head -20 || true)
+          if [ -n "$OTHER" ]; then
+            echo "### Other Changes" >> CHANGELOG.md
+            echo "$OTHER" | while read -r line; do
+              echo "- ${line}" >> CHANGELOG.md
+            done
+            echo "" >> CHANGELOG.md
+          fi
+
+          echo "Changelog generated from ${RANGE}"
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet CHANGELOG.md; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit changelog
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog [skip ci]"
+          git push
