@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 
 env:
+  REGISTRY: ghcr.io
   DOCKERHUB_REPO: wyattau/runner-images
 
 jobs:
