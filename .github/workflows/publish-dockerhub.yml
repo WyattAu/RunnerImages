@@ -10,7 +10,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  DOCKERHUB_REPO: wyattau/runner-images
+  # Docker Hub only supports namespace/repo (one level).
+  # All flavours published as tags in a single repo: wyattau/runnerimages
+  DOCKERHUB_REPO: wyattau/runnerimages
 
 jobs:
   publish:
@@ -47,19 +49,22 @@ jobs:
         run: |
           GHCR_REPO="${{ env.REGISTRY }}/wyattau/runner-images"
           DOCKERHUB="${{ env.DOCKERHUB_REPO }}"
-          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          FLAVOUR="${{ matrix.flavour }}"
+          VERSION=$(tr -d '[:space:]' < "images/${FLAVOUR}/VERSION")
 
           # Copy from GHCR to Docker Hub
+          # GHCR uses: ghcr.io/wyattau/runner-images/<flavour>:<tag>
+          # Docker Hub uses: wyattau/runnerimages:<flavour>-<tag>
           for TAG in "latest" "$VERSION"; do
-            docker pull "$GHCR_REPO/${{ matrix.flavour }}:$TAG"
-            docker tag "$GHCR_REPO/${{ matrix.flavour }}:$TAG" "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
-            docker push "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
+            docker pull "${GHCR_REPO}/${FLAVOUR}:${TAG}"
+            docker tag "${GHCR_REPO}/${FLAVOUR}:${TAG}" "${DOCKERHUB}:${FLAVOUR}-${TAG}"
+            docker push "${DOCKERHUB}:${FLAVOUR}-${TAG}"
           done
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: '${{ env.DOCKERHUB }}/${{ matrix.flavour }}:latest'
+          image: '${{ env.DOCKERHUB }}:${{ matrix.flavour }}-latest'
           format: spdx-json
           output-file: 'sbom-dockerhub-${{ matrix.flavour }}.spdx.json'
 

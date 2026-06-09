@@ -176,7 +176,7 @@ Images are published to multiple registries:
 |----------|-----|----------------|
 | GHCR | `ghcr.io/wyattau/runner-images/` | GitHub token (automatic) |
 | ECR | `public.ecr.aws/wyattau/runner-images/` | AWS IAM role |
-| Docker Hub | `docker.io/wyattau/runner-images/` | Docker Hub token |
+| Docker Hub | `docker.io/wyattau/runnerimages` | Docker Hub token |
 
 ### Pull from Different Registries
 
@@ -184,11 +184,8 @@ Images are published to multiple registries:
 # GitHub Container Registry (default)
 docker pull ghcr.io/wyattau/runner-images/ubuntu:1
 
-# AWS ECR Public
-docker pull public.ecr.aws/wyattau/runner-images/ubuntu:1
-
-# Docker Hub
-docker pull wyattau/runner-images/ubuntu:1
+# Docker Hub (flavour as tag prefix)
+docker pull wyattau/runnerimages:ubuntu-1
 ```
 
 ## Security
