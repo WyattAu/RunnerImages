@@ -2,7 +2,7 @@
 # Inherits BU packages from base-universal image
 # Adds: Flutter SDK + Dart + build tools
 
-FROM ghcr.io/wyattau/runner-images/base-universal:1.0.0 AS bu-base
+FROM ghcr.io/wyattau/runner-images/base-universal:2.0.0 AS bu-base
 
 ARG FLUTTER_VERSION=3.44.1
 ARG IMAGE_VERSION=dev
@@ -35,7 +35,7 @@ LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
 LABEL runner.flavour="flutter"
 LABEL runner.base="base-universal"
-LABEL runner.base.tag="1.0.0"
+LABEL runner.base.tag="2.0.0"
 
 ENV HOME=/home/runner
 ENV LANG=C.UTF-8

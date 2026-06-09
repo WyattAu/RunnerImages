@@ -50,4 +50,4 @@ jobs:
 
 ## Changelog
 
-- 1.1.0 (2026-06-07): Initial release
+- 2.0.0 (2026-06-07): Initial release

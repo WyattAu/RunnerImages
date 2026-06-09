@@ -1,0 +1,113 @@
+# Auto-bump upstream versions
+# Weekly check for new upstream releases, creates PR with version bumps
+# Patch bumps auto-merge, major/minor require manual review
+
+name: Auto Bump Versions
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      updates: ${{ steps.check.outputs.updates }}
+      has_updates: ${{ steps.check.outputs.has_updates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check upstream versions
+        id: check
+        run: |
+          chmod +x scripts/check-upstream-versions.sh
+          UPDATES=$(./scripts/check-upstream-versions.sh)
+          echo "$UPDATES"
+          echo "updates=$UPDATES" >> "$GITHUB_OUTPUT"
+          COUNT=$(echo "$UPDATES" | jq 'length')
+          echo "has_updates=$([ "$COUNT" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  bump:
+    needs: check
+    if: needs.check.outputs.has_updates == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Create bump branch
+        run: |
+          BRANCH="auto-bump/$(date +%Y%m%d)"
+          git checkout -b "$BRANCH"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Apply version bumps
+        run: |
+          chmod +x scripts/bump-version.sh scripts/check-upstream-versions.sh
+          UPDATES='${{ needs.check.outputs.updates }}'
+
+          echo "$UPDATES" | jq -c '.[]' | while read -r update; do
+            FLAVOUR=$(echo "$update" | jq -r '.flavour')
+            LATEST=$(echo "$update" | jq -r '.latest')
+            BUMP=$(echo "$update" | jq -r '.bump')
+            TOOL=$(echo "$update" | jq -r '.tool')
+
+            echo "=== Bumping $FLAVOUR ($TOOL) to $LATEST ($BUMP) ==="
+
+            # Bump version
+            ./scripts/bump-version.sh "$FLAVOUR" "$LATEST"
+
+            # Also update tool version in Dockerfile ARG if applicable
+            DOCKERFILE="images/${FLAVOUR}/Dockerfile"
+            if [ -f "$DOCKERFILE" ]; then
+              case "$TOOL" in
+                Node.js) sed -i "s/ARG NODE_VERSION=.*/ARG NODE_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Go) sed -i "s/ARG GO_VERSION=.*/ARG GO_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Rust) sed -i "s/ARG RUST_VERSION=.*/ARG RUST_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Bun) sed -i "s/ARG BUN_VERSION=.*/ARG BUN_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Zig) sed -i "s/ARG ZIG_VERSION=.*/ARG ZIG_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Flutter) sed -i "s/ARG FLUTTER_VERSION=.*/ARG FLUTTER_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+                Swift) sed -i "s/ARG SWIFT_VERSION=.*/ARG SWIFT_VERSION=${LATEST}/" "$DOCKERFILE" ;;
+              esac
+            fi
+          done
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: auto-bump upstream versions"
+          git push origin "$BRANCH"
+
+      - name: Create pull request
+        run: |
+          UPDATES='${{ needs.check.outputs.updates }}'
+          BODY=$(echo "$UPDATES" | jq -r '.[] | "- **\(.tool)** (\(.flavour)): \(.current) -> \(.latest) (\(.bump))"' | tr '\n' ' ')
+
+          # Check for major bumps
+          HAS_MAJOR=$(echo "$UPDATES" | jq '[.[] | select(.bump == "major")] | length')
+
+          LABELS="automated"
+          if [ "$HAS_MAJOR" -gt 0 ]; then
+            LABELS="$LABELS,requires-review"
+          fi
+
+          gh pr create \
+            --title "chore: auto-bump upstream versions" \
+            --body "Automated version bump from upstream release check.$BODY" \
+            --label "$LABELS" \
+            --base main \
+            --head "$BRANCH" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

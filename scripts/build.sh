@@ -38,7 +38,7 @@ VERSION=$(tr -d '[:space:]' < "$FLAVOUR_DIR/VERSION")
 # B1: Ensure base-universal image exists before building child flavours
 # ---------------------------------------------------------------------------
 if [ "$FLAVOUR" != "base-universal" ]; then
-  BASE_VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION" 2>/dev/null || echo "1.0.0")
+  BASE_VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION" 2>/dev/null || echo "2.0.0")
   BASE_IMAGE="$REPO/base-universal:${BASE_VERSION}-${ARCH}"
   BASE_IMAGE_LATEST="$REPO/base-universal:latest"
   BASE_FROM_REF="$REPO/base-universal:${BASE_VERSION}"
@@ -107,16 +107,35 @@ echo "=== Building $FLAVOUR:$VERSION ($PLATFORM) ==="
 
 IMAGE="$REPO/$FLAVOUR:$VERSION-$ARCH"
 
-docker build \
-  --no-cache \
-  --output=type=docker \
-  --platform "$PLATFORM" \
-  --progress=plain \
-  --build-arg IMAGE_VERSION="$VERSION" \
-  --build-arg SOURCE_DATE_EPOCH=0 \
-  ${SNAPSHOT_DATE:+--build-arg SNAPSHOT_DATE="$SNAPSHOT_DATE"} \
-  -t "$IMAGE" \
-  "$FLAVOUR_DIR/"
+# Build with retry (2 attempts with backoff, adapted from Evergreen pattern)
+MAX_ATTEMPTS=2
+ATTEMPT=0
+
+while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+  ATTEMPT=$((ATTEMPT + 1))
+
+  if docker build \
+    --no-cache \
+    --output=type=docker \
+    --platform "$PLATFORM" \
+    --progress=plain \
+    --build-arg IMAGE_VERSION="$VERSION" \
+    --build-arg SOURCE_DATE_EPOCH=0 \
+    ${SNAPSHOT_DATE:+--build-arg SNAPSHOT_DATE="$SNAPSHOT_DATE"} \
+    -t "$IMAGE" \
+    "$FLAVOUR_DIR/"; then
+    echo "Build succeeded on attempt $ATTEMPT"
+    break
+  else
+    if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+      echo "Build failed on attempt $ATTEMPT, retrying in 5s..."
+      sleep 5
+    else
+      echo "ERROR: Build failed after $MAX_ATTEMPTS attempts"
+      exit 1
+    fi
+  fi
+done
 
 DIGEST=$(docker inspect --format '{{.Id}}' "$IMAGE")
 

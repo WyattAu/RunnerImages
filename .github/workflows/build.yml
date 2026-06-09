@@ -1,356 +1,113 @@
 # Build and verify runner images on push/PR to main
-# B1 layered architecture: base-universal built first, all flavours inherit
-# Multi-arch: linux/amd64 + linux/arm64
-# Spec reference: S7.1 Build Pipeline
+# Smart change detection: only builds changed flavours
+# Uses _build-reusable.yml for actual build logic
 
 name: Build
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'images/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
   pull_request:
     branches: [main]
-    paths:
-      - 'images/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
   workflow_dispatch:
-
-permissions:
-  contents: read
-  packages: write
-  id-token: write
-
-env:
-  REGISTRY: ghcr.io
+    inputs:
+      flavours:
+        description: 'Comma-separated flavours (empty = changed only)'
+        required: false
+        type: string
+      push_images:
+        description: 'Push images to registry'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
-  detect-changes:
+  detect:
     runs-on: ubuntu-latest
     outputs:
-      flavours: ${{ steps.detect.outputs.flavours }}
-      child_flavours: ${{ steps.detect.outputs.child_flavours }}
+      flavours: ${{ steps.discover.outputs.flavours }}
+      child_flavours: ${{ steps.discover.outputs.child_flavours }}
+      has_base: ${{ steps.discover.outputs.has_base }}
+      has_children: ${{ steps.discover.outputs.has_children }}
     steps:
       - uses: actions/checkout@v4
-      - name: Detect changed flavours
-        id: detect
+        with:
+          fetch-depth: 0
+
+      - name: Discover changed images
+        id: discover
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="${{ github.base_ref }}"
-            CHANGED=$(git diff --name-only "origin/${BASE}...HEAD" -- 'images/*' | grep -oP 'images/\K[^/]+' | grep -v '^shared$' | sort -u)
+          chmod +x scripts/discover-images.sh
+          if [ -n "${{ github.event.inputs.flavours }}" ]; then
+            RESULT=$(./scripts/discover-images.sh images "${{ github.event.inputs.flavours }}")
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            RESULT=$(./scripts/discover-images.sh changed "origin/${{ github.base_ref }}")
           else
-            CHANGED=$(ls images/ | grep -v '^shared$')
+            RESULT=$(./scripts/discover-images.sh changed)
           fi
-          echo "flavours=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
-          # child_flavours excludes base-universal (handled by build-base)
-          CHILD=$(echo "$CHANGED" | grep -v '^base-universal$' || true)
-          echo "child_flavours=$(echo "$CHILD" | jq -R -s -c 'split("\n") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+          echo "$RESULT"
+          FLAVOURS=$(echo "$RESULT" | jq -r '.flavour')
+          CHILDREN=$(echo "$RESULT" | jq -r '.child_flavours')
+          HAS_BASE=$(echo "$RESULT" | jq -r '.has_base')
+          HAS_CHILDREN=$(echo "$RESULT" | jq -r '.has_children')
+          echo "flavours=$FLAVOURS" >> "$GITHUB_OUTPUT"
+          echo "child_flavours=$CHILDREN" >> "$GITHUB_OUTPUT"
+          echo "has_base=$HAS_BASE" >> "$GITHUB_OUTPUT"
+          echo "has_children=$HAS_CHILDREN" >> "$GITHUB_OUTPUT"
 
-  # B1: Build base-universal FIRST, then all child flavours depend on it
-  build-base:
-    needs: detect-changes
-    if: |
-      needs.detect-changes.outputs.flavours != '[]' &&
-      (contains(fromJson(needs.detect-changes.outputs.flavours), 'base-universal') ||
-       github.event_name == 'workflow_dispatch')
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [linux/amd64, linux/arm64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-base-${{ matrix.platform }}-${{ github.sha }}
-          restore-keys: |
-            buildx-base-${{ matrix.platform }}-
-
-      - name: Log in to GHCR
-        if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build base-universal
+      - name: Summary
         run: |
-          chmod +x scripts/build.sh
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal
+          echo "### Build Plan" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Base:** ${{ steps.discover.outputs.has_base }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Children:** ${{ steps.discover.outputs.child_flavours }}" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Verify base-universal
-        run: |
-          chmod +x scripts/verify.sh
-          PLATFORM="${{ matrix.platform }}" ./scripts/verify.sh base-universal
-
-      - name: Push base-universal (per-arch)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal --push
-
-      - name: Generate versions.lock
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION")
-          IMAGE="$REPO/base-universal:$VERSION"
-          docker run --rm --platform ${{ matrix.platform }} "$IMAGE" dpkg-query -W -f '$${Package}=$${Version}\n' | sort \
-            > "images/base-universal/versions.lock"
-
-      - name: Upload versions.lock
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: versions-base-universal-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-          path: images/base-universal/versions.lock
-          retention-days: 90
-
-  # Manifest for base-universal
-  manifest-base:
-    needs: build-base
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Create and push multi-arch manifest
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION")
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-
-          for TAG in "$VERSION" "latest" "$MAJOR" "$MINOR"; do
-            FULL_TAG="$REPO/base-universal:$TAG"
-            echo "Creating manifest for $FULL_TAG"
-            # Check which arches are available
-            ARCHES=""
-            docker manifest inspect "$REPO/base-universal:${VERSION}-amd64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/base-universal:${VERSION}-amd64"
-            docker manifest inspect "$REPO/base-universal:${VERSION}-arm64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/base-universal:${VERSION}-arm64"
-            if [ -n "$ARCHES" ]; then
-              docker buildx imagetools create -t "$FULL_TAG" $ARCHES
-            else
-              echo "WARN: No arch images found for $FULL_TAG"
-            fi
-          done
-
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v3
-
-      - name: Sign multi-arch manifest
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION")
-          cosign sign --yes "$REPO/base-universal:$VERSION"
-          cosign sign --yes "$REPO/base-universal:latest"
-
-      - name: Generate SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: '${{ env.REGISTRY }}/wyattau/runner-images/base-universal:latest'
-          format: spdx-json
-          output-file: 'sbom-base-universal.spdx.json'
-
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-base-universal
-          path: sbom-base-universal.spdx.json
-          retention-days: 90
-
-  # B1: Build child flavours AFTER base-universal is available
   build:
-    needs: [detect-changes, build-base]
-    if: |
-      always() &&
-      needs.detect-changes.outputs.child_flavours != '[]'
+    needs: detect
+    if: needs.detect.outputs.flavours != '[]'
+    uses: ./.github/workflows/_build-reusable.yml
+    with:
+      flavours: ${{ needs.detect.outputs.flavours }}
+      push: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.push_images == 'true') }}
+      sign: ${{ github.ref == 'refs/heads/main' }}
+      sbom: ${{ github.ref == 'refs/heads/main' }}
+    secrets: inherit
+
+  # Publish to Docker Hub after successful build
+  publish-dockerhub:
+    needs: build
+    if: github.ref == 'refs/heads/main' && needs.build.result == 'success'
     strategy:
       fail-fast: false
+      max-parallel: 5
       matrix:
-        flavour: ${{ fromJson(needs.detect-changes.outputs.child_flavours) }}
-        platform: [linux/amd64, linux/arm64]
-        exclude:
-          - flavour: flutter
-            platform: linux/arm64
-          - flavour: nix
-            platform: linux/arm64
-          - flavour: swift
-            platform: linux/arm64
+        flavour: ${{ fromJson(needs.detect.outputs.child_flavours) }}
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-${{ matrix.flavour }}-${{ matrix.platform }}-${{ github.sha }}
-          restore-keys: |
-            buildx-${{ matrix.flavour }}-${{ matrix.platform }}-
-
-      - name: Log in to GHCR
-        if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # B1: Ensure base-universal is available
-      - name: Ensure base-universal image available
-        run: |
-          chmod +x scripts/build.sh
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          BASE_VERSION=$(tr -d '[:space:]' < "images/base-universal/VERSION")
-          ARCH="${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}"
-          BASE_IMAGE="$REPO/base-universal:${BASE_VERSION}"
-          if ! docker image inspect "$BASE_IMAGE" >/dev/null 2>&1; then
-            echo "Pulling base-universal from GHCR..."
-            docker pull "$REPO/base-universal:${BASE_VERSION}-${ARCH}" || true
-            docker tag "$REPO/base-universal:${BASE_VERSION}-${ARCH}" "$BASE_IMAGE" || true
-          fi
-
-      - name: Build image
-        run: |
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }}
-
-      - name: Reproducibility check (double-build with snapshot mirror)
-        if: matrix.platform == 'linux/amd64'
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION-amd64"
-          DIGEST1=$(docker inspect --format '{{.Id}}' "$IMAGE")
-          SNAP_DATE=$(date -u +%Y%m%d)
-          docker rmi "$IMAGE" 2>/dev/null || true
-          PLATFORM="${{ matrix.platform }}" SNAPSHOT_DATE="$SNAP_DATE" ./scripts/build.sh ${{ matrix.flavour }}
-          DIGEST2=$(docker inspect --format '{{.Id}}' "$IMAGE")
-          echo "Build 1 digest: $DIGEST1"
-          echo "Build 2 digest: $DIGEST2"
-          if [ "$DIGEST1" != "$DIGEST2" ]; then
-            echo "WARN: Builds are not bit-for-bit identical (expected with live apt mirrors)"
-          else
-            echo "PASS: Builds are bit-for-bit identical"
-          fi
-
-      - name: Verify image
-        run: |
-          chmod +x scripts/verify.sh
-          PLATFORM="${{ matrix.platform }}" ./scripts/verify.sh ${{ matrix.flavour }}
-
-      - name: Push image (per-arch)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --push
-
-      - name: Generate versions.lock
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
-          docker run --rm --platform ${{ matrix.platform }} "$IMAGE" dpkg-query -W -f '$${Package}=$${Version}\n' | sort \
-            > "images/${{ matrix.flavour }}/versions.lock"
-
-      - name: Upload versions.lock
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: versions-${{ matrix.flavour }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-          path: images/${{ matrix.flavour }}/versions.lock
-          retention-days: 90
-
-  # Create multi-arch manifest after all per-arch builds succeed
-  manifest:
-    needs: [detect-changes, build]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        flavour: ${{ fromJson(needs.detect-changes.outputs.child_flavours) }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Create and push multi-arch manifest
+      - name: Pull and push to Docker Hub
         run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
+          GHCR_REPO="ghcr.io/wyattau/runner-images"
+          DOCKERHUB="wyattau/runnerimages"
+          FLAVOUR="${{ matrix.flavour }}"
+          VERSION=$(tr -d '[:space:]' < "images/${FLAVOUR}/VERSION")
 
-          for TAG in "$VERSION" "latest" "$MAJOR" "$MINOR"; do
-            FULL_TAG="$REPO/${{ matrix.flavour }}:$TAG"
-            echo "Creating manifest for $FULL_TAG"
-            # Check which arches are available
-            ARCHES=""
-            docker manifest inspect "$REPO/${{ matrix.flavour }}:${VERSION}-amd64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/${{ matrix.flavour }}:${VERSION}-amd64"
-            docker manifest inspect "$REPO/${{ matrix.flavour }}:${VERSION}-arm64" >/dev/null 2>&1 && ARCHES="$ARCHES $REPO/${{ matrix.flavour }}:${VERSION}-arm64"
-            if [ -n "$ARCHES" ]; then
-              docker buildx imagetools create -t "$FULL_TAG" $ARCHES
-            else
-              echo "WARN: No arch images found for $FULL_TAG"
-            fi
+          for TAG in "latest" "$VERSION"; do
+            docker pull "${GHCR_REPO}/${FLAVOUR}:${TAG}"
+            docker tag "${GHCR_REPO}/${FLAVOUR}:${TAG}" "${DOCKERHUB}:${FLAVOUR}-${TAG}"
+            docker push "${DOCKERHUB}:${FLAVOUR}-${TAG}"
           done
-
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v3
-
-      - name: Sign multi-arch manifest
-        run: |
-          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
-          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
-          cosign sign --yes "$REPO/${{ matrix.flavour }}:$VERSION"
-          cosign sign --yes "$REPO/${{ matrix.flavour }}:latest"
-
-      - name: Generate SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest'
-          format: spdx-json
-          output-file: 'sbom-${{ matrix.flavour }}.spdx.json'
-
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-${{ matrix.flavour }}
-          path: sbom-${{ matrix.flavour }}.spdx.json
-          retention-days: 90

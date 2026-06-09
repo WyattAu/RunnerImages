@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
 # ---------------------------------------------------------------------------
-FROM ghcr.io/wyattau/runner-images/base-universal:1.0.0 AS bu-base
+FROM ghcr.io/wyattau/runner-images/base-universal:2.0.0 AS bu-base
 
 # ---------------------------------------------------------------------------
 # Layer 1: Ruby-specific additions (single RUN)
@@ -55,7 +55,7 @@ LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
 LABEL runner.flavour="ruby"
 LABEL runner.base="base-universal"
-LABEL runner.base.tag="1.0.0"
+LABEL runner.base.tag="2.0.0"
 
 # ---------------------------------------------------------------------------
 # Environment
