@@ -68,7 +68,7 @@ jobs:
     uses: ./.github/workflows/build-reusable.yml
     with:
       flavours: ${{ needs.detect.outputs.flavours }}
-      push: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.push_images == 'true') }}
+      push_images: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.push_images == 'true') }}
       sign: ${{ github.ref == 'refs/heads/main' }}
       sbom: ${{ github.ref == 'refs/heads/main' }}
     secrets: inherit

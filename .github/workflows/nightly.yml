@@ -33,7 +33,7 @@ jobs:
     uses: ./.github/workflows/build-reusable.yml
     with:
       flavours: ${{ needs.discover.outputs.flavours }}
-      push: true
+      push_images: true
       sign: true
       sbom: true
     secrets: inherit

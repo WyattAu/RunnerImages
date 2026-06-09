@@ -16,7 +16,7 @@ on:
         required: false
         type: string
         default: '["linux/amd64", "linux/arm64"]'
-      push:
+      push_images:
         description: 'Push images to registry'
         required: false
         type: boolean
@@ -67,7 +67,7 @@ jobs:
             buildkit-base-${{ matrix.platform }}-
 
       - name: Log in to GHCR
-        if: inputs.push
+        if: inputs.push_images
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -84,7 +84,7 @@ jobs:
           PLATFORM="${{ matrix.platform }}" ./scripts/verify.sh base-universal
 
       - name: Push base-universal (per-arch)
-        if: inputs.push
+        if: inputs.push_images
         run: |
           PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal --push
 
@@ -125,7 +125,7 @@ jobs:
             buildkit-${{ matrix.flavour }}-${{ matrix.platform }}-
 
       - name: Log in to GHCR
-        if: inputs.push
+        if: inputs.push_images
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -155,14 +155,14 @@ jobs:
           PLATFORM="${{ matrix.platform }}" ./scripts/verify.sh ${{ matrix.flavour }}
 
       - name: Push ${{ matrix.flavour }} (per-arch)
-        if: inputs.push
+        if: inputs.push_images
         run: |
           PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --push
 
   # Create multi-arch manifests
   manifest:
     needs: [build-base, build-children]
-    if: inputs.push && always() && needs.build-children.result != 'failed'
+    if: inputs.push_images && always() && needs.build-children.result != 'failed'
     strategy:
       fail-fast: false
       max-parallel: 5
