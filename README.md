@@ -39,14 +39,18 @@ jobs:
 ## Pull
 
 ```bash
+# GHCR (default)
 docker pull ghcr.io/wyattau/runner-images/ubuntu:1
 
-# Tags follow semver:
-#   1         -- major (latest 1.x.x)
-#   1.0       -- minor (latest 1.0.x)
-#   1.0.0     -- exact
-#   latest    -- most recent
+# Docker Hub (flavour as tag prefix)
+docker pull wyattau/runnerimages:ubuntu-1
 ```
+
+Tags follow semver:
+- `1` -- major (latest 1.x.x)
+- `1.0` -- minor (latest 1.0.x)
+- `1.0.0` -- exact
+- `latest` -- most recent
 
 ## Flavour Selection
 
