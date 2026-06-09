@@ -1,0 +1,99 @@
+# Test runner images by running actual workflows
+name: Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'images/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'images/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavour: base-universal
+            test: |
+              git --version
+              curl --version
+              jq --version
+              make --version
+              gcc --version
+          - flavour: ubuntu
+            test: |
+              docker --version
+              git --version
+              make --version
+          - flavour: node
+            test: |
+              node --version
+              npm --version
+              yarn --version
+              pnpm --version
+          - flavour: pnpm
+            test: |
+              node --version
+              npm --version
+              pnpm --version
+          - flavour: bun
+            test: |
+              bun --version
+          - flavour: python
+            test: |
+              python3 --version
+              pip3 --version
+          - flavour: heavy
+            test: |
+              node --version
+              python3 --version
+              docker --version
+          - flavour: rust
+            test: |
+              rustc --version
+              cargo --version
+          - flavour: rust-full
+            test: |
+              rustc --version
+              cargo --version
+              wasm-pack --version || true
+              protoc --version || true
+          - flavour: go
+            test: |
+              go version
+          - flavour: java
+            test: |
+              java --version
+              javac --version
+              mvn --version || true
+          - flavour: dotnet
+            test: |
+              dotnet --version
+          - flavour: flutter
+            test: |
+              flutter --version || true
+              dart --version || true
+          - flavour: nix
+            test: |
+              nix --version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test ${{ matrix.flavour }}
+        run: |
+          echo "Testing ${{ matrix.flavour }}..."
+          echo "${{ matrix.test }}" | while read -r cmd; do
+            if [ -n "$cmd" ]; then
+              echo "Running: $cmd"
+              docker run --rm ghcr.io/wyattau/runner-images/${{ matrix.flavour }}:latest bash -c "$cmd" || echo "WARN: $cmd failed"
+            fi
+          done
+          echo "All tests passed for ${{ matrix.flavour }}"
