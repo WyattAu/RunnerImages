@@ -46,9 +46,10 @@ jobs:
         run: |
           GHCR_REPO="${{ env.REGISTRY }}/wyattau/runner-images"
           DOCKERHUB="${{ env.DOCKERHUB_REPO }}"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
 
           # Copy from GHCR to Docker Hub
-          for TAG in "latest" "$(cat images/${{ matrix.flavour }}/VERSION)"; do
+          for TAG in "latest" "$VERSION"; do
             docker pull "$GHCR_REPO/${{ matrix.flavour }}:$TAG"
             docker tag "$GHCR_REPO/${{ matrix.flavour }}:$TAG" "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
             docker push "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
