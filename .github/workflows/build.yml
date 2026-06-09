@@ -47,8 +47,12 @@ jobs:
             RESULT=$(./scripts/discover-images.sh changed)
           fi
           echo "$RESULT"
-          echo "flavours=$(echo "$RESULT" | jq -r '.flavour')" >> "$GITHUB_OUTPUT"
-          echo "child_flavours=$(echo "$RESULT" | jq -r '.child_flavours')" >> "$GITHUB_OUTPUT"
+          FLAVOURS=$(echo "$RESULT" | jq -c '.flavour')
+          CHILDREN=$(echo "$RESULT" | jq -c '.child_flavours')
+          echo "flavours=$FLAVOURS" >> "$GITHUB_OUTPUT"
+          echo "child_flavours=$CHILDREN" >> "$GITHUB_OUTPUT"
+          echo "Flavours: $FLAVOURS"
+          echo "Children: $CHILDREN"
 
   # B1: Build base-universal FIRST
   build-base:
