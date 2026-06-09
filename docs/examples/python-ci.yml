@@ -1,0 +1,14 @@
+# Python CI with pip
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/python:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 --version
+      - run: python3 -m venv .venv
+      - run: .venv/bin/pip install -r requirements.txt
+      - run: .venv/bin/pip install pytest
+      - run: .venv/bin/pytest

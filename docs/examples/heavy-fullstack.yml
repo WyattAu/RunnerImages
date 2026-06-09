@@ -1,0 +1,19 @@
+# Full-stack CI with heavy (Node + Python + Docker)
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/heavy:1
+    steps:
+      - uses: actions/checkout@v4
+      # Node.js frontend
+      - run: node --version
+      - run: npm ci
+      - run: npm run build
+      # Python backend
+      - run: python3 --version
+      - run: pip install -r requirements.txt
+      - run: pytest
+      # Docker build
+      - run: docker build -t myapp:$GITHUB_SHA .

@@ -1,0 +1,12 @@
+# Nix CI with flakes
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/nix:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: nix --version
+      - run: nix flake check
+      - run: nix build

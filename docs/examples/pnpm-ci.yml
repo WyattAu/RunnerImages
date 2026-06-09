@@ -1,0 +1,13 @@
+# pnpm CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/pnpm:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm --version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm run build

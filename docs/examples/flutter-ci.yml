@@ -1,0 +1,13 @@
+# Flutter CI with test and build
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/flutter:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test

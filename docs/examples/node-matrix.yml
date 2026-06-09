@@ -1,0 +1,18 @@
+# Node.js with multi-version matrix
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/node:1
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js ${{ matrix.node-version }}
+        run: |
+          curl -fsSL https://nodejs.org/dist/v${{ matrix.node-version }}.0/node-v${{ matrix.node-version }}.0-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1
+      - run: node --version
+      - run: npm ci
+      - run: npm test

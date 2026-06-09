@@ -1,0 +1,13 @@
+# Java CI with Maven
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/java:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: java -version
+      - run: mvn -version
+      - run: mvn clean test
+      - run: mvn package -DskipTests

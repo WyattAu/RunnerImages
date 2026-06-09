@@ -1,0 +1,16 @@
+# Docker-in-Docker CI (build and push images)
+on: [push]
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/ubuntu:1
+    services:
+      docker-in-docker:
+        image: docker:dind
+        options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker --version
+      - run: docker build -t myapp:$GITHUB_SHA .
+      - run: docker run --rm myapp:$GITHUB_SHA --help

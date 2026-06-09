@@ -1,0 +1,13 @@
+# Rust CI with cargo
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/rust:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustc --version
+      - run: cargo build --release
+      - run: cargo test
+      - run: cargo clippy

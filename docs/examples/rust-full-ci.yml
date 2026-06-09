@@ -1,0 +1,17 @@
+# Rust full toolchain CI (WASM + cross-compilation)
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/rust-full:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustc --version
+      - run: cargo build --release
+      - run: cargo test
+      # WASM build
+      - run: wasm-pack --version
+      - run: wasm-pack build --target web
+      # Cross-compilation (amd64 only)
+      - run: cross --version || true

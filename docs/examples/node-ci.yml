@@ -1,0 +1,13 @@
+# Basic Node.js CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/node:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --version
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

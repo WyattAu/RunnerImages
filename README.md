@@ -2,24 +2,43 @@
 
 Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**.
 
+## Tool Versions
+
+| Flavour | Primary Tool | Version | Other Tools |
+|---------|-------------|---------|-------------|
+| base-universal | gcc | 14.x | git, curl, jq, make, wget, zip, openssl, ssh |
+| ubuntu | docker-ce-cli | 29.5.x | g++, pkg-config, libssl-dev, sudo |
+| node | Node.js | 22.22.3 | npm, yarn, pnpm, g++, python3 |
+| pnpm | Node.js | 22.22.3 | pnpm, g++, python3 |
+| bun | Bun | 1.3.14 | g++, python3 |
+| python | Python | 3.12.x | pip, venv, python3-dev, libffi-dev, g++ |
+| heavy | Node.js 22 + Python 3.12 | -- | Docker CLI, npm, yarn, pnpm, pip |
+| rust | Rust | 1.96.0 | cargo, rustup, g++, libssl-dev |
+| rust-full | Rust | 1.96.0 | wasm-pack, cross (amd64), protobuf, cmake |
+| go | Go | 1.26.4 | g++ |
+| java | OpenJDK | 21.x | Maven, g++ |
+| dotnet | .NET SDK | 8.0.x | g++ |
+| flutter | Flutter | 3.44.1 | Dart, cmake, ninja, clang, GTK/GLU dev |
+| nix | Nix | 2.34.x | (amd64 only) |
+
 ## Flavours
 
 | Flavour | Contents | Compressed | Use Case |
 |---------|----------|-----------|----------|
-| **base-universal** | git, curl, jq, make, gcc, ssh | 190MB | Minimal CI, shell scripts |
-| **ubuntu** | base + Docker CLI, sudo, build tools | 202MB | General CI, DinD, builds |
-| **python** | base + Python 3.12, pip, venv, dev headers | 204MB | Python CI, ML pipelines |
-| **node** | base + Node.js 22, npm, yarn, pnpm | 259MB | JS/TS CI, npm builds |
-| **pnpm** | base + Node.js 22, pnpm (no yarn) | TBD | Lightweight pnpm-only CI |
-| **bun** | base + Bun 1.3 | TBD | Bun-first workflows (bun IS the package manager) |
-| **heavy** | base + Node.js + Python + Docker CLI | 282MB | Monorepos, mixed stacks |
-| **rust** | base + Rust 1.96, cargo, rustup | 471MB | Rust/Cargo workflows |
-| **rust-full** | base + Rust + wasm-pack, cross (amd64 only), protobuf, cmake | TBD | Rust + WASM, full toolchain |
-| **go** | base + Go 1.26 | 255MB | Go workflows |
-| **java** | base + OpenJDK 21, Maven | 355MB | Java/Kotlin workflows |
-| **dotnet** | base + .NET 8.0 SDK | 376MB | C#/.NET workflows |
-| **flutter** | base + Flutter SDK via git clone | 2001MB | Flutter/Dart, mobile/web |
-| **nix** | base + Nix package manager (single-user, flake-ready) | TBD | Flake-based builds |
+| **base-universal** | git, curl, jq, make, gcc, ssh | 159MB | Minimal CI, shell scripts |
+| **ubuntu** | base + Docker CLI, sudo, build tools | 183MB | General CI, DinD, builds |
+| **python** | base + Python 3.12, pip, venv, dev headers | 183MB | Python CI, ML pipelines |
+| **bun** | base + Bun 1.3 | 196MB | Bun-first workflows |
+| **go** | base + Go 1.26 | 224MB | Go workflows |
+| **pnpm** | base + Node.js 22, pnpm (no yarn) | 226MB | Lightweight pnpm-only CI |
+| **node** | base + Node.js 22, npm, yarn, pnpm | 229MB | JS/TS CI, npm builds |
+| **heavy** | base + Node.js + Python + Docker CLI | 272MB | Monorepos, mixed stacks |
+| **nix** | base + Nix package manager (flake-ready) | 279MB | Flake-based builds |
+| **java** | base + OpenJDK 21, Maven | 322MB | Java/Kotlin workflows |
+| **dotnet** | base + .NET 8.0 SDK | 353MB | C#/.NET workflows |
+| **rust** | base + Rust 1.96, cargo, rustup | 448MB | Rust/Cargo workflows |
+| **rust-full** | base + Rust + wasm-pack, cross, protobuf, cmake | 488MB | Rust + WASM, full toolchain |
+| **flutter** | base + Flutter SDK via git clone | 1577MB | Flutter/Dart, mobile/web |
 
 ## Quick Start
 
@@ -179,7 +198,6 @@ Images are published to multiple registries:
 | Registry | URL | Authentication |
 |----------|-----|----------------|
 | GHCR | `ghcr.io/wyattau/runner-images/` | GitHub token (automatic) |
-| ECR | `public.ecr.aws/wyattau/runner-images/` | AWS IAM role |
 | Docker Hub | `docker.io/wyattau/runnerimages` | Docker Hub token |
 
 ### Pull from Different Registries

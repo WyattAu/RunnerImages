@@ -1,0 +1,14 @@
+# .NET CI with dotnet CLI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/dotnet:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: dotnet --version
+      - run: dotnet restore
+      - run: dotnet build --no-restore
+      - run: dotnet test --no-build
+      - run: dotnet publish -c Release -o out

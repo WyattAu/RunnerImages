@@ -1,0 +1,13 @@
+# Bun CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/bun:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: bun --version
+      - run: bun install
+      - run: bun test
+      - run: bun run build
