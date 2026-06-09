@@ -1,0 +1,71 @@
+# Performance benchmarks for runner images
+name: Benchmark
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Weekly Monday at 08:00 UTC
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  benchmark:
+    strategy:
+      fail-fast: false
+      matrix:
+        flavour:
+          - base-universal
+          - ubuntu
+          - node
+          - python
+          - heavy
+          - rust
+          - go
+          - java
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Benchmark image pull time
+        run: |
+          echo "=== Benchmarking ${{ matrix.flavour }} ==="
+
+          # Measure pull time
+          START=$(date +%s%N)
+          docker pull ${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest
+          END=$(date +%s%N)
+          PULL_TIME=$(( (END - START) / 1000000 ))
+          echo "Pull time: ${PULL_TIME}ms"
+
+          # Measure image size
+          SIZE=$(docker image inspect ${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest --format '{{.Size}}')
+          SIZE_MB=$((SIZE / 1024 / 1024))
+          echo "Image size: ${SIZE_MB}MB"
+
+          # Measure cold start time
+          START=$(date +%s%N)
+          docker run --rm ${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest echo "cold start"
+          END=$(date +%s%N)
+          COLD_TIME=$(( (END - START) / 1000000 ))
+          echo "Cold start time: ${COLD_TIME}ms"
+
+          # Measure tool availability
+          TOOLS=$(docker run --rm ${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:latest bash -c "which git curl jq make gcc 2>/dev/null | wc -l")
+          echo "Available tools: $TOOLS"
+
+          # Output results
+          echo ""
+          echo "=== Results ==="
+          echo "Flavour: ${{ matrix.flavour }}"
+          echo "Pull time: ${PULL_TIME}ms"
+          echo "Image size: ${SIZE_MB}MB"
+          echo "Cold start: ${COLD_TIME}ms"
+          echo "Tools: $TOOLS"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.flavour }}
+          path: benchmark-results.txt
+          retention-days: 90

@@ -1,0 +1,69 @@
+# Publish images to Docker Hub
+name: Publish Docker Hub
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DOCKERHUB_REPO: wyattau/runner-images
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        flavour:
+          - base-universal
+          - ubuntu
+          - node
+          - pnpm
+          - bun
+          - python
+          - heavy
+          - rust
+          - rust-full
+          - go
+          - java
+          - dotnet
+          - flutter
+          - nix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull and push to Docker Hub
+        run: |
+          GHCR_REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          DOCKERHUB="${{ env.DOCKERHUB_REPO }}"
+
+          # Copy from GHCR to Docker Hub
+          for TAG in "latest" "$(cat images/${{ matrix.flavour }}/VERSION)"; do
+            docker pull "$GHCR_REPO/${{ matrix.flavour }}:$TAG"
+            docker tag "$GHCR_REPO/${{ matrix.flavour }}:$TAG" "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
+            docker push "$DOCKERHUB/${{ matrix.flavour }}:$TAG"
+          done
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: '${{ env.DOCKERHUB }}/${{ matrix.flavour }}:latest'
+          format: spdx-json
+          output-file: 'sbom-dockerhub-${{ matrix.flavour }}.spdx.json'
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-dockerhub-${{ matrix.flavour }}
+          path: sbom-dockerhub-${{ matrix.flavour }}.spdx.json
+          retention-days: 90

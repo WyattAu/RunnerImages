@@ -168,6 +168,37 @@ docs/               GitHub Pages landing page
 .specs/             Requirements and constraints
 ```
 
+## Multi-Cloud Publishing
+
+Images are published to multiple registries:
+
+| Registry | URL | Authentication |
+|----------|-----|----------------|
+| GHCR | `ghcr.io/wyattau/runner-images/` | GitHub token (automatic) |
+| ECR | `public.ecr.aws/wyattau/runner-images/` | AWS IAM role |
+| Docker Hub | `docker.io/wyattau/runner-images/` | Docker Hub token |
+
+### Pull from Different Registries
+
+```bash
+# GitHub Container Registry (default)
+docker pull ghcr.io/wyattau/runner-images/ubuntu:1
+
+# AWS ECR Public
+docker pull public.ecr.aws/wyattau/runner-images/ubuntu:1
+
+# Docker Hub
+docker pull wyattau/runner-images/ubuntu:1
+```
+
+## Security
+
+- **Cosign signing**: All images signed with GitHub OIDC (keyless)
+- **SBOM generation**: SPDX SBOMs for all flavours
+- **Trivy scanning**: Weekly vulnerability and secret scans
+- **Pinned digests**: Base image pinned by SHA256
+- **Supply chain**: Dependabot + Renovate for dependency updates
+
 ## License
 
 Apache License 2.0
