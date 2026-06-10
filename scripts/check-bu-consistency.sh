@@ -23,12 +23,13 @@ for dir in "${FLAVOUR_DIRS[@]}"; do
   fi
 
   if [ "$name" = "base-universal" ]; then
-    # Verify base-universal contains the BU apt-get block (multi-line patterns)
+    # Verify base-universal contains the BU apt-get block
+    # Packages are unversioned (version pins removed to avoid silent failures)
     if grep -q 'apt-get install' "$dockerfile" && \
-       grep -q 'git=' "$dockerfile" && \
-       grep -q 'curl=' "$dockerfile" && \
-       grep -q 'jq=' "$dockerfile" && \
-       grep -q 'make=' "$dockerfile" && \
+       grep -qP '\bcurl\b' "$dockerfile" && \
+       grep -qP '\bgit\b' "$dockerfile" && \
+       grep -qP '\bjq\b' "$dockerfile" && \
+       grep -qP '\bmake\b' "$dockerfile" && \
        grep -q 'build-essential' "$dockerfile"; then
       echo "PASS: $name (contains BU apt-get block)"
     else
@@ -44,19 +45,21 @@ for dir in "${FLAVOUR_DIRS[@]}"; do
       echo "PASS: $name (no USER directive — children can run as root)"
     fi
   else
-    # Verify child image uses FROM base-universal
+    # Verify child image uses FROM base-universal or another published flavour (B1 multi-level)
     if grep -qE 'FROM\s+ghcr\.io/wyattau/runner-images/base-universal:' "$dockerfile"; then
       echo "PASS: $name (inherits from base-universal)"
+    elif grep -qE 'FROM\s+ghcr\.io/wyattau/runner-images/(java|heavy|node):' "$dockerfile"; then
+      echo "PASS: $name (inherits from published flavour — B1 multi-level layering)"
     else
       echo "FAIL: $name -- must use 'FROM ghcr.io/wyattau/runner-images/base-universal:...' as base"
       errors=$((errors + 1))
     fi
 
-    # Verify child image does NOT contain BU packages
-    bu_packages=("git=" "git-lfs=" "openssh-client=" "jq=" "yq=" "wget=" "zstd=" "tree=")
+    # Verify child image does NOT contain BU packages (unversioned matches)
+    bu_packages=("git " "git-lfs" "openssh-client" "jq " "yq " "wget " "zstd " "tree ")
     found_bu=0
     for pkg in "${bu_packages[@]}"; do
-      if grep -q "apt-get install.*${pkg}" "$dockerfile"; then
+      if grep -qP "apt-get install.*${pkg}" "$dockerfile"; then
         echo "FAIL: $name -- duplicates BU package: $pkg"
         found_bu=1
       fi
