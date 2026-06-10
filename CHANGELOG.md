@@ -24,6 +24,7 @@
 - 853f0a6 feat: ubuntu runner image v1.0.0
 
 ### Bug Fixes
+- c799513 fix: remove all apt version pins from base-universal, ubuntu, heavy
 - 59ad2a4 fix: remove strict apt version pins, fix new flavour builds
 - 9a6f9d8 fix(ci): use jq -c for compact JSON output in GITHUB_OUTPUT
 - 99f2aa4 fix(ci): inline build logic, remove reusable workflow
@@ -89,6 +90,7 @@
 - a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
 
 ### Other Changes
+- b047348 docs: update changelog [skip ci]
 - ad23b3a chore: add .env to .gitignore
 - 8be3f36 docs: update pull section with Docker Hub examples
 - 0dd8968 chore: remove ECR workflow (no paid AWS plan), add Docker Hub secrets
@@ -108,5 +110,4 @@
 - b575cfb refactor: B1 layered architecture - base-universal as shared base
 - 405f383 chore: update BU fragments, build/verify scripts, and Dockerfiles
 - 23b2022 docs: update actual image sizes from CI for all 10 flavours
-- 5ec8a28 ci(pages): add GitHub Pages deployment workflow
 
