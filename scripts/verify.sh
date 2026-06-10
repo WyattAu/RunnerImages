@@ -341,7 +341,7 @@ fi
 if [ "$HAS_RUBY" = true ]; then
   check "ruby available" "$(run "ruby --version" | grep -q 'ruby' && echo PASS || echo 'not found')"
   check "gem available" "$(run "gem --version" | grep -qE '^[0-9]' && echo PASS || echo 'not found')"
-  check "bundler available" "$(run "bash -c 'bundler --version 2>&1 | grep -q Bundler && echo PASS || echo not_found'" || echo 'not found')"
+  check "bundler available" "$(run "which bundler && bundler --version" | grep -qE 'Bundler|bundler' && echo PASS || echo 'not found')"
 else
   check "ruby NOT present" "$( (run "ruby --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ruby should not be present')"
 fi

@@ -22,7 +22,7 @@ RUN if [ "$TARGETARCH" != "amd64" ]; then \
     fi \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      libncurses5 \
+      libncurses-dev \
       libsqlite3-0 \
       libpython3.12t64 \
       libcurl4t64 \
