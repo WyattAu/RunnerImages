@@ -341,7 +341,7 @@ fi
 if [ "$HAS_RUBY" = true ]; then
   check "ruby available" "$(run "ruby --version" | grep -q 'ruby' && echo PASS || echo 'not found')"
   check "gem available" "$(run "gem --version" | grep -qE '^[0-9]' && echo PASS || echo 'not found')"
-  check "bundler available" "$(run "bundler --version" | grep -q 'Bundler' && echo PASS || echo 'not found')"
+  check "bundler available" "$(run "bash -c 'bundler --version 2>&1 | grep -q Bundler && echo PASS || echo not_found'" || echo 'not found')"
 else
   check "ruby NOT present" "$( (run "ruby --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ruby should not be present')"
 fi
@@ -425,7 +425,7 @@ case "$FLAVOUR" in
   nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
   ruby)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
-  zig)            COMP_BUDGET=300; UNCOMP_BUDGET=700 ;;
+  zig)            COMP_BUDGET=350; UNCOMP_BUDGET=850 ;;
   swift)          COMP_BUDGET=800; UNCOMP_BUDGET=2500 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;

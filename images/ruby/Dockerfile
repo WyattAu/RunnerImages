@@ -18,12 +18,12 @@ ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      libffi-dev=3.4.6-1build1 \
-      libyaml-dev=0.2.5-1build1 \
-      zlib1g-dev=1:1.3.dfsg-3.1ubuntu2.1 \
-      libreadline-dev=8.2-4build1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      libssl-dev \
+      libffi-dev \
+      libyaml-dev \
+      zlib1g-dev \
+      libreadline-dev \
+      sudo \
  && if [ "$TARGETARCH" = "arm64" ]; then \
       RUBY_ARCH=aarch64; \
     else \

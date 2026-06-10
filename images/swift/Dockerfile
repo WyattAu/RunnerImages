@@ -22,12 +22,12 @@ RUN if [ "$TARGETARCH" != "amd64" ]; then \
     fi \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      libncurses5=6.4+20240113-1ubuntu2 \
-      libsqlite3-0=3.45.1-1ubuntu2 \
-      libpython3.12t64=3.12.* \
-      libcurl4t64=8.5.0-2ubuntu10.* \
-      libxml2=2.9.14+dfsg-1.3ubuntu3.* \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      libncurses5 \
+      libsqlite3-0 \
+      libpython3.12t64 \
+      libcurl4t64 \
+      libxml2 \
+      sudo \
  && SWIFT_TARBALL="swift-${SWIFT_VERSION}-RELEASE-ubuntu24.04" \
  && curl -fsSL "https://download.swift.org/swift-${SWIFT_VERSION}-RELEASE/ubuntu2404/swift-${SWIFT_VERSION}-RELEASE/swift-${SWIFT_VERSION}-RELEASE-ubuntu24.04.tar.gz" -o /tmp/swift.tar.gz \
  && mkdir -p /tmp/swift-src \

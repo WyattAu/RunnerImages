@@ -16,22 +16,22 @@ ARG IMAGE_VERSION=dev
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      php-cli=8.3.6-* \
-      php-common=8.3.6-* \
-      php-curl=8.3.6-* \
-      php-mbstring=8.3.6-* \
-      php-xml=8.3.6-* \
-      php-zip=8.3.6-* \
-      php-mysql=8.3.6-* \
-      php-pgsql=8.3.6-* \
-      php-sqlite3=8.3.6-* \
-      php-gd=8.3.6-* \
-      php-bcmath=8.3.6-* \
-      php-intl=8.3.6-* \
-      php-redis=6.0.* \
-      php-memcached=3.3.* \
-      unzip=6.0-28ubuntu4.1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      php-cli \
+      php-common \
+      php-curl \
+      php-mbstring \
+      php-xml \
+      php-zip \
+      php-mysql \
+      php-pgsql \
+      php-sqlite3 \
+      php-gd \
+      php-bcmath \
+      php-intl \
+      php-redis \
+      php-memcached \
+      unzip \
+      sudo \
  && curl -fsSL "https://getcomposer.org/installer" | php -- --install-dir=/usr/local/bin --filename=composer \
  && php --version \
  && composer --version \
