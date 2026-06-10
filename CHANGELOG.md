@@ -3,117 +3,15 @@
 ## Recent Changes
 
 ### Features
-- cfd925d feat!: v2.0.0 - smart CI, independent versioning, reusable workflows
-- a78ab00 feat: build caching, changelog generation, discussions
-- 6234fd8 feat: add ruby, php, zig, swift flavours (18 total)
-- 1fc8321 feat: auto Docker Hub publish, example workflows, tool version table
-- 28a099b feat: multi-cloud publishing, performance benchmarks, security docs
-- 2f92365 feat: security scanning, automated testing, user guide, VERSION updates
-- faa7d3e feat: add bun, pnpm, rust-full, nix flavours (14 total)
-- 5df77c1 feat: multi-arch (amd64+arm64), reproducible apt snapshots, renovate Go tracking
-- b597031 feat: add rust, go, java, dotnet, flutter flavours (v1.1.0)
-- 7c1394e feat: cross-flavour consistency checks for Node.js and docker-ce-cli
-- c13188e feat: SOURCE_DATE_EPOCH, CONTRIBUTING.md, deduplicate lint, fix universal_properties
-- 6f329e4 feat: spec drift fix, reproducibility test, cosign signing, renovate node regex
-- 66fbabc feat: docs, compat tests, BU consistency, SBOM, nightly matrix
-- a8fc1eb feat: add base-universal, node, python, heavy flavours
-- 9a5fe28 feat: add GitHub Pages landing site
-- e272a02 feat: add Renovate configuration for automated dependency updates
-- 2426722 feat: add pre-commit hooks and Makefile
-- 01f2f63 feat: add Node.js 22 to ubuntu runner image
-- 853f0a6 feat: ubuntu runner image v1.0.0
+- 66e021f feat: in-toto provenance attestations via cosign attest
+- 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
-- 6fbfc06 fix: allow kotlin to inherit from java in digest check hook
-- 3431f18 fix: remove all remaining apt version pins from Dockerfiles
-- ca0bef7 fix(swift): increase uncompressed budget to 3500MB (actual 3278MB)
-- 27530cd fix: ruby bundler verify, swift size budget 1100/2800MB
-- 1ee3dfa fix(swift): correct download URL case sensitivity
-- c0cd948 fix: swift libncurses5->libncurses-dev, zig budget 850MB, ruby bundler check
-- c799513 fix: remove all apt version pins from base-universal, ubuntu, heavy
-- 59ad2a4 fix: remove strict apt version pins, fix new flavour builds
-- 9a6f9d8 fix(ci): use jq -c for compact JSON output in GITHUB_OUTPUT
-- 99f2aa4 fix(ci): inline build logic, remove reusable workflow
-- 14d75a0 fix(ci): rename push input to push_images (reserved word conflict)
-- 3c62104 fix(ci): rename reusable workflow (remove leading underscore)
-- 9a650c1 fix(ci): scan local GHCR image for Docker Hub SBOM
-- a85df8c fix(ci): use wyattau/runnerimages repo for Docker Hub
-- 463b1e7 fix: add REGISTRY env var to Docker Hub publish workflow
-- 94b97c2 fix: Docker Hub publish - use tr -d for VERSION, add checkout step
-- 4d7e284 fix: manifest creation handles single-arch flavours
-- 68c2cfe fix: flutter image - git clone, precache, chown for runner user
-- b1e01ad fix: flutter git clone tag is 3.44.1 not 3.44.1-stable
-- fa1e2dd fix: flutter use git clone instead of tarball (1.5GB download timeout)
-- e42c18c fix: flutter tarball (no config/precache), npm tests always return PASS
-- df179e8 fix: flutter tarball, npm tests always pass
-- 5851fd8 fix: flutter tarball, npm tests resilient, node/pnpm/heavy fixes
-- d7c71fa fix: B1 workflow - output=type=docker, repro check arch tags, layer count
-- 227bc55 fix: layer count check for B1 architecture
-- ee9ad33 fix: B1 build workflow - use child_flavours for build/manifest jobs
-- 3620a9f fix: B1 architecture fixes for bun/flutter/rust-full/nix
-- 278fcfc fix: revert B1 architecture regression, fix bun/rust-full
-- 380af68 fix: check-bu-consistency.sh multi-line grep for base-universal BU block
-- 66af345 fix: bun full path, rust-full cross install, flutter transient
-- 244129f fix: bun PATH, rust-full wasm-pack PATH, nix seccomp/arm64 exclusion
-- e1fc850 fix: 5 build failures across bun/nix/rust-full/flutter/base-universal
-- 278e03a fix: pnpm yarn check, nix budget, java arm64 pipefail
-- a1ee08f fix(bun): move binary to /usr/local/bin for PATH access
-- b97fb77 fix: remove find / commands from Layer 2 of all flavours
-- 5ec6d0d fix: remove find /usr/lib -name '*.a' -delete from BU and all flavours
-- d63e0eb fix: pipefail-safe verify checks + --load for buildx
-- 998d31e fix: rust-full apt pins, nix nixbld group, verify arm64 binary checks
-- 6aa1828 fix: remove /usr/share/man/doc/info cleanup from BU layer
-- bac5c2e fix(java): install sudo separately to avoid dpkg conflict with OpenJDK
-- e10098b fix(java): remove .a delete from BU Layer 1 - breaks dpkg
-- 6310a33 fix(java): simplify Layer 2 - remove find commands, reorder user setup
-- b718c8a fix(java): remove .a delete from Layer 2, clean dpkg-tmp at end
-- f4d9247 fix: remove strip --strip-unneeded (corrupts arm64 binaries)
-- 78b183b fix(java): simplify dpkg-tmp restore with for loop
-- b8e0be5 fix(java): restore dpkg-tmp binaries after apt install
-- a201b01 fix: restore BU-no-strip fragment and fix consistency check regex
-- 265929c fix(java): remove strip from BU layer to fix OpenJDK installation
-- 9b041f2 fix: remove bu-no-strip variant from BU consistency check
-- 787b43b fix(build): remove unused MAJOR_TAG/MINOR_TAG variables
-- 820632f fix(java): use BU-no-strip variant to fix OpenJDK binary corruption
-- 574531f fix(flutter): raise size budgets to match reality
-- 61936f7 fix(flutter): remove precache to reduce size (2001MB -> ~500MB)
-- 759588d fix: raise java/rust size budgets, unpin flutter cmake/clang/ninja
-- a52da15 fix: stale text, shared filter, SOURCE_DATE_EPOCH verify, SECURITY.md
-- afc1301 fix: replace network-dependent pip tests with offline checks
-- 34a599e fix: filter shared dir from CI, fix pip compat test
-- 96c424c fix(node): raise uncompressed budget to 800MB
-- 627149a fix(node): raise size budget to 275MB compressed
-- 7fd9633 fix: raise base-universal size budget, add yarn/pnpm to node and heavy
-- 6830f9d fix(docs): correct GHCR package URL in footer
-- cd1ee09 fix(verify): exit 0 on pass, run WW check as root
-- 4d753e3 fix(verify): use which for ssh-keygen detection
-- abc2d44 fix(verify): fix ssh-keygen check and SUID count parsing
-- b067e38 fix(scripts): adjust ubuntu size budget for Node.js inclusion
-- 026fcec fix(ubuntu): fix Node.js arch naming and user creation
-- 89adc38 fix(ubuntu): fix user creation with proper subshell grouping
-- 2426722 feat: add pre-commit hooks and Makefile
-- 68159a3 fix(scripts): rewrite build and verify scripts
-- a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
+- 1710432 fix: new flavour build failures
+- 059d842 fix: update BU consistency checks for unversioned apt packages
+- 79d5e75 fix: add published-flavour exemption to CI lint digest check
+- cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
-- 537e0ea docs: update changelog [skip ci]
-- ab8105a docs: update changelog [skip ci]
-- e7df048 docs: update changelog [skip ci]
-- 078d277 docs: update changelog [skip ci]
-- b047348 docs: update changelog [skip ci]
-- ad23b3a chore: add .env to .gitignore
-- 8be3f36 docs: update pull section with Docker Hub examples
-- 0dd8968 chore: remove ECR workflow (no paid AWS plan), add Docker Hub secrets
-- e6fa578 docs: update README and CHANGELOG for B1 architecture v1.3.0
-- cfdd197 Merge fix/flutter-b1: fix flutter image user perms
-- 8c70462 Merge feat/b1-clean: B1 true layered architecture
-- a088f31 refactor: B1 layered architecture - base-universal as shared base
-- 6978f39 Merge feat/b1-layered-architecture: B1 true layered architecture
-- a4e50eb Revert "refactor: B1 layered architecture - base-universal as shared base"
-- 5eb20a2 Revert "refactor: migrate all 14 flavours to B1 layered architecture"
-- 4d14518 Revert "fix: check-bu-consistency.sh multi-line grep for base-universal BU block"
-- ca455f5 Revert "ci: update build.yml for B1 layered architecture"
-- 4e952f4 Revert "chore: remove BU fragments, fix lint.yml for B1"
-- 6aa4360 chore: remove BU fragments, fix lint.yml for B1
-- a4db64c ci: update build.yml for B1 layered architecture
+- 0a4285b docs: update changelog [skip ci]
 
