@@ -17,25 +17,25 @@ ARG IMAGE_VERSION=dev
 ARG TARGETARCH
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends gnupg=2.4.4-2ubuntu17.4 \
+ && apt-get install -y --no-install-recommends gnupg \
  && install -m 0755 -d /etc/apt/keyrings \
  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
  && chmod a+r /etc/apt/keyrings/docker.gpg \
  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      docker-ce-cli=5:29.5.3-1~ubuntu.24.04~noble \
-      g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      python3=3.12.3-0ubuntu2.1 \
-      python3-pip=24.0+dfsg-1ubuntu1.3 \
-      python3-venv=3.12.3-0ubuntu2.1 \
-      python3-dev=3.12.3-0ubuntu2.1 \
-      libffi-dev=3.4.6-1build1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
-      iputils-ping=3:20240117-1ubuntu0.1 \
-      net-tools=2.10-0.1ubuntu4.4 \
+      docker-ce-cli \
+      g++ \
+      pkg-config \
+      libssl-dev \
+      python3 \
+      python3-pip \
+      python3-venv \
+      python3-dev \
+      libffi-dev \
+      sudo \
+      iputils-ping \
+      net-tools \
  && apt-get purge -y gnupg \
  && apt-get autoremove -y \
  && if [ "$TARGETARCH" = "arm64" ]; then \
