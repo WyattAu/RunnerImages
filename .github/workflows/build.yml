@@ -90,7 +90,7 @@ jobs:
       - name: Build base-universal
         run: |
           chmod +x scripts/build.sh scripts/verify.sh
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal
+          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal --cache
 
       - name: Verify base-universal
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Push base-universal (per-arch)
         if: github.ref == 'refs/heads/main'
         run: |
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal --push
+          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh base-universal --cache --push
 
   # Manifest for base-universal
   manifest-base:
@@ -207,7 +207,7 @@ jobs:
       - name: Build image
         run: |
           chmod +x scripts/verify.sh
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }}
+          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --cache
 
       - name: Verify image
         run: |
@@ -216,7 +216,7 @@ jobs:
       - name: Push image (per-arch)
         if: github.ref == 'refs/heads/main'
         run: |
-          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --push
+          PLATFORM="${{ matrix.platform }}" ./scripts/build.sh ${{ matrix.flavour }} --cache --push
 
   # Create multi-arch manifests
   manifest:

@@ -10,6 +10,7 @@ PUSH=false
 SIGN=false
 SBOM=false
 SCAN=false
+NO_CACHE=true
 REPO="${REPO:-ghcr.io/wyattau/runner-images}"
 COSIGN_KEY="${COSIGN_KEY:-$HOME/.cosign/cosign.key}"
 FLAVOUR_DIR="images/$FLAVOUR"
@@ -75,6 +76,8 @@ for arg in "${@:2}"; do
     --sign) SIGN=true ;;
     --sbom) SBOM=true ;;
     --scan) SCAN=true ;;
+    --no-cache) NO_CACHE=true ;;
+    --cache) NO_CACHE=false ;;
   esac
 done
 
@@ -114,8 +117,11 @@ ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
   ATTEMPT=$((ATTEMPT + 1))
 
+  CACHE_FLAG=""
+  if [ "$NO_CACHE" = true ]; then CACHE_FLAG="--no-cache"; fi
+
   if docker build \
-    --no-cache \
+    ${CACHE_FLAG} \
     --output=type=docker \
     --platform "$PLATFORM" \
     --progress=plain \
