@@ -24,6 +24,7 @@
 - 853f0a6 feat: ubuntu runner image v1.0.0
 
 ### Bug Fixes
+- 6fbfc06 fix: allow kotlin to inherit from java in digest check hook
 - 3431f18 fix: remove all remaining apt version pins from Dockerfiles
 - ca0bef7 fix(swift): increase uncompressed budget to 3500MB (actual 3278MB)
 - 27530cd fix: ruby bundler verify, swift size budget 1100/2800MB
@@ -95,6 +96,7 @@
 - a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
 
 ### Other Changes
+- 537e0ea docs: update changelog [skip ci]
 - ab8105a docs: update changelog [skip ci]
 - e7df048 docs: update changelog [skip ci]
 - 078d277 docs: update changelog [skip ci]
@@ -114,5 +116,4 @@
 - 4e952f4 Revert "chore: remove BU fragments, fix lint.yml for B1"
 - 6aa4360 chore: remove BU fragments, fix lint.yml for B1
 - a4db64c ci: update build.yml for B1 layered architecture
-- 5a7cc5c refactor: migrate all 14 flavours to B1 layered architecture
 
