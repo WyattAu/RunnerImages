@@ -271,6 +271,15 @@ jobs:
           cosign sign --yes "$REPO/${{ matrix.flavour }}:$VERSION"
           cosign sign --yes "$REPO/${{ matrix.flavour }}:latest"
 
+      - name: Generate provenance attestation
+        run: |
+          REPO="${{ env.REGISTRY }}/wyattau/runner-images"
+          VERSION=$(tr -d '[:space:]' < "images/${{ matrix.flavour }}/VERSION")
+          IMAGE="$REPO/${{ matrix.flavour }}:$VERSION"
+          # Create in-toto provenance attestation
+          echo "{\"_type\":\"https://in-toto.io/Statement/v0.1\",\"subject\":[{\"name\":\"${{ matrix.flavour }}\",\"digest\":{\"sha256\":\"$(docker manifest inspect "$IMAGE" 2>/dev/null | jq -r '.manifests[0].digest' || echo 'unknown')\"}}],\"predicateType\":\"https://slsa.dev/provenance/v0.2\",\"predicate\":{\"builder\":{\"id\":\"https://github.com/WyattAu/RunnerImages/.github/workflows/build.yml\"},\"buildType\":\"https://github.com/WyattAu/RunnerImages/build@v2\",\"invocation\":{\"configSource\":{\"uri\":\"https://github.com/WyattAu/RunnerImages\",\"digest\":{\"sha1\":\"${{ github.sha }}\"}},\"parameters\":{\"flavour\":\"${{ matrix.flavour }}\",\"version\":\"$VERSION\",\"platform\":\"linux/amd64,linux/arm64\"}},\"materials\":[{\"uri\":\"ubuntu:24.04\",\"digest\":{\"sha256\":\"786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54\"}}]}}" > /tmp/provenance-${{ matrix.flavour }}.json
+          cosign attest --yes --predicate /tmp/provenance-${{ matrix.flavour }}.json --type https://slsa.dev/provenance/v0.2 "$IMAGE"
+
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
