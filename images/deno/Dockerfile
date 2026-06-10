@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - ruby flavour
-# Layer count: 2 (bu-base + ruby)
-# BU packages from base-universal, Ruby 3.4 + bundler + gem
+# Forgejo Actions runner image - deno flavour
+# Layer count: 2 (bu-base + deno)
+# BU packages from base-universal, Deno 2.8.2
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -8,34 +8,28 @@
 FROM ghcr.io/wyattau/runner-images/base-universal:2.0.0 AS bu-base
 
 # ---------------------------------------------------------------------------
-# Layer 1: Ruby-specific additions (single RUN)
+# Layer 1: Deno-specific additions (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS ruby
+FROM bu-base AS deno
 
-ARG RUBY_VERSION=3.4.4
+ARG DENO_VERSION=2.8.2
 ARG IMAGE_VERSION=dev
 ARG TARGETARCH
 
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      RUBY_ARCH=arm64; \
-    else \
-      RUBY_ARCH=x64; \
-    fi \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      libssl-dev \
-      libffi-dev \
-      libyaml-dev \
-      zlib1g-dev \
-      libreadline-dev \
       sudo \
- && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
- && tar -xzf /tmp/ruby.tar.gz -C / \
- && rm -f /tmp/ruby.tar.gz \
- && gem install bundler --no-document \
- && ruby --version \
- && gem --version \
- && bundler --version \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      DENO_ARCH=aarch64; \
+    else \
+      DENO_ARCH=x86_64; \
+    fi \
+ && curl -fsSL "https://github.com/denoland/deno/releases/download/v${DENO_VERSION}/deno-${DENO_ARCH}-unknown-linux-gnu.zip" -o /tmp/deno.zip \
+ && unzip /tmp/deno.zip -d /tmp/deno-out \
+ && mv /tmp/deno-out/deno /usr/local/bin/deno \
+ && rm -rf /tmp/deno.zip /tmp/deno-out \
+ && chmod +x /usr/local/bin/deno \
+ && deno --version \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
@@ -43,13 +37,13 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/ruby"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler and gem"
+LABEL org.opencontainers.image.title="runner-images/deno"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Deno 2.8.2"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="ruby"
+LABEL runner.flavour="deno"
 LABEL runner.base="base-universal"
 LABEL runner.base.tag="2.0.0"
 
@@ -62,7 +56,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/home/runner/.deno/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime

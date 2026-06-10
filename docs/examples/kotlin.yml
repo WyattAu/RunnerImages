@@ -1,0 +1,12 @@
+# Kotlin/Gradle CI with build and test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/kotlin:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: kotlinc -version
+      - run: gradle test
+      - run: gradle build

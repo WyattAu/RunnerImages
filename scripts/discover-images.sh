@@ -48,8 +48,8 @@ get_changed_images() {
   if [ -n "$changed" ]; then
     echo "$changed"
   elif [ -n "$shared_changed" ]; then
-    # Shared infra changed -- rebuild everything
-    list_all_images
+    # Shared infra changed -- only rebuild base-universal (children inherit from pushed base)
+    echo "base-universal"
   fi
 }
 

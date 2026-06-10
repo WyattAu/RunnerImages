@@ -33,6 +33,10 @@ RUN if [ "$TARGETARCH" != "amd64" ]; then \
  && tar -xzf /tmp/swift.tar.gz -C /tmp/swift-src --strip-components=1 \
  && cp -a /tmp/swift-src/usr/* /usr/ \
  && rm -rf /tmp/swift.tar.gz /tmp/swift-src \
+ && strip --strip-unneeded /usr/lib/swift/linux/*.so 2>/dev/null || true \
+ && strip --strip-unneeded /usr/bin/swift* 2>/dev/null || true \
+ && find /usr/lib/swift -name '*.dSYM' -exec rm -rf {} + 2>/dev/null || true \
+ && rm -rf /usr/lib/swift/clang \
  && swift --version \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \

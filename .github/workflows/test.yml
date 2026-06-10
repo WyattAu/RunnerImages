@@ -85,6 +85,46 @@ jobs:
           - flavour: nix
             test: |
               nix --version
+          - flavour: ruby
+            test: |
+              ruby --version
+              gem --version
+              bundler --version
+          - flavour: php
+            test: |
+              php --version
+              composer --version
+          - flavour: zig
+            test: |
+              zig version
+          - flavour: swift
+            test: |
+              swift --version
+          - flavour: deno
+            test: |
+              deno --version
+          - flavour: elixir
+            test: |
+              elixir --version
+              mix --version
+          - flavour: kotlin
+            test: |
+              kotlinc -version
+              gradle --version
+          - flavour: c
+            test: |
+              gcc --version
+              g++ --version
+              cmake --version
+              valgrind --version
+          - flavour: haskell
+            test: |
+              ghc --version
+              cabal --version
+          - flavour: r-lang
+            test: |
+              R --version
+              Rscript --version
     runs-on: ubuntu-latest
     steps:
       - name: Test ${{ matrix.flavour }}

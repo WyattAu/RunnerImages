@@ -1,0 +1,11 @@
+# R CI with devtools check
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/r:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: R --version
+      - run: Rscript -e "devtools::check()"

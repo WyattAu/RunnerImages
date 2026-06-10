@@ -1,0 +1,13 @@
+# Elixir/Phoenix CI with deps, test, and format check
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/elixir:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: elixir --version
+      - run: mix deps.get
+      - run: mix test
+      - run: mix format --check-formatted

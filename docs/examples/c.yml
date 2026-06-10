@@ -1,0 +1,13 @@
+# C/C++ CI with cmake and ctest
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/c:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake --version
+      - run: cmake -B build
+      - run: cmake --build build
+      - run: ctest --test-dir build

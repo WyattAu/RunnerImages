@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - ruby flavour
-# Layer count: 2 (bu-base + ruby)
-# BU packages from base-universal, Ruby 3.4 + bundler + gem
+# Forgejo Actions runner image - c flavour
+# Layer count: 2 (bu-base + c)
+# C/C++ toolchain: gcc, g++, cmake, ninja, autoconf, automake, valgrind, gdb
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -8,48 +8,46 @@
 FROM ghcr.io/wyattau/runner-images/base-universal:2.0.0 AS bu-base
 
 # ---------------------------------------------------------------------------
-# Layer 1: Ruby-specific additions (single RUN)
+# Layer 1: C/C++-specific additions (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS ruby
+FROM bu-base AS c
 
-ARG RUBY_VERSION=3.4.4
 ARG IMAGE_VERSION=dev
-ARG TARGETARCH
 
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      RUBY_ARCH=arm64; \
-    else \
-      RUBY_ARCH=x64; \
-    fi \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+      gcc \
+      g++ \
+      cmake \
+      make \
+      ninja-build \
+      pkg-config \
       libssl-dev \
-      libffi-dev \
-      libyaml-dev \
-      zlib1g-dev \
-      libreadline-dev \
+      autoconf \
+      automake \
+      libtool \
+      valgrind \
+      gdb \
       sudo \
- && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
- && tar -xzf /tmp/ruby.tar.gz -C / \
- && rm -f /tmp/ruby.tar.gz \
- && gem install bundler --no-document \
- && ruby --version \
- && gem --version \
- && bundler --version \
+ && apt-get autoremove -y \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
- && chmod 4755 /usr/bin/sudo
+ && chmod 4755 /usr/bin/sudo \
+ && gcc --version \
+ && g++ --version \
+ && cmake --version \
+ && valgrind --version
 
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/ruby"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler and gem"
+LABEL org.opencontainers.image.title="runner-images/c"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: C/C++ toolchain"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="ruby"
+LABEL runner.flavour="c"
 LABEL runner.base="base-universal"
 LABEL runner.base.tag="2.0.0"
 

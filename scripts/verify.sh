@@ -109,6 +109,12 @@ HAS_RUBY=false
 HAS_PHP=false
 HAS_ZIG=false
 HAS_SWIFT=false
+HAS_DENO=false
+HAS_ELIXIR=false
+HAS_KOTLIN=false
+HAS_C=false
+HAS_HASKELL=false
+HAS_RLANG=false
 
 case "$FLAVOUR" in
   base-universal) ;;
@@ -129,6 +135,12 @@ case "$FLAVOUR" in
   php)            HAS_PHP=true; HAS_SUDO=true ;;
   zig)            HAS_ZIG=true; HAS_SUDO=true ;;
   swift)          HAS_SWIFT=true; HAS_SUDO=true ;;
+  deno)           HAS_DENO=true; HAS_SUDO=true ;;
+  elixir)         HAS_ELIXIR=true; HAS_SUDO=true ;;
+  kotlin)         HAS_KOTLIN=true; HAS_SUDO=true ;;
+  c)              HAS_C=true; HAS_SUDO=true ;;
+  haskell)        HAS_HASKELL=true; HAS_SUDO=true ;;
+  r-lang)         HAS_RLANG=true; HAS_SUDO=true ;;
   *)              echo "WARN: Unknown flavour '$FLAVOUR', running BU-only checks" ;;
 esac
 
@@ -365,6 +377,48 @@ else
   check "swift NOT present" "$( (run "swift --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'swift should not be present')"
 fi
 
+if [ "$HAS_DENO" = true ]; then
+  check "deno available" "$(run "deno --version" | grep -q 'deno' && echo PASS || echo 'not found')"
+else
+  check "deno NOT present" "$( (run "deno --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'deno should not be present')"
+fi
+
+if [ "$HAS_ELIXIR" = true ]; then
+  check "elixir available" "$(run "elixir --version" | grep -qE 'Elixir|elixir' && echo PASS || echo 'not found')"
+  check "mix available" "$(run "mix --version" | grep -qE 'Mix' && echo PASS || echo 'not found')"
+else
+  check "elixir NOT present" "$( (run "elixir --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'elixir should not be present')"
+fi
+
+if [ "$HAS_KOTLIN" = true ]; then
+  check "kotlinc available" "$(run "kotlinc -version" | grep -q 'kotlin' && echo PASS || echo 'not found')"
+  check "gradle available" "$(run "gradle --version" | grep -qE 'Gradle' && echo PASS || echo 'not found')"
+else
+  check "kotlin NOT present" "$( (run "kotlinc -version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'kotlin should not be present')"
+fi
+
+if [ "$HAS_C" = true ]; then
+  check "gcc available" "$(run "gcc --version" | grep -q 'gcc' && echo PASS || echo 'not found')"
+  check "cmake available" "$(run "cmake --version" | grep -qE 'cmake' && echo PASS || echo 'not found')"
+  check "valgrind available" "$(run "valgrind --version" | grep -qE 'valgrind' && echo PASS || echo 'not found')"
+else
+  check "gcc NOT present" "$( (run "gcc --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'gcc should not be present')"
+fi
+
+if [ "$HAS_HASKELL" = true ]; then
+  check "ghc available" "$(run "ghc --version" | grep -qE 'GHC|ghc' && echo PASS || echo 'not found')"
+  check "cabal available" "$(run "cabal --version" | grep -qE 'cabal' && echo PASS || echo 'not found')"
+else
+  check "ghc NOT present" "$( (run "ghc --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ghc should not be present')"
+fi
+
+if [ "$HAS_RLANG" = true ]; then
+  check "R available" "$(run "R --version" | grep -qE 'R version' && echo PASS || echo 'not found')"
+  check "Rscript available" "$(run "Rscript --version" | grep -qE 'R scripting' && echo PASS || echo 'not found')"
+else
+  check "R NOT present" "$( (run "R --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'R should not be present')"
+fi
+
 # --- Entrypoint check (C9) ---
 echo "Entrypoint:"
 ENTRYPOINT=$(docker inspect --format '{{.Config.Entrypoint}}' "$IMAGE")
@@ -427,6 +481,12 @@ case "$FLAVOUR" in
   php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
   zig)            COMP_BUDGET=350; UNCOMP_BUDGET=850 ;;
   swift)          COMP_BUDGET=1100; UNCOMP_BUDGET=3500 ;;
+  deno)           COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
+  elixir)         COMP_BUDGET=400; UNCOMP_BUDGET=1000 ;;
+  kotlin)         COMP_BUDGET=500; UNCOMP_BUDGET=1200 ;;
+  c)              COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
+  haskell)        COMP_BUDGET=600; UNCOMP_BUDGET=1800 ;;
+  r-lang)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac

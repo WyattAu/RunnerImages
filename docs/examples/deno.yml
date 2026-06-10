@@ -1,0 +1,13 @@
+# Deno CI with check, fmt, and test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/wyattau/runner-images/deno:1
+    steps:
+      - uses: actions/checkout@v4
+      - run: deno --version
+      - run: deno check src/main.ts
+      - run: deno fmt --check
+      - run: deno task test

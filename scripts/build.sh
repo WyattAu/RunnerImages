@@ -164,8 +164,14 @@ case "$FLAVOUR" in
   java)           COMP_BUDGET=400; UNCOMP_BUDGET=900 ;;
   dotnet)         COMP_BUDGET=400; UNCOMP_BUDGET=1100 ;;
   bun)            COMP_BUDGET=300; UNCOMP_BUDGET=850 ;;
+  c)              COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
+  deno)           COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
+  elixir)         COMP_BUDGET=400; UNCOMP_BUDGET=1000 ;;
+  haskell)        COMP_BUDGET=600; UNCOMP_BUDGET=1800 ;;
+  kotlin)         COMP_BUDGET=500; UNCOMP_BUDGET=1200 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
   nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
+  r-lang)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
   ruby)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
   zig)            COMP_BUDGET=350; UNCOMP_BUDGET=850 ;;

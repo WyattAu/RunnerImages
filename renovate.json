@@ -57,6 +57,39 @@
       "depNameTemplate": "bun",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "loose"
+    },
+    {
+      "description": "Track DENO_VERSION ARG in Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images\\/deno\\/Dockerfile$/"],
+      "matchStrings": [
+        "ARG DENO_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "denoland/deno",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    },
+    {
+      "description": "Track KOTLIN_VERSION ARG in Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images\\/kotlin\\/Dockerfile$/"],
+      "matchStrings": [
+        "ARG KOTLIN_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "JetBrains/kotlin",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    },
+    {
+      "description": "Track ELIXIR_VERSION ARG in Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": ["/^images\\/elixir\\/Dockerfile$/"],
+      "matchStrings": [
+        "ARG ELIXIR_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "elixir-lang/elixir",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [

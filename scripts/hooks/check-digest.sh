@@ -9,6 +9,11 @@ for f in "$@"; do
     echo "OK: $f (B1 layered — inherits from base-universal)"
     continue
   fi
+  # Skip check for images that inherit from our own published flavours
+  if grep -qP 'FROM\s+ghcr\.io/wyattau/runner-images/(java|heavy|node):' "$f"; then
+    echo "OK: $f (B1 layered — inherits from published flavour)"
+    continue
+  fi
   if ! grep -qP 'FROM ubuntu:24.04@sha256:' "$f"; then
     echo "ERROR: $f must pin base image by SHA256 digest"
     exit 1

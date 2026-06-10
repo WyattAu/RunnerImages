@@ -70,6 +70,12 @@ jobs:
           - php
           - zig
           - swift
+          - deno
+          - elixir
+          - kotlin
+          - c
+          - haskell
+          - r-lang
         platform: [linux/amd64, linux/arm64]
         exclude:
           - flavour: flutter
@@ -77,6 +83,8 @@ jobs:
           - flavour: nix
             platform: linux/arm64
           - flavour: swift
+            platform: linux/arm64
+          - flavour: haskell
             platform: linux/arm64
     runs-on: ubuntu-latest
     steps:

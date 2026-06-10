@@ -321,5 +321,12 @@ jobs:
           for TAG in "latest" "$VERSION"; do
             docker pull "${GHCR_REPO}/${FLAVOUR}:${TAG}"
             docker tag "${GHCR_REPO}/${FLAVOUR}:${TAG}" "${DOCKERHUB}:${FLAVOUR}-${TAG}"
-            docker push "${DOCKERHUB}:${FLAVOUR}-${TAG}"
+            # Retry push up to 3 times (Docker Hub can be flaky)
+            for attempt in 1 2 3; do
+              if docker push "${DOCKERHUB}:${FLAVOUR}-${TAG}"; then
+                break
+              fi
+              echo "Push attempt $attempt failed, retrying in 10s..."
+              sleep 10
+            done
           done

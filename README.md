@@ -1,12 +1,14 @@
 # RunnerImages
 
-Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**. 18 flavours.
+Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**. 24 flavours.
 
 ## Tool Versions
 
 | Flavour | Primary Tool | Version | Other Tools |
 |---------|-------------|---------|-------------|
 | base-universal | gcc | 14.x | git, curl, jq, make, wget, zip, openssl, ssh |
+| c | GCC/G++ | 14.x | cmake, ninja, valgrind, gdb, autoconf, automake |
+| deno | Deno | 2.8.x | (multi-arch) |
 | ubuntu | docker-ce-cli | 29.5.x | g++, pkg-config, libssl-dev, sudo |
 | node | Node.js | 22.22.3 | npm, yarn, pnpm, g++, python3 |
 | pnpm | Node.js | 22.22.3 | pnpm, g++, python3 |
@@ -20,10 +22,14 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | zig | Zig | 0.16.0 | (multi-arch) |
 | swift | Swift | 6.1 | SPM (amd64 only) |
 | go | Go | 1.26.4 | g++ |
+| haskell | GHC | 9.10.x | Cabal, Stack |
 | java | OpenJDK | 21.x | Maven, g++ |
+| kotlin | Kotlin | 2.1.x | Gradle (layers on java) |
 | dotnet | .NET SDK | 8.0.x | g++ |
+| elixir | Elixir | 1.18.x | Erlang/OTP, Mix, Hex, Rebar |
 | flutter | Flutter | 3.44.1 | Dart, cmake, ninja, clang, GTK/GLU dev |
 | nix | Nix | 2.34.x | (amd64 only) |
+| r-lang | R | 4.x | devtools, renv, testthat, knitr, rmarkdown |
 
 ## Flavours
 
@@ -47,6 +53,12 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **zig** | base + Zig 0.16 | TBD | Zig workflows |
 | **swift** | base + Swift 6.1 (amd64 only) | TBD | Swift CI, SPM |
 | **flutter** | base + Flutter SDK via git clone | 1577MB | Flutter/Dart, mobile/web |
+| **c** | base + GCC/G++, cmake, ninja, valgrind, gdb | TBD | C/C++ CI, systems programming |
+| **deno** | base + Deno runtime | TBD | Deno-first workflows |
+| **elixir** | base + Erlang/OTP + Elixir | TBD | Phoenix, Elixir CI |
+| **haskell** | base + GHC + Cabal + Stack | TBD | Haskell CI, pure FP |
+| **kotlin** | java + Kotlin + Gradle | TBD | Kotlin/JVM, KMP |
+| **r-lang** | base + R + devtools | TBD | Data science, statistics |
 
 ## Quick Start
 
@@ -154,7 +166,7 @@ make lint                     # shellcheck + hadolint
 
 ## Architecture
 
-**B1 layered architecture**: `base-universal` is the shared base image. All 17 child flavours inherit from it. The BU layer is built once and shared across all flavours.
+**B1 layered architecture**: `base-universal` is the shared base image. All 23 child flavours inherit from it. The BU layer is built once and shared across all flavours.
 
 ```
 Layer 0: ubuntu:24.04@sha256:<digest>    (shared, ~78MB)

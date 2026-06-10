@@ -1,6 +1,6 @@
-# Forgejo Actions runner image - ruby flavour
-# Layer count: 2 (bu-base + ruby)
-# BU packages from base-universal, Ruby 3.4 + bundler + gem
+# Forgejo Actions runner image - r-lang flavour
+# Layer count: 2 (bu-base + r-lang)
+# BU packages from base-universal, R + devtools + renv + testthat + roxygen2 + knitr + rmarkdown
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -8,34 +8,30 @@
 FROM ghcr.io/wyattau/runner-images/base-universal:2.0.0 AS bu-base
 
 # ---------------------------------------------------------------------------
-# Layer 1: Ruby-specific additions (single RUN)
+# Layer 1: R-specific additions (single RUN)
 # ---------------------------------------------------------------------------
-FROM bu-base AS ruby
+FROM bu-base AS r-lang
 
-ARG RUBY_VERSION=3.4.4
 ARG IMAGE_VERSION=dev
-ARG TARGETARCH
 
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      RUBY_ARCH=arm64; \
-    else \
-      RUBY_ARCH=x64; \
-    fi \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+      r-base \
+      r-base-dev \
+      libcurl4-openssl-dev \
       libssl-dev \
-      libffi-dev \
-      libyaml-dev \
-      zlib1g-dev \
-      libreadline-dev \
+      libxml2-dev \
+      libfontconfig1-dev \
+      libharfbuzz-dev \
+      libfribidi-dev \
+      libfreetype6-dev \
+      libpng-dev \
+      libtiff5-dev \
+      libjpeg-dev \
       sudo \
- && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
- && tar -xzf /tmp/ruby.tar.gz -C / \
- && rm -f /tmp/ruby.tar.gz \
- && gem install bundler --no-document \
- && ruby --version \
- && gem --version \
- && bundler --version \
+ && Rscript -e "install.packages(c('devtools', 'renv', 'testthat', 'roxygen2', 'knitr', 'rmarkdown'), repos='https://cloud.r-project.org')" \
+ && R --version \
+ && Rscript -e "cat(as.character(packageVersion('devtools')))" \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
@@ -43,13 +39,13 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # ---------------------------------------------------------------------------
 # OCI Labels
 # ---------------------------------------------------------------------------
-LABEL org.opencontainers.image.title="runner-images/ruby"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler and gem"
+LABEL org.opencontainers.image.title="runner-images/r-lang"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: R with devtools, renv, testthat, roxygen2, knitr, rmarkdown"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.version="$IMAGE_VERSION"
-LABEL runner.flavour="ruby"
+LABEL runner.flavour="r-lang"
 LABEL runner.base="base-universal"
 LABEL runner.base.tag="2.0.0"
 
@@ -63,6 +59,12 @@ ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
 ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# ---------------------------------------------------------------------------
+# Size budget
+# ---------------------------------------------------------------------------
+# COMP_BUDGET=500
+# UNCOMP_BUDGET=1500
 
 # ---------------------------------------------------------------------------
 # Runtime

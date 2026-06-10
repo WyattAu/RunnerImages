@@ -39,6 +39,18 @@ check_swift() {
   curl -s "https://api.github.com/repos/swiftlang/swift/releases/latest" | jq -r '.tag_name' | sed 's/^swift-//;s/-RELEASE$//'
 }
 
+check_deno() {
+  curl -s "https://api.github.com/repos/denoland/deno/releases/latest" | jq -r '.tag_name' | sed 's/^v//'
+}
+
+check_elixir() {
+  curl -s "https://api.github.com/repos/elixir-lang/elixir/releases/latest" | jq -r '.tag_name' | sed 's/^v//'
+}
+
+check_kotlin() {
+  curl -s "https://api.github.com/repos/JetBrains/kotlin/releases/latest" | jq -r '.tag_name' | sed 's/^v//'
+}
+
 classify_bump() {
   local old="$1"
   local new="$2"
@@ -125,6 +137,33 @@ if [ -n "$SWIFT_LATEST" ] && [ "$SWIFT_CURRENT" != "$SWIFT_LATEST" ]; then
   [ "$FIRST" = false ] && echo ","
   FIRST=false
   echo "{\"flavour\":\"swift\",\"tool\":\"Swift\",\"current\":\"$SWIFT_CURRENT\",\"latest\":\"$SWIFT_LATEST\",\"bump\":\"$(classify_bump "${SWIFT_CURRENT}.0" "${SWIFT_LATEST}.0")\"}"
+fi
+
+# Deno
+DENO_CURRENT=$(grep "ARG DENO_VERSION" images/deno/Dockerfile 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || true)
+DENO_LATEST=$(check_deno)
+if [ -n "$DENO_LATEST" ] && [ "$DENO_CURRENT" != "$DENO_LATEST" ]; then
+  [ "$FIRST" = false ] && echo ","
+  FIRST=false
+  echo "{\"flavour\":\"deno\",\"tool\":\"Deno\",\"current\":\"$DENO_CURRENT\",\"latest\":\"$DENO_LATEST\",\"bump\":\"$(classify_bump "$DENO_CURRENT" "$DENO_LATEST")\"}"
+fi
+
+# Elixir
+ELIXIR_CURRENT=$(grep "ARG ELIXIR_VERSION" images/elixir/Dockerfile 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || true)
+ELIXIR_LATEST=$(check_elixir)
+if [ -n "$ELIXIR_LATEST" ] && [ "$ELIXIR_CURRENT" != "$ELIXIR_LATEST" ]; then
+  [ "$FIRST" = false ] && echo ","
+  FIRST=false
+  echo "{\"flavour\":\"elixir\",\"tool\":\"Elixir\",\"current\":\"$ELIXIR_CURRENT\",\"latest\":\"$ELIXIR_LATEST\",\"bump\":\"$(classify_bump "$ELIXIR_CURRENT" "$ELIXIR_LATEST")\"}"
+fi
+
+# Kotlin
+KOTLIN_CURRENT=$(grep "ARG KOTLIN_VERSION" images/kotlin/Dockerfile 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || true)
+KOTLIN_LATEST=$(check_kotlin)
+if [ -n "$KOTLIN_LATEST" ] && [ "$KOTLIN_CURRENT" != "$KOTLIN_LATEST" ]; then
+  [ "$FIRST" = false ] && echo ","
+  FIRST=false
+  echo "{\"flavour\":\"kotlin\",\"tool\":\"Kotlin\",\"current\":\"$KOTLIN_CURRENT\",\"latest\":\"$KOTLIN_LATEST\",\"bump\":\"$(classify_bump "$KOTLIN_CURRENT" "$KOTLIN_LATEST")\"}"
 fi
 
 echo ""
