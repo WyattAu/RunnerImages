@@ -16,6 +16,8 @@ ARG KOTLIN_VERSION=2.1.21
 ARG IMAGE_VERSION=dev
 ARG TARGETARCH
 
+USER root
+
 RUN curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" -o /tmp/kotlin.zip \
  && unzip /tmp/kotlin.zip -d /usr/local \
  && ln -sf /usr/local/kotlinc/bin/* /usr/local/bin/ \
@@ -23,11 +25,7 @@ RUN curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_
  && curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip \
  && unzip /tmp/gradle.zip -d /usr/local \
  && ln -sf /usr/local/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
- && apt-get update \
- && apt-get install -y --no-install-recommends sudo \
- && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
- && rm -rf /var/lib/apt/lists/* /tmp/kotlin.zip /tmp/gradle.zip \
- && chmod 4755 /usr/bin/sudo \
+ && rm -rf /tmp/kotlin.zip /tmp/gradle.zip \
  && kotlinc -version \
  && gradle --version
 

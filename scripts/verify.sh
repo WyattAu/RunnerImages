@@ -398,12 +398,12 @@ else
 fi
 
 if [ "$HAS_C" = true ]; then
-  check "gcc available" "$(run "gcc --version" | grep -q 'gcc' && echo PASS || echo 'not found')"
+  check "gcc available" "$(run "gcc --version" | grep -qE 'gcc' && echo PASS || echo 'not found')"
   check "cmake available" "$(run "cmake --version" | grep -qE 'cmake' && echo PASS || echo 'not found')"
   check "valgrind available" "$(run "valgrind --version" | grep -qE 'valgrind' && echo PASS || echo 'not found')"
-else
-  check "gcc NOT present" "$( (run "gcc --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'gcc should not be present')"
 fi
+# Note: gcc is available in ALL flavours via base-universal build-essential
+# No need to check "gcc NOT present" for non-C flavours
 
 if [ "$HAS_HASKELL" = true ]; then
   check "ghc available" "$(run "ghc --version" | grep -qE 'GHC|ghc' && echo PASS || echo 'not found')"

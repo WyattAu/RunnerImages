@@ -14,7 +14,7 @@ FROM bu-base AS haskell
 
 ARG GHC_VERSION=9.10.2
 ARG CABAL_VERSION=3.14.1.1
-ARG STACK_VERSION=3.3.1
+ARG STACK_VERSION=3.9.3
 ARG IMAGE_VERSION=dev
 ARG TARGETARCH
 
@@ -41,10 +41,10 @@ RUN apt-get update \
  && curl -fsSL "https://downloads.haskell.org/~cabal/cabal-install-${CABAL_VERSION}/cabal-install-${CABAL_VERSION}-${CABAL_ARCH}-linux-deb12.tar.xz" -o /tmp/cabal.tar.xz \
  && tar -C /usr/local/bin -xJf /tmp/cabal.tar.xz \
  && rm -f /tmp/cabal.tar.xz \
- && curl -fsSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-${STACK_ARCH}-static.tar.gz" -o /tmp/stack.tar.gz \
+ && curl -fsSL "https://github.com/commercialhaskell/stack/releases/download/v${STACK_VERSION}/stack-${STACK_VERSION}-linux-${STACK_ARCH}.tar.gz" -o /tmp/stack.tar.gz \
  && tar -C /tmp -xzf /tmp/stack.tar.gz \
- && mv /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH}-static/stack /usr/local/bin/stack \
- && rm -rf /tmp/stack.tar.gz /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH}-static \
+ && mv /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH}/stack /usr/local/bin/stack \
+ && rm -rf /tmp/stack.tar.gz /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH} \
  && ghc --version \
  && cabal --version \
  && stack --version \
