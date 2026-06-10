@@ -17,10 +17,10 @@ ARG IMAGE_VERSION=dev
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       dotnet-sdk-8.0 \
-      g++=4:13.2.0-7ubuntu1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      pkg-config=1.8.1-2build1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      libssl-dev \
+      pkg-config \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

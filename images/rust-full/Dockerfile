@@ -21,10 +21,10 @@ ENV CARGO_HOME=/usr/local/cargo
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      pkg-config \
+      libssl-dev \
+      sudo \
       protobuf-compiler \
       libsqlite3-dev \
       cmake \

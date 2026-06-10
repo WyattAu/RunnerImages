@@ -30,8 +30,8 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
  && /usr/local/go/bin/go version \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      g++=4:13.2.0-7ubuntu1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

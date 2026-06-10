@@ -19,9 +19,9 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       openjdk-21-jdk-headless \
       maven \
-      g++=4:13.2.0-7ubuntu1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      libssl-dev \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

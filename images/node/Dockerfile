@@ -18,9 +18,9 @@ ARG TARGETARCH
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      g++=4:13.2.0-7ubuntu1 \
-      python3=3.12.3-0ubuntu2.1 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      python3 \
+      sudo \
  && if [ "$TARGETARCH" = "arm64" ]; then \
       NODE_ARCH=arm64; \
       NODE_SHA256=1c4a9933a5e45bc88f54f70b5f91232c127ec49f1a5989d23fb85824c7adf9b7; \

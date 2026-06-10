@@ -11,12 +11,12 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       cmake \
       ninja-build \
-      g++=4:13.2.0-7ubuntu1 \
-      pkg-config=1.8.1-2build1 \
+      g++ \
+      pkg-config \
       clang \
       libgtk-3-dev \
       libglu1-mesa \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      sudo \
  && git clone --depth 1 --branch ${FLUTTER_VERSION} \
       https://github.com/flutter/flutter.git /opt/flutter \
  && git config --global --add safe.directory /opt/flutter \

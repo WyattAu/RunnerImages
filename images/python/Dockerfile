@@ -16,14 +16,14 @@ ARG IMAGE_VERSION=dev
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      g++=4:13.2.0-7ubuntu1 \
-      python3=3.12.3-0ubuntu2.1 \
-      python3-pip=24.0+dfsg-1ubuntu1.3 \
-      python3-venv=3.12.3-0ubuntu2.1 \
-      python3-dev=3.12.3-0ubuntu2.1 \
-      libffi-dev=3.4.6-1build1 \
-      libssl-dev=3.0.13-0ubuntu3.9 \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      g++ \
+      python3 \
+      python3-pip \
+      python3-venv \
+      python3-dev \
+      libffi-dev \
+      libssl-dev \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

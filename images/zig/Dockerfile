@@ -31,7 +31,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
  && zig version \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo

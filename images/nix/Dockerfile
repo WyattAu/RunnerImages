@@ -17,7 +17,7 @@ ARG IMAGE_VERSION=dev
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       xz-utils \
-      sudo=1.9.15p5-3ubuntu5.24.04.2 \
+      sudo \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && groupadd -f nixbld \
  && for i in $(seq 1 10); do useradd -c "Nix build user $i" -d /var/empty -g nixbld -G nixbld -M -N -r -s /usr/sbin/nologin "nixbld$i" 2>/dev/null || true; done \
