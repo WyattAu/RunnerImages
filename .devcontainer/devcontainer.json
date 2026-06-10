@@ -1,0 +1,21 @@
+// RunnerImages DevContainer Template
+//
+// To use a specific flavour, copy the corresponding <flavour>.json file
+// or change the "image" below to one of:
+//   ghcr.io/wyattau/runner-images/node:latest
+//   ghcr.io/wyattau/runner-images/python:latest
+//   ghcr.io/wyattau/runner-images/rust:latest
+//   ghcr.io/wyattau/runner-images/go:latest
+//   ghcr.io/wyattau/runner-images/java:latest
+//   ghcr.io/wyattau/runner-images/c:latest
+{
+  "name": "RunnerImages DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/node:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": []
+    }
+  },
+  "remoteUser": "runner"
+}

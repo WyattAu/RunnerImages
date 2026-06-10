@@ -311,22 +311,40 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Pull and push to Docker Hub
+      - name: Log in to Quay.io
+        if: vars.QUAY_REGISTRY != ''
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
+
+      - name: Pull and push to registries
         run: |
           GHCR_REPO="ghcr.io/wyattau/runner-images"
           DOCKERHUB="wyattau/runnerimages"
+          QUAY="${QUAY_REGISTRY:-}"
           FLAVOUR="${{ matrix.flavour }}"
           VERSION=$(tr -d '[:space:]' < "images/${FLAVOUR}/VERSION")
 
           for TAG in "latest" "$VERSION"; do
             docker pull "${GHCR_REPO}/${FLAVOUR}:${TAG}"
+
+            # Docker Hub
             docker tag "${GHCR_REPO}/${FLAVOUR}:${TAG}" "${DOCKERHUB}:${FLAVOUR}-${TAG}"
-            # Retry push up to 3 times (Docker Hub can be flaky)
             for attempt in 1 2 3; do
               if docker push "${DOCKERHUB}:${FLAVOUR}-${TAG}"; then
                 break
               fi
-              echo "Push attempt $attempt failed, retrying in 10s..."
+              echo "Docker Hub push attempt $attempt failed, retrying in 10s..."
               sleep 10
             done
+
+            # Quay.io (optional)
+            if [ -n "$QUAY" ]; then
+              docker tag "${GHCR_REPO}/${FLAVOUR}:${TAG}" "${QUAY}/${FLAVOUR}:${TAG}"
+              docker push "${QUAY}/${FLAVOUR}:${TAG}" || echo "WARN: Quay push failed"
+            fi
           done
+        env:
+          QUAY_REGISTRY: ${{ vars.QUAY_REGISTRY }}

@@ -1,0 +1,13 @@
+{
+  "name": "RunnerImages C DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/c:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools"
+      ]
+    }
+  },
+  "remoteUser": "runner"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "RunnerImages Java DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/java:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack"
+      ]
+    }
+  },
+  "remoteUser": "runner"
+}

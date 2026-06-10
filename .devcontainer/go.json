@@ -1,0 +1,13 @@
+{
+  "name": "RunnerImages Go DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/go:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ]
+    }
+  },
+  "remoteUser": "runner"
+}

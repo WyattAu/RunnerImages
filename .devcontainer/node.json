@@ -1,0 +1,14 @@
+{
+  "name": "RunnerImages Node DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/node:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteUser": "runner"
+}

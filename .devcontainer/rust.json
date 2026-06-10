@@ -1,0 +1,13 @@
+{
+  "name": "RunnerImages Rust DevContainer",
+  "image": "ghcr.io/wyattau/runner-images/rust:latest",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer"
+      ]
+    }
+  },
+  "remoteUser": "runner"
+}
