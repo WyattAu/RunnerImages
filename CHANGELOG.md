@@ -1,102 +1,112 @@
 # Changelog
 
-All notable changes to RunnerImages are documented here.
+## Recent Changes
 
-## [1.3.0] - 2026-06-08
+### Features
+- cfd925d feat!: v2.0.0 - smart CI, independent versioning, reusable workflows
+- a78ab00 feat: build caching, changelog generation, discussions
+- 6234fd8 feat: add ruby, php, zig, swift flavours (18 total)
+- 1fc8321 feat: auto Docker Hub publish, example workflows, tool version table
+- 28a099b feat: multi-cloud publishing, performance benchmarks, security docs
+- 2f92365 feat: security scanning, automated testing, user guide, VERSION updates
+- faa7d3e feat: add bun, pnpm, rust-full, nix flavours (14 total)
+- 5df77c1 feat: multi-arch (amd64+arm64), reproducible apt snapshots, renovate Go tracking
+- b597031 feat: add rust, go, java, dotnet, flutter flavours (v1.1.0)
+- 7c1394e feat: cross-flavour consistency checks for Node.js and docker-ce-cli
+- c13188e feat: SOURCE_DATE_EPOCH, CONTRIBUTING.md, deduplicate lint, fix universal_properties
+- 6f329e4 feat: spec drift fix, reproducibility test, cosign signing, renovate node regex
+- 66fbabc feat: docs, compat tests, BU consistency, SBOM, nightly matrix
+- a8fc1eb feat: add base-universal, node, python, heavy flavours
+- 9a5fe28 feat: add GitHub Pages landing site
+- e272a02 feat: add Renovate configuration for automated dependency updates
+- 2426722 feat: add pre-commit hooks and Makefile
+- 01f2f63 feat: add Node.js 22 to ubuntu runner image
+- 853f0a6 feat: ubuntu runner image v1.0.0
 
-### Added
+### Bug Fixes
+- 59ad2a4 fix: remove strict apt version pins, fix new flavour builds
+- 9a6f9d8 fix(ci): use jq -c for compact JSON output in GITHUB_OUTPUT
+- 99f2aa4 fix(ci): inline build logic, remove reusable workflow
+- 14d75a0 fix(ci): rename push input to push_images (reserved word conflict)
+- 3c62104 fix(ci): rename reusable workflow (remove leading underscore)
+- 9a650c1 fix(ci): scan local GHCR image for Docker Hub SBOM
+- a85df8c fix(ci): use wyattau/runnerimages repo for Docker Hub
+- 463b1e7 fix: add REGISTRY env var to Docker Hub publish workflow
+- 94b97c2 fix: Docker Hub publish - use tr -d for VERSION, add checkout step
+- 4d7e284 fix: manifest creation handles single-arch flavours
+- 68c2cfe fix: flutter image - git clone, precache, chown for runner user
+- b1e01ad fix: flutter git clone tag is 3.44.1 not 3.44.1-stable
+- fa1e2dd fix: flutter use git clone instead of tarball (1.5GB download timeout)
+- e42c18c fix: flutter tarball (no config/precache), npm tests always return PASS
+- df179e8 fix: flutter tarball, npm tests always pass
+- 5851fd8 fix: flutter tarball, npm tests resilient, node/pnpm/heavy fixes
+- d7c71fa fix: B1 workflow - output=type=docker, repro check arch tags, layer count
+- 227bc55 fix: layer count check for B1 architecture
+- ee9ad33 fix: B1 build workflow - use child_flavours for build/manifest jobs
+- 3620a9f fix: B1 architecture fixes for bun/flutter/rust-full/nix
+- 278fcfc fix: revert B1 architecture regression, fix bun/rust-full
+- 380af68 fix: check-bu-consistency.sh multi-line grep for base-universal BU block
+- 66af345 fix: bun full path, rust-full cross install, flutter transient
+- 244129f fix: bun PATH, rust-full wasm-pack PATH, nix seccomp/arm64 exclusion
+- e1fc850 fix: 5 build failures across bun/nix/rust-full/flutter/base-universal
+- 278e03a fix: pnpm yarn check, nix budget, java arm64 pipefail
+- a1ee08f fix(bun): move binary to /usr/local/bin for PATH access
+- b97fb77 fix: remove find / commands from Layer 2 of all flavours
+- 5ec6d0d fix: remove find /usr/lib -name '*.a' -delete from BU and all flavours
+- d63e0eb fix: pipefail-safe verify checks + --load for buildx
+- 998d31e fix: rust-full apt pins, nix nixbld group, verify arm64 binary checks
+- 6aa1828 fix: remove /usr/share/man/doc/info cleanup from BU layer
+- bac5c2e fix(java): install sudo separately to avoid dpkg conflict with OpenJDK
+- e10098b fix(java): remove .a delete from BU Layer 1 - breaks dpkg
+- 6310a33 fix(java): simplify Layer 2 - remove find commands, reorder user setup
+- b718c8a fix(java): remove .a delete from Layer 2, clean dpkg-tmp at end
+- f4d9247 fix: remove strip --strip-unneeded (corrupts arm64 binaries)
+- 78b183b fix(java): simplify dpkg-tmp restore with for loop
+- b8e0be5 fix(java): restore dpkg-tmp binaries after apt install
+- a201b01 fix: restore BU-no-strip fragment and fix consistency check regex
+- 265929c fix(java): remove strip from BU layer to fix OpenJDK installation
+- 9b041f2 fix: remove bu-no-strip variant from BU consistency check
+- 787b43b fix(build): remove unused MAJOR_TAG/MINOR_TAG variables
+- 820632f fix(java): use BU-no-strip variant to fix OpenJDK binary corruption
+- 574531f fix(flutter): raise size budgets to match reality
+- 61936f7 fix(flutter): remove precache to reduce size (2001MB -> ~500MB)
+- 759588d fix: raise java/rust size budgets, unpin flutter cmake/clang/ninja
+- a52da15 fix: stale text, shared filter, SOURCE_DATE_EPOCH verify, SECURITY.md
+- afc1301 fix: replace network-dependent pip tests with offline checks
+- 34a599e fix: filter shared dir from CI, fix pip compat test
+- 96c424c fix(node): raise uncompressed budget to 800MB
+- 627149a fix(node): raise size budget to 275MB compressed
+- 7fd9633 fix: raise base-universal size budget, add yarn/pnpm to node and heavy
+- 6830f9d fix(docs): correct GHCR package URL in footer
+- cd1ee09 fix(verify): exit 0 on pass, run WW check as root
+- 4d753e3 fix(verify): use which for ssh-keygen detection
+- abc2d44 fix(verify): fix ssh-keygen check and SUID count parsing
+- b067e38 fix(scripts): adjust ubuntu size budget for Node.js inclusion
+- 026fcec fix(ubuntu): fix Node.js arch naming and user creation
+- 89adc38 fix(ubuntu): fix user creation with proper subshell grouping
+- 2426722 feat: add pre-commit hooks and Makefile
+- 68159a3 fix(scripts): rewrite build and verify scripts
+- a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
 
-- **B1 layered architecture**: `base-universal` is the shared base image. All 13 child flavours inherit from it. BU layer is built once, shared across all flavours.
-- **Multi-arch support**: All flavours build for linux/amd64 and linux/arm64 (except flutter and nix which are amd64-only).
-- **14 flavours**: base-universal, ubuntu, node, pnpm, bun, python, heavy, rust, rust-full, go, java, dotnet, flutter, nix.
-- **Reproducible builds**: `SNAPSHOT_DATE` build arg pins apt sources to `snapshot.ubuntu.com` for deterministic package metadata.
-- **CI pipeline**: 4 jobs in build.yml — build-base (base-universal first), build (all child flavours), manifest-base (multi-arch for base-universal), manifest (multi-arch for all child flavours). Uses QEMU + Docker Buildx for cross-architecture builds.
-- **Cosign keyless signing**: All flavours signed with GitHub OIDC via cosign.
-- **SBOM generation**: SPDX SBOMs generated for all flavours via anchore/sbom-action.
-- **Security scanning**: Weekly Trivy scans for vulnerabilities and secrets across all flavours.
-- **Automated testing**: CI workflow that runs basic tool verification in each image.
-- **User guide**: Documentation for using images in Forgejo Actions.
+### Other Changes
+- ad23b3a chore: add .env to .gitignore
+- 8be3f36 docs: update pull section with Docker Hub examples
+- 0dd8968 chore: remove ECR workflow (no paid AWS plan), add Docker Hub secrets
+- e6fa578 docs: update README and CHANGELOG for B1 architecture v1.3.0
+- cfdd197 Merge fix/flutter-b1: fix flutter image user perms
+- 8c70462 Merge feat/b1-clean: B1 true layered architecture
+- a088f31 refactor: B1 layered architecture - base-universal as shared base
+- 6978f39 Merge feat/b1-layered-architecture: B1 true layered architecture
+- a4e50eb Revert "refactor: B1 layered architecture - base-universal as shared base"
+- 5eb20a2 Revert "refactor: migrate all 14 flavours to B1 layered architecture"
+- 4d14518 Revert "fix: check-bu-consistency.sh multi-line grep for base-universal BU block"
+- ca455f5 Revert "ci: update build.yml for B1 layered architecture"
+- 4e952f4 Revert "chore: remove BU fragments, fix lint.yml for B1"
+- 6aa4360 chore: remove BU fragments, fix lint.yml for B1
+- a4db64c ci: update build.yml for B1 layered architecture
+- 5a7cc5c refactor: migrate all 14 flavours to B1 layered architecture
+- b575cfb refactor: B1 layered architecture - base-universal as shared base
+- 405f383 chore: update BU fragments, build/verify scripts, and Dockerfiles
+- 23b2022 docs: update actual image sizes from CI for all 10 flavours
+- 5ec8a28 ci(pages): add GitHub Pages deployment workflow
 
-### Changed
-
-- **bun flavour**: Removed pnpm — bun IS the package manager.
-- **pnpm flavour**: No yarn — lightweight pnpm-only alternative.
-- **rust-full flavour**: Added cmake. cross is amd64-only. Removed sqlx-cli.
-- **flutter flavour**: Uses git clone for Flutter SDK (not apt).
-- **nix flavour**: Single-user install, flake-ready.
-- **CI workflow**: build-base job runs first, then build job depends on it. manifest-base creates multi-arch manifest for base-universal. manifest creates multi-arch manifests for all child flavours. Manifest creation handles single-arch flavours (checks available arches).
-- **build.sh**: Uses `--output=type=docker` for reliable image loading with buildx.
-- **verify.sh**: Max layers 5 (was 4) for B1 architecture. npm tests always return PASS (network unreliable under QEMU).
-
-### Fixed
-
-- **Manifest creation**: Handles single-arch flavours (nix amd64-only). Checks which arches are available before creating manifest.
-- **Flutter**: Uses git clone instead of 1.5GB tarball (times out in Docker build).
-- **npm tests**: Always return PASS even when network unavailable (QEMU emulation makes network unreliable).
-
-## [1.2.0] - 2026-06-07
-
-### Added
-
-- **bun flavour**: BU + Bun 1.3.14 + pnpm. Multi-arch (x64/aarch64). For Bun-first workflows.
-- **rust-full flavour**: BU + Rust 1.96 + wasm-pack + cross + protobuf-compiler + sqlx-cli + cmake + libsqlite3-dev. Extended Rust toolchain for WASM and full-stack development.
-- **pnpm flavour**: BU + Node.js 22 + pnpm only (no yarn). Lightweight alternative to full node flavour.
-- **nix flavour**: BU + Nix package manager (single-user install). For flake-based projects.
-- **Multi-arch support**: All flavours now build for linux/amd64 and linux/arm64. CI uses QEMU + Docker Buildx for cross-architecture builds. Multi-arch manifests created with `docker buildx imagetools`.
-- **Bit-for-bit reproducibility**: `SNAPSHOT_DATE` build arg pins apt sources to `snapshot.ubuntu.com` for deterministic package metadata. All Dockerfiles support `SNAPSHOT_DATE` via the BU layer.
-- **Renovate Go tracking**: Go version ARG in go/Dockerfile now tracked by Renovate with `golang-version` datasource.
-- **Per-arch image tags**: Images pushed as `<version>-amd64` and `<version>-arm64`; manifest job creates unified multi-arch tags (`latest`, `<version>`, `<major>`, `<minor>`).
-
-### Changed
-
-- **Node.js Dockerfiles**: Use `TARGETARCH` to select amd64 (x64) or arm64 tarball with per-arch SHA256 verification.
-- **Go Dockerfile**: Uses `TARGETARCH` to select amd64 or arm64 tarball with per-arch SHA256 verification.
-- **Java Dockerfile**: `JAVA_HOME` dynamically set based on `TARGETARCH` (was hardcoded to `amd64`).
-- **build.sh**: Accepts `PLATFORM` env var (default: `linux/amd64`). Pushes per-arch tags only. Supports `SNAPSHOT_DATE` build arg. Added size budgets for bun, rust-full, pnpm, nix.
-- **verify.sh**: Accepts `PLATFORM` env var. All `docker run` calls include `--platform` flag. Added capability checks for bun, rust-full, nix.
-- **Makefile**: All targets pass `PLATFORM` env var.
-- **CI build.yml**: Matrix expanded to include `platform: [linux/amd64, linux/arm64]`. Added QEMU, Buildx, and manifest merge job.
-- **CI nightly.yml**: Same multi-arch matrix as build.yml. Added bun, rust-full, pnpm, nix to matrix.
-- **Removed strip --strip-unneeded**: This was corrupting arm64 binaries (make, unzip) during QEMU cross-compilation.
-
-## [1.1.0] - 2026-06-07
-
-### Added
-
-- **rust flavour**: BU + Rust 1.96.0 + cargo + rustup + g++ + libssl-dev. RUSTUP_HOME=/usr/local/rustup, CARGO_HOME=/usr/local/cargo.
-- **go flavour**: BU + Go 1.26.4 from official tarball (SHA256 verified) + g++ + sudo.
-- **java flavour**: BU + OpenJDK 21 (headless) + Maven + g++ + libssl-dev + sudo. JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64.
-- **dotnet flavour**: BU + .NET 8.0 SDK + g++ + libssl-dev + pkg-config + sudo.
-- **flutter flavour**: BU + Flutter 3.44.1 SDK + Dart + cmake + ninja-build + clang + GTK/GLU dev + sudo. No Android SDK (users add in workflow).
-- Nightly pipeline: 10-flavour matrix (was 5).
-- Cross-flavour consistency check: Node.js version/SHA, docker-ce-cli version.
-- Reproducibility: SOURCE_DATE_EPOCH=0 in all Dockerfiles.
-- Cosign keyless signing with GitHub OIDC for all flavours.
-- SBOM generation (SPDX) for all flavours.
-- SECURITY.md, CONTRIBUTING.md.
-
-## [1.0.0] - 2026-06-07
-
-### Added
-
-- **base-universal flavour**: BU layer only (git, curl, jq, make, gcc, wget, zip, openssl, ssh). No docker, no node, no python, no sudo. 190MB compressed.
-- **ubuntu flavour**: BU + Docker CLI 29.5.3 + g++ + pkg-config + libssl-dev + sudo + iputils-ping + net-tools. 202MB compressed.
-- **node flavour**: BU + Node.js 22.22.3 LTS + npm + yarn + pnpm + g++ + python3 (node-gyp). 259MB compressed.
-- **python flavour**: BU + Python 3.12 + pip + venv + python3-dev + libffi-dev + libssl-dev + g++. 204MB compressed.
-- **heavy flavour**: BU + Node.js 22.22.3 + Python 3.12 + Docker CLI 29.5.3 + all build tools. 282MB compressed.
-- CI pipeline: Build (5 matrix jobs), Verify (40+ flavour-aware checks), Push to GHCR.
-- CI pipeline: Lint (shellcheck, hadolint, VERSION validation, digest check, secret scan).
-- CI pipeline: Nightly (Trivy security scan, SARIF upload, size regression check).
-- CI pipeline: GitHub Pages deployment for landing page.
-- Pre-commit hooks: shellcheck, hadolint, base image digest check, VERSION semver check.
-- Makefile: build, verify, lint, clean targets.
-- Renovate configuration for automated dependency updates.
-- Landing page at https://wyattau.github.io/RunnerImages/
-- Per-flavour README documentation.
-- Spec documents: constraints, pillars, standards, flavour matrix, universal properties.
-- 3-layer architecture for Docker layer deduplication across flavours.
-- All packages version-pinned. Base image pinned by SHA256 digest.
-- Node.js installed from official tarball with SHA256 verification.
-- Thinning protocol: no man pages, no docs, no static libs, no SUID (except sudo), no world-writable files.
-- OCI labels on all images.
-- runner user (UID/GID 1000) with /bin/bash entrypoint.
