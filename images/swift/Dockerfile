@@ -28,8 +28,7 @@ RUN if [ "$TARGETARCH" != "amd64" ]; then \
       libcurl4t64 \
       libxml2 \
       sudo \
- && SWIFT_TARBALL="swift-${SWIFT_VERSION}-RELEASE-ubuntu24.04" \
- && curl -fsSL "https://download.swift.org/swift-${SWIFT_VERSION}-RELEASE/ubuntu2404/swift-${SWIFT_VERSION}-RELEASE/swift-${SWIFT_VERSION}-RELEASE-ubuntu24.04.tar.gz" -o /tmp/swift.tar.gz \
+ && curl -fsSL "https://download.swift.org/swift-${SWIFT_VERSION}-release/ubuntu2404/swift-${SWIFT_VERSION}-RELEASE/swift-${SWIFT_VERSION}-RELEASE-ubuntu24.04.tar.gz" -o /tmp/swift.tar.gz \
  && mkdir -p /tmp/swift-src \
  && tar -xzf /tmp/swift.tar.gz -C /tmp/swift-src --strip-components=1 \
  && cp -a /tmp/swift-src/usr/* /usr/ \
