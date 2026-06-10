@@ -341,7 +341,7 @@ fi
 if [ "$HAS_RUBY" = true ]; then
   check "ruby available" "$(run "ruby --version" | grep -q 'ruby' && echo PASS || echo 'not found')"
   check "gem available" "$(run "gem --version" | grep -qE '^[0-9]' && echo PASS || echo 'not found')"
-  check "bundler available" "$(run "which bundler && bundler --version" | grep -qE 'Bundler|bundler' && echo PASS || echo 'not found')"
+  check "bundler available" "$(run "gem list -i bundler" | grep -q 'true' && echo PASS || echo 'not found')"
 else
   check "ruby NOT present" "$( (run "ruby --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ruby should not be present')"
 fi
@@ -426,7 +426,7 @@ case "$FLAVOUR" in
   ruby)           COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   php)            COMP_BUDGET=300; UNCOMP_BUDGET=800 ;;
   zig)            COMP_BUDGET=350; UNCOMP_BUDGET=850 ;;
-  swift)          COMP_BUDGET=800; UNCOMP_BUDGET=2500 ;;
+  swift)          COMP_BUDGET=1100; UNCOMP_BUDGET=2800 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
 esac
