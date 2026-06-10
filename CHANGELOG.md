@@ -24,6 +24,7 @@
 - 853f0a6 feat: ubuntu runner image v1.0.0
 
 ### Bug Fixes
+- 1ee3dfa fix(swift): correct download URL case sensitivity
 - c0cd948 fix: swift libncurses5->libncurses-dev, zig budget 850MB, ruby bundler check
 - c799513 fix: remove all apt version pins from base-universal, ubuntu, heavy
 - 59ad2a4 fix: remove strict apt version pins, fix new flavour builds
@@ -91,6 +92,7 @@
 - a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
 
 ### Other Changes
+- e7df048 docs: update changelog [skip ci]
 - 078d277 docs: update changelog [skip ci]
 - b047348 docs: update changelog [skip ci]
 - ad23b3a chore: add .env to .gitignore
@@ -110,5 +112,4 @@
 - a4db64c ci: update build.yml for B1 layered architecture
 - 5a7cc5c refactor: migrate all 14 flavours to B1 layered architecture
 - b575cfb refactor: B1 layered architecture - base-universal as shared base
-- 405f383 chore: update BU fragments, build/verify scripts, and Dockerfiles
 
