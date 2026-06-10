@@ -24,6 +24,9 @@
 - 853f0a6 feat: ubuntu runner image v1.0.0
 
 ### Bug Fixes
+- 3431f18 fix: remove all remaining apt version pins from Dockerfiles
+- ca0bef7 fix(swift): increase uncompressed budget to 3500MB (actual 3278MB)
+- 27530cd fix: ruby bundler verify, swift size budget 1100/2800MB
 - 1ee3dfa fix(swift): correct download URL case sensitivity
 - c0cd948 fix: swift libncurses5->libncurses-dev, zig budget 850MB, ruby bundler check
 - c799513 fix: remove all apt version pins from base-universal, ubuntu, heavy
@@ -92,6 +95,7 @@
 - a81902f fix(ubuntu): rewrite Dockerfile for full spec compliance
 
 ### Other Changes
+- ab8105a docs: update changelog [skip ci]
 - e7df048 docs: update changelog [skip ci]
 - 078d277 docs: update changelog [skip ci]
 - b047348 docs: update changelog [skip ci]
@@ -111,5 +115,4 @@
 - 6aa4360 chore: remove BU fragments, fix lint.yml for B1
 - a4db64c ci: update build.yml for B1 layered architecture
 - 5a7cc5c refactor: migrate all 14 flavours to B1 layered architecture
-- b575cfb refactor: B1 layered architecture - base-universal as shared base
 
