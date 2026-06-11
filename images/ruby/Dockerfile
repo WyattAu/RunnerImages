@@ -1,6 +1,6 @@
 # Forgejo Actions runner image - ruby flavour
 # Layer count: 2 (bu-base + ruby)
-# BU packages from base-universal, Ruby 3.4 + bundler + gem
+# BU packages from base-universal, Ruby 3.4 + bundler (source build)
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -16,12 +16,7 @@ ARG RUBY_VERSION=3.4.4
 ARG IMAGE_VERSION=dev
 ARG TARGETARCH
 
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      RUBY_ARCH=arm64; \
-    else \
-      RUBY_ARCH=x64; \
-    fi \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libssl-dev \
       libffi-dev \
@@ -29,13 +24,22 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
       zlib1g-dev \
       libreadline-dev \
       sudo \
- && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
- && tar -xzf /tmp/ruby.tar.gz -C / \
- && ln -sf "/${RUBY_ARCH}" /opt/ruby \
- && rm -f /tmp/ruby.tar.gz \
- && /opt/ruby/bin/gem install bundler --no-document \
- && /opt/ruby/bin/ruby --version \
- && /opt/ruby/bin/gem --version \
+ && RUBY_MAJOR=$(echo "$RUBY_VERSION" | cut -d. -f1,2) \
+ && if [ "$TARGETARCH" = "arm64" ]; then \
+      RUBY_ARCH=aarch64; \
+    else \
+      RUBY_ARCH=x86_64; \
+    fi \
+ && curl -fsSL "https://cache.ruby-lang.org/pub/ruby/${RUBY_MAJOR}/ruby-${RUBY_VERSION}.tar.gz" -o /tmp/ruby.tar.gz \
+ && tar -xzf /tmp/ruby.tar.gz -C /tmp \
+ && cd /tmp/ruby-${RUBY_VERSION} \
+ && ./configure --prefix=/usr/local --disable-install-doc \
+ && make -j$(nproc) \
+ && make install \
+ && rm -rf /tmp/ruby.tar.gz /tmp/ruby-${RUBY_VERSION} \
+ && gem install bundler --no-document \
+ && ruby --version \
+ && gem --version \
  && bundler --version \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
@@ -45,7 +49,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # OCI Labels
 # ---------------------------------------------------------------------------
 LABEL org.opencontainers.image.title="runner-images/ruby"
-LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler and gem"
+LABEL org.opencontainers.image.description="Forgejo Actions runner image: Ruby with bundler (source build)"
 LABEL org.opencontainers.image.vendor="WyattAu"
 LABEL org.opencontainers.image.source="https://github.com/WyattAu/RunnerImages"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
@@ -63,7 +67,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/opt/ruby/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime
