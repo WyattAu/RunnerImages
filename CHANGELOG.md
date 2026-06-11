@@ -8,6 +8,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- 6a2bed3 fix(ruby): cd / before rm -rf build dir (getcwd ENOENT)
 - 19cab9a fix(ruby): source build instead of ruby-builder (wrong shebang paths)
 - 3057f9d fix: ruby/haskell PATH approach, kotlin explicit symlinks, r-lang libuv
 - 57057b8 fix: ruby explicit bin copy (no glob), haskell bindist via PATH
@@ -21,6 +22,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 005acd5 docs: update changelog [skip ci]
 - b422a28 docs: update changelog [skip ci]
 - b2a056c docs: update changelog [skip ci]
 - 0c4b871 revert: remove build concurrency group (caused nightly cancellation)
