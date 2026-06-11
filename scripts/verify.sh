@@ -414,7 +414,7 @@ fi
 
 if [ "$HAS_RLANG" = true ]; then
   check "R available" "$(run "R --version" | grep -qE 'R version' && echo PASS || echo 'not found')"
-  check "Rscript available" "$(run "Rscript --version" | grep -qE 'R scripting' && echo PASS || echo 'not found')"
+  check "Rscript available" "$(run "Rscript --version 2>&1" | grep -qE 'R scripting' && echo PASS || echo 'not found')"
 else
   check "R NOT present" "$( (run "R --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'R should not be present')"
 fi
