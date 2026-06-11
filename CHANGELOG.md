@@ -8,6 +8,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- 3057f9d fix: ruby/haskell PATH approach, kotlin explicit symlinks, r-lang libuv
 - 57057b8 fix: ruby explicit bin copy (no glob), haskell bindist via PATH
 - 2f2d7a8 fix: ruby/haskell cp -a instead of ln -sf glob, kotlin budget, r-lang deps, elixir retry
 - 9cedec6 fix(nightly): YAML expression parsing for Trivy image-ref
@@ -19,6 +20,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- b2a056c docs: update changelog [skip ci]
 - 0c4b871 revert: remove build concurrency group (caused nightly cancellation)
 - da8ef29 docs: update changelog [skip ci]
 - c12db40 docs: update changelog [skip ci]
