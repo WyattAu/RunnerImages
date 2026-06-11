@@ -124,12 +124,15 @@ jobs:
 
       - name: Get version
         id: version
-        run: echo "version=$(tr -d '[:space:]' < images/${{ matrix.flavour }}/VERSION)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(tr -d '[:space:]' < images/${{ matrix.flavour }}/VERSION)" >> "$GITHUB_OUTPUT"
+          ARCH="${{ matrix.platform }}"
+          echo "arch=${ARCH#linux/}" >> "$GITHUB_OUTPUT"
 
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ matrix.platform == "linux/amd64" && "amd64" || "arm64" }}'
+          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ steps.version.outputs.arch }}'
           format: 'sarif'
           output: 'trivy-${{ matrix.flavour }}.sarif'
           severity: 'CRITICAL,HIGH'
@@ -138,7 +141,7 @@ jobs:
       - name: Run Trivy secret scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ matrix.platform == "linux/amd64" && "amd64" || "arm64" }}'
+          image-ref: '${{ env.REGISTRY }}/wyattau/runner-images/${{ matrix.flavour }}:${{ steps.version.outputs.version }}-${{ steps.version.outputs.arch }}'
           format: 'table'
           scanners: 'secret'
         continue-on-error: true
