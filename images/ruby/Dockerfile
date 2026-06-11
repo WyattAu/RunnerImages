@@ -31,15 +31,11 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
       sudo \
  && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
  && tar -xzf /tmp/ruby.tar.gz -C / \
- && for bin in ruby gem irb bundler rake rdoc ri; do \
-      if [ -f "/${RUBY_ARCH}/bin/${bin}" ]; then \
-        cp "/${RUBY_ARCH}/bin/${bin}" "/usr/local/bin/${bin}"; \
-      fi; \
-    done \
+ && ln -sf "/${RUBY_ARCH}" /opt/ruby \
  && rm -f /tmp/ruby.tar.gz \
- && gem install bundler --no-document \
- && ruby --version \
- && gem --version \
+ && /opt/ruby/bin/gem install bundler --no-document \
+ && /opt/ruby/bin/ruby --version \
+ && /opt/ruby/bin/gem --version \
  && bundler --version \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
@@ -67,7 +63,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/opt/ruby/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime

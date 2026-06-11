@@ -21,6 +21,7 @@ RUN apt-get update \
       libcurl4-openssl-dev \
       libssl-dev \
       libxml2-dev \
+      libuv1-dev \
       sudo \
  && Rscript -e "install.packages(c('renv', 'testthat', 'knitr', 'jsonlite', 'httr', 'curl', 'rprojroot', 'desc', 'pkgload', 'withr'), repos='https://cloud.r-project.org')" \
  && R --version \

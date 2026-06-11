@@ -20,7 +20,10 @@ USER root
 
 RUN curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" -o /tmp/kotlin.zip \
  && unzip /tmp/kotlin.zip -d /usr/local \
- && ln -sf /usr/local/kotlinc/bin/* /usr/local/bin/ \
+ && ln -sf /usr/local/kotlinc/bin/kotlinc /usr/local/bin/kotlinc \
+ && ln -sf /usr/local/kotlinc/bin/kotlin /usr/local/bin/kotlin \
+ && ln -sf /usr/local/kotlinc/bin/kotlin-dce-plugin /usr/local/bin/kotlin-dce-plugin \
+ && ln -sf /usr/local/kotlinc/bin/coursier /usr/local/bin/coursier \
  && GRADLE_VERSION=8.14.2 \
  && curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip \
  && unzip /tmp/gradle.zip -d /usr/local \

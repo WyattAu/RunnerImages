@@ -35,6 +35,7 @@ RUN apt-get update \
     fi \
  && curl -fsSL "https://downloads.haskell.org/~ghc/${GHC_VERSION}/ghc-${GHC_VERSION}-${GHC_ARCH}-deb12-linux.tar.xz" -o /tmp/ghc.tar.xz \
  && tar -C /opt -xJf /tmp/ghc.tar.xz \
+ && ln -sf /opt/ghc-${GHC_VERSION}-${GHC_ARCH}-* /opt/ghc-current \
  && rm -f /tmp/ghc.tar.xz \
  && curl -fsSL "https://downloads.haskell.org/~cabal/cabal-install-${CABAL_VERSION}/cabal-install-${CABAL_VERSION}-${CABAL_ARCH}-linux-deb12.tar.xz" -o /tmp/cabal.tar.xz \
  && tar -C /usr/local/bin -xJf /tmp/cabal.tar.xz \
@@ -43,7 +44,7 @@ RUN apt-get update \
  && tar -C /tmp -xzf /tmp/stack.tar.gz \
  && mv /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH}/stack /usr/local/bin/stack \
  && rm -rf /tmp/stack.tar.gz /tmp/stack-${STACK_VERSION}-linux-${STACK_ARCH} \
- && /opt/ghc-${GHC_VERSION}/bin/ghc --version \
+ && /opt/ghc-current/bin/ghc --version \
  && cabal --version \
  && stack --version \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
@@ -72,7 +73,7 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/opt/ghc-9.10.2/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/opt/ghc-current/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Size budget
