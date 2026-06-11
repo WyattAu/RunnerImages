@@ -36,6 +36,7 @@ RUN apt-get update \
  && ./configure --prefix=/usr/local --disable-install-doc \
  && make -j$(nproc) \
  && make install \
+ && cd / \
  && rm -rf /tmp/ruby.tar.gz /tmp/ruby-${RUBY_VERSION} \
  && gem install bundler --no-document \
  && ruby --version \
