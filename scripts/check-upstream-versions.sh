@@ -166,5 +166,23 @@ if [ -n "$KOTLIN_LATEST" ] && [ "$KOTLIN_CURRENT" != "$KOTLIN_LATEST" ]; then
   echo "{\"flavour\":\"kotlin\",\"tool\":\"Kotlin\",\"current\":\"$KOTLIN_CURRENT\",\"latest\":\"$KOTLIN_LATEST\",\"bump\":\"$(classify_bump "$KOTLIN_CURRENT" "$KOTLIN_LATEST")\"}"
 fi
 
+# Haskell GHC
+GHC_CURRENT=$(grep "ARG GHC_VERSION" images/haskell/Dockerfile 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || true)
+GHC_LATEST=$(curl -s "https://api.github.com/repos/ghc/ghc/releases/latest" | jq -r '.tag_name' | sed 's/^ghc-//' || true)
+if [ -n "$GHC_LATEST" ] && [ "$GHC_CURRENT" != "$GHC_LATEST" ]; then
+  [ "$FIRST" = false ] && echo ","
+  FIRST=false
+  echo "{\"flavour\":\"haskell\",\"tool\":\"GHC\",\"current\":\"$GHC_CURRENT\",\"latest\":\"$GHC_LATEST\",\"bump\":\"$(classify_bump "$GHC_CURRENT" "$GHC_LATEST")\"}"
+fi
+
+# Gradle (bundled in kotlin)
+GRADLE_CURRENT=$(grep "GRADLE_VERSION=" images/kotlin/Dockerfile 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || true)
+GRADLE_LATEST=$(curl -s "https://api.github.com/repos/gradle/gradle/releases/latest" | jq -r '.tag_name' | sed 's/^v//' || true)
+if [ -n "$GRADLE_LATEST" ] && [ "$GRADLE_CURRENT" != "$GRADLE_LATEST" ]; then
+  [ "$FIRST" = false ] && echo ","
+  FIRST=false
+  echo "{\"flavour\":\"kotlin\",\"tool\":\"Gradle\",\"current\":\"$GRADLE_CURRENT\",\"latest\":\"$GRADLE_LATEST\",\"bump\":\"$(classify_bump "$GRADLE_CURRENT" "$GRADLE_LATEST")\"}"
+fi
+
 echo ""
 echo "]"
