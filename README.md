@@ -35,30 +35,30 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 
 | Flavour | Contents | Compressed | Use Case |
 |---------|----------|-----------|----------|
-| **base-universal** | git, curl, jq, make, gcc, ssh | 159MB | Minimal CI, shell scripts |
-| **ubuntu** | base + Docker CLI, sudo, build tools | 183MB | General CI, DinD, builds |
-| **python** | base + Python 3.12, pip, venv, dev headers | 183MB | Python CI, ML pipelines |
-| **bun** | base + Bun 1.3 | 196MB | Bun-first workflows |
-| **go** | base + Go 1.26 | 224MB | Go workflows |
-| **pnpm** | base + Node.js 22, pnpm (no yarn) | 226MB | Lightweight pnpm-only CI |
-| **node** | base + Node.js 22, npm, yarn, pnpm | 229MB | JS/TS CI, npm builds |
-| **heavy** | base + Node.js + Python + Docker CLI | 272MB | Monorepos, mixed stacks |
-| **nix** | base + Nix package manager (flake-ready) | 279MB | Flake-based builds |
-| **java** | base + OpenJDK 21, Maven | 322MB | Java/Kotlin workflows |
-| **dotnet** | base + .NET 8.0 SDK | 353MB | C#/.NET workflows |
-| **rust** | base + Rust 1.96, cargo, rustup | 448MB | Rust/Cargo workflows |
-| **rust-full** | base + Rust + wasm-pack, cross, protobuf, cmake | 488MB | Rust + WASM, full toolchain |
-| **ruby** | base + Ruby 3.4, bundler, gem | TBD | Ruby CI, Rails |
-| **php** | base + PHP 8.3, Composer | TBD | PHP CI, Laravel |
-| **zig** | base + Zig 0.16 | TBD | Zig workflows |
-| **swift** | base + Swift 6.1 (amd64 only) | TBD | Swift CI, SPM |
-| **flutter** | base + Flutter SDK via git clone | 1577MB | Flutter/Dart, mobile/web |
-| **c** | base + GCC/G++, cmake, ninja, valgrind, gdb | TBD | C/C++ CI, systems programming |
-| **deno** | base + Deno runtime | TBD | Deno-first workflows |
-| **elixir** | base + Erlang/OTP + Elixir | TBD | Phoenix, Elixir CI |
-| **haskell** | base + GHC + Cabal + Stack | TBD | Haskell CI, pure FP |
-| **kotlin** | java + Kotlin + Gradle | TBD | Kotlin/JVM, KMP |
-| **r-lang** | base + R + devtools | TBD | Data science, statistics |
+| **base-universal** | git, curl, jq, make, gcc, ssh | 161MB | Minimal CI, shell scripts |
+| **ubuntu** | base + Docker CLI, sudo, build tools | 185MB | General CI, DinD, builds |
+| **python** | base + Python 3.12, pip, venv, dev headers | 185MB | Python CI, ML pipelines |
+| **bun** | base + Bun 1.3 | 197MB | Bun-first workflows |
+| **go** | base + Go 1.26 | 226MB | Go workflows |
+| **pnpm** | base + Node.js 22, pnpm (no yarn) | 228MB | Lightweight pnpm-only CI |
+| **node** | base + Node.js 22, npm, yarn, pnpm | 231MB | JS/TS CI, npm builds |
+| **zig** | base + Zig 0.16 | 246MB | Zig workflows |
+| **heavy** | base + Node.js + Python + Docker CLI | 274MB | Monorepos, mixed stacks |
+| **nix** | base + Nix package manager (flake-ready) | 281MB | Flake-based builds |
+| **java** | base + OpenJDK 21, Maven | 324MB | Java/Kotlin workflows |
+| **dotnet** | base + .NET 8.0 SDK | 355MB | C#/.NET workflows |
+| **rust** | base + Rust 1.96, cargo, rustup | 450MB | Rust/Cargo workflows |
+| **rust-full** | base + Rust + wasm-pack, cross, protobuf, cmake | 490MB | Rust + WASM, full toolchain |
+| **flutter** | base + Flutter SDK via git clone | 1579MB | Flutter/Dart, mobile/web |
+| **ruby** | base + Ruby 3.4, bundler, gem | pending | Ruby CI, Rails |
+| **php** | base + PHP 8.3, Composer | pending | PHP CI, Laravel |
+| **swift** | base + Swift 6.1 (amd64 only) | pending | Swift CI, SPM |
+| **c** | base + GCC/G++, cmake, ninja, valgrind, gdb | pending | C/C++ CI, systems programming |
+| **deno** | base + Deno runtime | pending | Deno-first workflows |
+| **elixir** | base + Erlang/OTP + Elixir | pending | Phoenix, Elixir CI |
+| **haskell** | base + GHC + Cabal + Stack (amd64 only) | pending | Haskell CI, pure FP |
+| **kotlin** | java + Kotlin + Gradle | pending | Kotlin/JVM, KMP |
+| **r-lang** | base + R + devtools | pending | Data science, statistics |
 
 ## Quick Start
 
@@ -69,9 +69,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/wyattau/runner-images/ubuntu:1
+      image: ghcr.io/wyattau/runner-images/ubuntu:2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: make build
 ```
 
@@ -79,16 +79,16 @@ jobs:
 
 ```bash
 # GHCR (default)
-docker pull ghcr.io/wyattau/runner-images/ubuntu:1
+docker pull ghcr.io/wyattau/runner-images/ubuntu:2
 
 # Docker Hub (flavour as tag prefix)
-docker pull wyattau/runnerimages:ubuntu-1
+docker pull wyattau/runnerimages:ubuntu-2
 ```
 
 Tags follow semver:
-- `1` -- major (latest 1.x.x)
-- `1.0` -- minor (latest 1.0.x)
-- `1.0.0` -- exact
+- `2` -- major (latest 2.x.x)
+- `2.0` -- minor (latest 2.0.x)
+- `2.0.0` -- exact
 - `latest` -- most recent
 
 ## Flavour Selection
