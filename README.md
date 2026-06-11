@@ -57,7 +57,7 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **deno** | base + Deno runtime | pending | Deno-first workflows |
 | **elixir** | base + Erlang/OTP + Elixir | pending | Phoenix, Elixir CI |
 | **haskell** | base + GHC + Cabal + Stack (amd64 only) | pending | Haskell CI, pure FP |
-| **kotlin** | java + Kotlin + Gradle | pending | Kotlin/JVM, KMP |
+| **kotlin** | java + Kotlin + Gradle | 533MB | Kotlin/JVM, KMP |
 | **r-lang** | base + R + devtools | pending | Data science, statistics |
 
 ## Quick Start

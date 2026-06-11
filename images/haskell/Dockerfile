@@ -35,7 +35,7 @@ RUN apt-get update \
     fi \
  && curl -fsSL "https://downloads.haskell.org/~ghc/${GHC_VERSION}/ghc-${GHC_VERSION}-${GHC_ARCH}-deb12-linux.tar.xz" -o /tmp/ghc.tar.xz \
  && tar -C /opt -xJf /tmp/ghc.tar.xz \
- && ln -sf /opt/ghc-${GHC_VERSION}/bin/* /usr/local/bin/ \
+ && cp -a /opt/ghc-${GHC_VERSION}/bin/* /usr/local/bin/ \
  && rm -f /tmp/ghc.tar.xz \
  && curl -fsSL "https://downloads.haskell.org/~cabal/cabal-install-${CABAL_VERSION}/cabal-install-${CABAL_VERSION}-${CABAL_ARCH}-linux-deb12.tar.xz" -o /tmp/cabal.tar.xz \
  && tar -C /usr/local/bin -xJf /tmp/cabal.tar.xz \

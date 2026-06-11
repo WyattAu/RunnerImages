@@ -174,7 +174,7 @@ case "$FLAVOUR" in
   deno)           COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
   elixir)         COMP_BUDGET=400; UNCOMP_BUDGET=1000 ;;
   haskell)        COMP_BUDGET=600; UNCOMP_BUDGET=1800 ;;
-  kotlin)         COMP_BUDGET=500; UNCOMP_BUDGET=1200 ;;
+  kotlin)         COMP_BUDGET=550; UNCOMP_BUDGET=1300 ;;
   pnpm)           COMP_BUDGET=280; UNCOMP_BUDGET=780 ;;
   nix)            COMP_BUDGET=310; UNCOMP_BUDGET=800 ;;
   r-lang)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;

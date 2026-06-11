@@ -1,6 +1,6 @@
 # Forgejo Actions runner image - r-lang flavour
 # Layer count: 2 (bu-base + r-lang)
-# BU packages from base-universal, R + devtools + renv + testthat + roxygen2 + knitr + rmarkdown
+# BU packages from base-universal, R + renv + testthat + knitr
 
 # ---------------------------------------------------------------------------
 # Layer 0: Base image - BU layer from base-universal
@@ -21,17 +21,10 @@ RUN apt-get update \
       libcurl4-openssl-dev \
       libssl-dev \
       libxml2-dev \
-      libfontconfig1-dev \
-      libharfbuzz-dev \
-      libfribidi-dev \
-      libfreetype6-dev \
-      libpng-dev \
-      libtiff5-dev \
-      libjpeg-dev \
       sudo \
- && Rscript -e "install.packages(c('devtools', 'renv', 'testthat', 'roxygen2', 'knitr', 'rmarkdown'), repos='https://cloud.r-project.org')" \
+ && Rscript -e "install.packages(c('renv', 'testthat', 'knitr', 'jsonlite', 'httr', 'curl', 'rprojroot', 'desc', 'pkgload', 'withr'), repos='https://cloud.r-project.org')" \
  && R --version \
- && Rscript -e "cat(as.character(packageVersion('devtools')))" \
+ && Rscript -e "cat(paste(installed.packages()[,'Package'], collapse=', '))" \
  && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
  && rm -rf /var/lib/apt/lists/* \
  && chmod 4755 /usr/bin/sudo
