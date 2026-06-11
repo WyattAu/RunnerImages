@@ -31,7 +31,11 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
       sudo \
  && curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-${RUBY_VERSION}/ruby-${RUBY_VERSION}-ubuntu-24.04-${RUBY_ARCH}.tar.gz" -o /tmp/ruby.tar.gz \
  && tar -xzf /tmp/ruby.tar.gz -C / \
- && cp -a /${RUBY_ARCH}/bin/* /usr/local/bin/ \
+ && for bin in ruby gem irb bundler rake rdoc ri; do \
+      if [ -f "/${RUBY_ARCH}/bin/${bin}" ]; then \
+        cp "/${RUBY_ARCH}/bin/${bin}" "/usr/local/bin/${bin}"; \
+      fi; \
+    done \
  && rm -f /tmp/ruby.tar.gz \
  && gem install bundler --no-document \
  && ruby --version \
