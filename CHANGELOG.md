@@ -13,5 +13,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- d6a5827 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
+- 379f68a docs: update changelog [skip ci]
 - 0a4285b docs: update changelog [skip ci]
 
