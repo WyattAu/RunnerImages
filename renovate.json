@@ -94,18 +94,39 @@
   ],
   "packageRules": [
     {
-      "description": "Base image digest updates",
+      "description": "Auto-merge minor/patch for GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "groupName": "GitHub Actions (auto-merged)",
+      "semanticCommitType": "ci"
+    },
+    {
+      "description": "Auto-merge base image digest updates",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ubuntu"],
-      "enabled": true,
+      "matchUpdateTypes": ["digest", "patch"],
+      "automerge": true,
       "semanticCommitType": "feat",
       "labels": ["base-image", "automated"]
     },
     {
-      "description": "Group GitHub Actions updates",
+      "description": "Base image major/minor - require review",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ubuntu"],
+      "matchUpdateTypes": ["major", "minor"],
+      "automerge": false,
+      "semanticCommitType": "feat",
+      "labels": ["base-image", "automated"]
+    },
+    {
+      "description": "GitHub Actions major updates - require review",
       "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions",
-      "semanticCommitType": "ci"
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "groupName": "GitHub Actions (major)",
+      "semanticCommitType": "ci",
+      "labels": ["dependencies"]
     },
     {
       "description": "Node.js version updates (from Dockerfile ARG)",
