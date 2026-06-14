@@ -41,6 +41,9 @@ RUN apt-get update \
  && make install \
  && cd / \
  && rm -rf /opt/ghc-${GHC_VERSION}-* \
+ && rm -rf /usr/local/share/doc/ghc-* /usr/local/share/man \
+ && find /usr/local/lib/ghc-* -name '*.p_*' -delete \
+ && find /usr/local/lib/ghc-* -name '*_debug.a' -delete \
  && curl -fsSL "https://downloads.haskell.org/~cabal/cabal-install-${CABAL_VERSION}/cabal-install-${CABAL_VERSION}-${CABAL_ARCH}-linux-deb12.tar.xz" -o /tmp/cabal.tar.xz \
  && tar -C /usr/local/bin -xJf /tmp/cabal.tar.xz \
  && rm -f /tmp/cabal.tar.xz \
