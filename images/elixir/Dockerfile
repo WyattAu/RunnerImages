@@ -22,20 +22,20 @@ RUN apt-get update \
       curl \
       unzip \
       sudo \
+      make \
  && curl -fsSL https://packages.erlang-solutions.com/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-solutions.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/erlang-solutions.gpg] https://packages.erlang-solutions.com/debian $(. /etc/os-release && echo "$VERSION_CODENAME") contrib" > /etc/apt/sources.list.d/erlang-solutions.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
- && (for i in 1 2 3 4 5; do \
-      echo "Attempt $i: downloading elixir from hex.pm..." && \
-      curl -fsSL -o /tmp/elixir.zip "https://builds.hex.pm/builds/elixir/v${ELIXIR_VERSION}-otp-${ERLANG_VERSION}.zip" && break || \
-      echo "Attempt $i: downloading elixir from GitHub..." && \
-      curl -fsSL -o /tmp/elixir.zip "https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-otp-${ERLANG_VERSION}.zip" && break || \
-      echo "Attempt $i failed, waiting 15s..." && sleep 15; \
-    done) \
- && test -s /tmp/elixir.zip \
- && unzip /tmp/elixir.zip -d /usr/local \
+ && curl -fsSL "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
+ && tar -xzf /tmp/elixir-src.tar.gz -C /tmp \
+ && cd /tmp/elixir-${ELIXIR_VERSION} \
+ && make clean \
+ && make compile \
+ && make install PREFIX=/usr/local \
+ && cd / \
+ && rm -rf /tmp/elixir-src.tar.gz /tmp/elixir-${ELIXIR_VERSION} \
  && rm -f /tmp/elixir.zip \
  && mix local.hex --force \
  && mix local.rebar --force \
