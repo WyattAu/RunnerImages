@@ -8,6 +8,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- 316ee1e fix: kotlin verify (java/layers/budget), haskell make install, elixir subshell fallback
 - 600d6a2 fix: kotlin/r-lang verify stderr, haskell budget+strip, elixir hex.pm mirror
 - 17e837b fix: haskell size budget 600->650MB, Rscript verify stderr redirect
 - 6a2bed3 fix(ruby): cd / before rm -rf build dir (getcwd ENOENT)
@@ -24,6 +25,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 76154ec docs: update changelog [skip ci]
 - 1a465b5 docs: update changelog [skip ci]
 - 005acd5 docs: update changelog [skip ci]
 - b422a28 docs: update changelog [skip ci]
