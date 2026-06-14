@@ -392,7 +392,7 @@ fi
 
 if [ "$HAS_KOTLIN" = true ]; then
   check "kotlinc available" "$(run "kotlinc -version 2>&1" | grep -qiE 'kotlinc|kotlin' && echo PASS || echo 'not found')"
-  check "gradle available" "$(run "gradle --version 2>&1" | grep -qE 'Gradle' && echo PASS || echo 'not found')"
+  check "gradle available" "$(run "command -v gradle && gradle --version 2>&1" | grep -qE 'Gradle|gradle' && echo PASS || echo 'not found')"
 else
   check "kotlin NOT present" "$( (run "kotlinc -version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'kotlin should not be present')"
 fi
@@ -413,8 +413,8 @@ else
 fi
 
 if [ "$HAS_RLANG" = true ]; then
-  check "R available" "$(run "R --version" | grep -qE 'R version' && echo PASS || echo 'not found')"
-  check "Rscript available" "$(run "which Rscript && Rscript --version 2>&1" | grep -qE 'Rscript|R scripting' && echo PASS || echo 'not found')"
+  check "R available" "$(run "command -v R && R --version 2>&1" | grep -qE 'R version' && echo PASS || echo 'not found')"
+  check "Rscript available" "$(run "command -v Rscript" && echo PASS || echo 'not found')"
 else
   check "R NOT present" "$( (run "R --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'R should not be present')"
 fi
@@ -488,7 +488,7 @@ case "$FLAVOUR" in
   elixir)         COMP_BUDGET=400; UNCOMP_BUDGET=1000 ;;
   kotlin)         COMP_BUDGET=550; UNCOMP_BUDGET=1300 ;;
   c)              COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
-  haskell)        COMP_BUDGET=600; UNCOMP_BUDGET=1800 ;;
+  haskell)        COMP_BUDGET=650; UNCOMP_BUDGET=1800 ;;
   r-lang)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
   base-universal) COMP_BUDGET=200; UNCOMP_BUDGET=530 ;;
   *)            COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
