@@ -406,8 +406,9 @@ fi
 # No need to check "gcc NOT present" for non-C flavours
 
 if [ "$HAS_HASKELL" = true ]; then
-  check "ghc available" "$(run "ghc --version" | grep -qE 'GHC|ghc' && echo PASS || echo 'not found')"
-  check "cabal available" "$(run "cabal --version" | grep -qE 'cabal' && echo PASS || echo 'not found')"
+  check "ghc available" "$(run 'command -v ghc >/dev/null 2>&1 && echo PASS || echo not found')"
+  check "cabal available" "$(run 'command -v cabal >/dev/null 2>&1 && echo PASS || echo not found')"
+  check "stack available" "$(run 'command -v stack >/dev/null 2>&1 && echo PASS || echo not found')"
 else
   check "ghc NOT present" "$( (run "ghc --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'ghc should not be present')"
 fi
