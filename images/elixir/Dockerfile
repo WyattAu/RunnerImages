@@ -27,8 +27,8 @@ RUN apt-get update \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
- && curl -fsSL --retry 3 --retry-delay 5 -o /tmp/elixir.zip "https://builds.hex.pm/builds/elixir/v${ELIXIR_VERSION}-otp-${ERLANG_VERSION}.zip" \
- || curl -fsSL --retry 3 --retry-delay 5 -o /tmp/elixir.zip "https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-otp-${ERLANG_VERSION}.zip" \
+ && (curl -fsSL --retry 5 --retry-delay 10 -o /tmp/elixir.zip "https://builds.hex.pm/builds/elixir/v${ELIXIR_VERSION}-otp-${ERLANG_VERSION}.zip" \
+    || curl -fsSL --retry 5 --retry-delay 10 -o /tmp/elixir.zip "https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-otp-${ERLANG_VERSION}.zip") \
  && unzip /tmp/elixir.zip -d /usr/local \
  && rm -f /tmp/elixir.zip \
  && mix local.hex --force \

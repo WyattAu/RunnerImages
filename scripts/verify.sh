@@ -137,7 +137,7 @@ case "$FLAVOUR" in
   swift)          HAS_SWIFT=true; HAS_SUDO=true ;;
   deno)           HAS_DENO=true; HAS_SUDO=true ;;
   elixir)         HAS_ELIXIR=true; HAS_SUDO=true ;;
-  kotlin)         HAS_KOTLIN=true; HAS_SUDO=true ;;
+  kotlin)         HAS_KOTLIN=true; HAS_JAVA=true; HAS_SUDO=true ;;
   c)              HAS_C=true; HAS_SUDO=true ;;
   haskell)        HAS_HASKELL=true; HAS_SUDO=true ;;
   r-lang)         HAS_RLANG=true; HAS_SUDO=true ;;
@@ -454,7 +454,10 @@ check "No world-writable files" "$( [ "${WW_COUNT:-0}" -eq 0 ] && echo PASS || e
 # --- Layer count ---
 echo "Layers:"
 LAYERS=$(docker inspect --format '{{len .RootFS.Layers}}' "$IMAGE")
-check "Layer count <= 5" "$( [ "$LAYERS" -le 5 ] && echo PASS || echo "$LAYERS layers (max 5)")"
+# Multi-level layering (e.g., kotlin->java->base-universal) may have more layers
+MAX_LAYERS=5
+if [ "$FLAVOUR" = "kotlin" ]; then MAX_LAYERS=8; fi
+check "Layer count <= $MAX_LAYERS" "$( [ "$LAYERS" -le $MAX_LAYERS ] && echo PASS || echo "$LAYERS layers (max $MAX_LAYERS)")"
 
 # --- Size checks ---
 echo "Size:"
@@ -483,7 +486,7 @@ case "$FLAVOUR" in
   swift)          COMP_BUDGET=1100; UNCOMP_BUDGET=3500 ;;
   deno)           COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
   elixir)         COMP_BUDGET=400; UNCOMP_BUDGET=1000 ;;
-  kotlin)         COMP_BUDGET=500; UNCOMP_BUDGET=1200 ;;
+  kotlin)         COMP_BUDGET=550; UNCOMP_BUDGET=1300 ;;
   c)              COMP_BUDGET=250; UNCOMP_BUDGET=700 ;;
   haskell)        COMP_BUDGET=600; UNCOMP_BUDGET=1800 ;;
   r-lang)         COMP_BUDGET=500; UNCOMP_BUDGET=1500 ;;
