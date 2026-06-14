@@ -8,6 +8,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- 1f68245 fix: shellcheck quote compatibility for verify checks
 - 05e2a3b fix: gradle verify, haskell budget 650, r-lang Rscript, elixir retry loop
 - 316ee1e fix: kotlin verify (java/layers/budget), haskell make install, elixir subshell fallback
 - 600d6a2 fix: kotlin/r-lang verify stderr, haskell budget+strip, elixir hex.pm mirror
@@ -26,6 +27,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- ca1be2a docs: update changelog [skip ci]
 - 3063d40 docs: update changelog [skip ci]
 - 76154ec docs: update changelog [skip ci]
 - 1a465b5 docs: update changelog [skip ci]
