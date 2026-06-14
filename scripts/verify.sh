@@ -391,8 +391,8 @@ else
 fi
 
 if [ "$HAS_KOTLIN" = true ]; then
-  check "kotlinc available" "$(run "kotlinc -version" | grep -q 'kotlin' && echo PASS || echo 'not found')"
-  check "gradle available" "$(run "gradle --version" | grep -qE 'Gradle' && echo PASS || echo 'not found')"
+  check "kotlinc available" "$(run "kotlinc -version 2>&1" | grep -qiE 'kotlinc|kotlin' && echo PASS || echo 'not found')"
+  check "gradle available" "$(run "gradle --version 2>&1" | grep -qE 'Gradle' && echo PASS || echo 'not found')"
 else
   check "kotlin NOT present" "$( (run "kotlinc -version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'kotlin should not be present')"
 fi
@@ -414,7 +414,7 @@ fi
 
 if [ "$HAS_RLANG" = true ]; then
   check "R available" "$(run "R --version" | grep -qE 'R version' && echo PASS || echo 'not found')"
-  check "Rscript available" "$(run "Rscript --version 2>&1" | grep -qE 'R scripting' && echo PASS || echo 'not found')"
+  check "Rscript available" "$(run "which Rscript && Rscript --version 2>&1" | grep -qE 'Rscript|R scripting' && echo PASS || echo 'not found')"
 else
   check "R NOT present" "$( (run "R --version" 2>&1 || true) | grep -qi 'not found\|no such' && echo PASS || echo 'R should not be present')"
 fi

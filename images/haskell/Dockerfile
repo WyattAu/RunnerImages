@@ -37,6 +37,9 @@ RUN apt-get update \
  && tar -C /opt -xJf /tmp/ghc.tar.xz \
  && ln -sf /opt/ghc-${GHC_VERSION}-${GHC_ARCH}-* /opt/ghc-current \
  && rm -f /tmp/ghc.tar.xz \
+ && find /opt/ghc-current -name '*.debug' -delete \
+ && find /opt/ghc-current -name '*.dump-hi' -delete \
+ && rm -rf /opt/ghc-current/share/doc \
  && curl -fsSL "https://downloads.haskell.org/~cabal/cabal-install-${CABAL_VERSION}/cabal-install-${CABAL_VERSION}-${CABAL_ARCH}-linux-deb12.tar.xz" -o /tmp/cabal.tar.xz \
  && tar -C /usr/local/bin -xJf /tmp/cabal.tar.xz \
  && rm -f /tmp/cabal.tar.xz \
