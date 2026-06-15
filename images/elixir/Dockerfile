@@ -28,14 +28,15 @@ RUN apt-get update \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
- && curl -fsSL "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
- && tar -xzf /tmp/elixir-src.tar.gz -C /tmp \
- && cd /tmp/elixir-${ELIXIR_VERSION} \
+ && (curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
+    || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src) \
+ && (tar -xzf /tmp/elixir-src.tar.gz -C /tmp 2>/dev/null || true) \
+ && cd /tmp/elixir-* \
  && make clean \
  && make compile \
  && make install PREFIX=/usr/local \
  && cd / \
- && rm -rf /tmp/elixir-src.tar.gz /tmp/elixir-${ELIXIR_VERSION} \
+ && rm -rf /tmp/elixir-src.tar.gz /tmp/elixir-* \
  && rm -f /tmp/elixir.zip \
  && mix local.hex --force \
  && mix local.rebar --force \
