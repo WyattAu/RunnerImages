@@ -29,11 +29,8 @@ RUN apt-get update \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
- && curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
-    || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src \
- && if [ -f /tmp/elixir-src.tar.gz ]; then \
-      tar -xzf /tmp/elixir-src.tar.gz -C /tmp; \
-    fi \
+ && (curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz && tar -xzf /tmp/elixir-src.tar.gz -C /tmp) \
+ || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src \
  && cd /tmp/elixir-* \
  && make clean \
  && make compile \
