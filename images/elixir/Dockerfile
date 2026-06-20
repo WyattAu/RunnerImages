@@ -23,14 +23,17 @@ RUN apt-get update \
       unzip \
       sudo \
       make \
+      git \
  && curl -fsSL https://packages.erlang-solutions.com/erlang_solutions.asc | gpg --dearmor -o /usr/share/keyrings/erlang-solutions.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/erlang-solutions.gpg] https://packages.erlang-solutions.com/debian $(. /etc/os-release && echo "$VERSION_CODENAME") contrib" > /etc/apt/sources.list.d/erlang-solutions.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
- && (curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
-    || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src) \
- && (tar -xzf /tmp/elixir-src.tar.gz -C /tmp 2>/dev/null || true) \
+ && curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz \
+    || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src \
+ && if [ -f /tmp/elixir-src.tar.gz ]; then \
+      tar -xzf /tmp/elixir-src.tar.gz -C /tmp; \
+    fi \
  && cd /tmp/elixir-* \
  && make clean \
  && make compile \
