@@ -3,6 +3,7 @@
 ## Recent Changes
 
 ### Features
+- 87d21ce feat: add rust-node combined flavour
 - 70abe7d feat: track GHC and Gradle in upstream version checker
 - 66e021f feat: in-toto provenance attestations via cosign attest
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
@@ -32,6 +33,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 1fffc1f docs: update changelog [skip ci]
 - b4b29c8 docs: update changelog [skip ci]
 - 9b7d9ed docs: update changelog [skip ci]
 - 8a32dce docs: update changelog [skip ci]
@@ -51,5 +53,4 @@
 - 776ea1c docs: update changelog [skip ci]
 - d6a5827 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
 - 379f68a docs: update changelog [skip ci]
-- 0a4285b docs: update changelog [skip ci]
 
