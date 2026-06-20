@@ -8,6 +8,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- de28cb2 fix(elixir): add git for clone fallback, fix tar extraction logic
 - 8003340 fix(elixir): git clone fallback when GitHub archive 502s
 - c1c5c4d fix(elixir): compile from source instead of precompiled zip
 - 23f8025 fix: haskell ghc/cabal/stack verify use command -v (stderr issue)
@@ -30,6 +31,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 9b7d9ed docs: update changelog [skip ci]
 - 8a32dce docs: update changelog [skip ci]
 - 454d412 docs: update changelog [skip ci]
 - ca1be2a docs: update changelog [skip ci]
