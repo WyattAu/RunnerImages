@@ -10,6 +10,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- f471579 fix(elixir): merge erlang PATH with runtime PATH (was overridden)
 - 45f9456 fix(elixir): proper subshell for curl||git clone fallback
 - de28cb2 fix(elixir): add git for clone fallback, fix tar extraction logic
 - 8003340 fix(elixir): git clone fallback when GitHub archive 502s
@@ -34,6 +35,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- cb19d77 docs: update changelog [skip ci]
 - 0b4e3f9 docs: update changelog [skip ci]
 - 1fffc1f docs: update changelog [skip ci]
 - b4b29c8 docs: update changelog [skip ci]
@@ -53,5 +55,4 @@
 - 0761519 docs: update README sizes from GHCR, version refs v1->v2
 - 1bb1e04 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
 - 776ea1c docs: update changelog [skip ci]
-- d6a5827 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
 
