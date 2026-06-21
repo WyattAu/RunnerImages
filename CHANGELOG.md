@@ -3,6 +3,7 @@
 ## Recent Changes
 
 ### Features
+- 1e7de3f feat: integrate rust-node into build pipeline, fix elixir erlang PATH
 - 87d21ce feat: add rust-node combined flavour
 - 70abe7d feat: track GHC and Gradle in upstream version checker
 - 66e021f feat: in-toto provenance attestations via cosign attest
@@ -33,6 +34,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 0b4e3f9 docs: update changelog [skip ci]
 - 1fffc1f docs: update changelog [skip ci]
 - b4b29c8 docs: update changelog [skip ci]
 - 9b7d9ed docs: update changelog [skip ci]
@@ -52,5 +54,4 @@
 - 1bb1e04 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
 - 776ea1c docs: update changelog [skip ci]
 - d6a5827 chore: bump all actions to latest major versions, Renovate auto-merge, GHC bindist
-- 379f68a docs: update changelog [skip ci]
 
