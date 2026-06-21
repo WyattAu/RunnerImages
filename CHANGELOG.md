@@ -10,6 +10,7 @@
 - 96a6f7b feat: devcontainers, integration tests, Quay.io mirror support
 
 ### Bug Fixes
+- 2411c42 fix(elixir): use Ubuntu erlang package instead of esl-erlang
 - 2ff5e5b fix(elixir): find erlc dynamically during build (esl-erlang path varies)
 - f815b07 fix(elixir): consolidate ENV PATH before RUN, remove duplicate
 - f471579 fix(elixir): merge erlang PATH with runtime PATH (was overridden)
@@ -37,6 +38,7 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 72ed45c docs: update changelog [skip ci]
 - 58a1e1d docs: update changelog [skip ci]
 - 45f3c5b docs: update changelog [skip ci]
 - cb19d77 docs: update changelog [skip ci]
@@ -56,5 +58,4 @@
 - 0c4b871 revert: remove build concurrency group (caused nightly cancellation)
 - da8ef29 docs: update changelog [skip ci]
 - c12db40 docs: update changelog [skip ci]
-- 0761519 docs: update README sizes from GHCR, version refs v1->v2
 
