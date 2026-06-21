@@ -28,7 +28,7 @@
     {
       "description": "Track NODE_VERSION ARG in Dockerfiles",
       "customType": "regex",
-      "managerFilePatterns": ["/^images\\/(node|pnpm|heavy)\\/Dockerfile$/"],
+      "managerFilePatterns": ["/^images\\/(node|pnpm|heavy|rust-node)\\/Dockerfile$/"],
       "matchStrings": [
         "ARG NODE_VERSION=(?<currentValue>[^\\s]+)"
       ],

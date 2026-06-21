@@ -123,6 +123,7 @@ case "$FLAVOUR" in
   python)         HAS_PYTHON=true; HAS_SUDO=true ;;
   heavy)          HAS_DOCKER=true; HAS_NODE=true; HAS_YARN=true; HAS_PYTHON=true; HAS_SUDO=true; HAS_PKG_CONFIG=true; HAS_PING=true ;;
   rust)           HAS_RUST=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
+  rust-node)      HAS_RUST=true; HAS_NODE=true; HAS_YARN=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
   rust-full)      HAS_RUST=true; HAS_RUST_FULL=true; HAS_SUDO=true; HAS_PKG_CONFIG=true ;;
   go)             HAS_GO=true; HAS_SUDO=true ;;
   java)           HAS_JAVA=true; HAS_SUDO=true ;;
@@ -474,6 +475,7 @@ case "$FLAVOUR" in
   node)         COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
   python)       COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   rust)           COMP_BUDGET=550; UNCOMP_BUDGET=1800 ;;
+  rust-node)      COMP_BUDGET=600; UNCOMP_BUDGET=2000 ;;
   rust-full)      COMP_BUDGET=600; UNCOMP_BUDGET=2000 ;;
   go)             COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   java)           COMP_BUDGET=400; UNCOMP_BUDGET=900 ;;

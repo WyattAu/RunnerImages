@@ -1,6 +1,6 @@
 # RunnerImages
 
-Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**. 24 flavours.
+Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned digests, locked versions, reproducible builds. Supports **linux/amd64** and **linux/arm64**. 25 flavours.
 
 ## Tool Versions
 
@@ -58,6 +58,7 @@ Deterministic, multi-arch Docker images for Forgejo Actions CI runners. Pinned d
 | **elixir** | base + Erlang/OTP + Elixir | pending | Phoenix, Elixir CI |
 | **haskell** | base + GHC + Cabal + Stack (amd64 only) | pending | Haskell CI, pure FP |
 | **kotlin** | java + Kotlin + Gradle | 533MB | Kotlin/JVM, KMP |
+| **rust-node** | base + Rust 1.96 + Node.js 22 + npm/yarn/pnpm | pending | Rust + Node.js monorepos |
 | **r-lang** | base + R + devtools | pending | Data science, statistics |
 
 ## Quick Start

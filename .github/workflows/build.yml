@@ -166,6 +166,8 @@ jobs:
             platform: linux/arm64
           - flavour: swift
             platform: linux/arm64
+          - flavour: haskell
+            platform: linux/arm64
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

@@ -165,6 +165,7 @@ case "$FLAVOUR" in
   node)           COMP_BUDGET=275; UNCOMP_BUDGET=800 ;;
   python)         COMP_BUDGET=225; UNCOMP_BUDGET=630 ;;
   rust)           COMP_BUDGET=550; UNCOMP_BUDGET=1800 ;;
+  rust-node)      COMP_BUDGET=600; UNCOMP_BUDGET=2000 ;;
   rust-full)      COMP_BUDGET=600; UNCOMP_BUDGET=2000 ;;
   go)             COMP_BUDGET=350; UNCOMP_BUDGET=900 ;;
   java)           COMP_BUDGET=400; UNCOMP_BUDGET=900 ;;

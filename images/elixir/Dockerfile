@@ -16,6 +16,8 @@ ARG ELIXIR_VERSION=1.18.4
 ARG ERLANG_VERSION=27
 ARG IMAGE_VERSION=dev
 
+ENV PATH="/usr/lib/erlang/bin:${PATH}"
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       gnupg \
