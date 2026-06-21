@@ -31,6 +31,8 @@ RUN apt-get update \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       esl-erlang \
+ && export PATH="$(dirname $(find / -name erlc -type f 2>/dev/null | head -1)):$PATH" \
+ && erlc --version \
  && (curl -fsSL --retry 5 --retry-delay 10 "https://github.com/elixir-lang/elixir/archive/refs/tags/v${ELIXIR_VERSION}.tar.gz" -o /tmp/elixir-src.tar.gz && tar -xzf /tmp/elixir-src.tar.gz -C /tmp) \
  || git clone --depth 1 --branch "v${ELIXIR_VERSION}" https://github.com/elixir-lang/elixir.git /tmp/elixir-src \
  && cd /tmp/elixir-* \
