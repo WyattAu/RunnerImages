@@ -16,7 +16,7 @@ ARG ELIXIR_VERSION=1.18.4
 ARG ERLANG_VERSION=27
 ARG IMAGE_VERSION=dev
 
-ENV PATH="/usr/lib/erlang/bin:${PATH}"
+ENV PATH="/usr/lib/erlang/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -70,7 +70,6 @@ ENV LANGUAGE=C:en
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SOURCE_DATE_EPOCH=0
-ENV PATH="/usr/lib/erlang/bin:/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # ---------------------------------------------------------------------------
 # Runtime
