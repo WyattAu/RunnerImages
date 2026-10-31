@@ -1,0 +1,13 @@
+# Docs gate: shared workflow from WyattAu/spec-standards (SPEC-CORE SS8/SS9).
+name: docs
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  docs:
+    uses: WyattAu/spec-standards/.github/workflows/docs.yml@main
+    with:
+      tier: k
