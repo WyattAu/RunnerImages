@@ -38,6 +38,8 @@
 - cdc2133 fix: shellcheck quote warning in build cache flag
 
 ### Other Changes
+- 4d8730f docs: adopt shared docs gate, tier k; em-dash sweep
+- 8fd3c73 docs: update changelog [skip ci]
 - 72ed45c docs: update changelog [skip ci]
 - 58a1e1d docs: update changelog [skip ci]
 - 45f3c5b docs: update changelog [skip ci]
@@ -56,6 +58,4 @@
 - b422a28 docs: update changelog [skip ci]
 - b2a056c docs: update changelog [skip ci]
 - 0c4b871 revert: remove build concurrency group (caused nightly cancellation)
-- da8ef29 docs: update changelog [skip ci]
-- c12db40 docs: update changelog [skip ci]
 
